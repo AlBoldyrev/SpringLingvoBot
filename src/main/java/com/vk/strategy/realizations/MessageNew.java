@@ -7,12 +7,20 @@ import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
+import com.vk.entities.User;
 import com.vk.model.message_new.ModelMessageNew;
+import com.vk.repository.UserRepository;
 import com.vk.strategy.Executor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
+@Component
 public class MessageNew implements Executor {
+
+    @Autowired
+    UserRepository userRepository;
 
     private final Random random = new Random();
 
@@ -26,6 +34,11 @@ public class MessageNew implements Executor {
         String messageValue = message.getInfo().getText();
         System.out.println("from_id: " + fromId);
         System.out.println("message: " + messageValue);
+
+        User user = new User();
+        user.setUserVkId(fromId);
+
+        userRepository.save(user);
 
 
         System.out.println("Message saved.");

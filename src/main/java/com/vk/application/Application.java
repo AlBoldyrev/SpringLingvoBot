@@ -5,6 +5,7 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,7 +21,6 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 
 		System.out.println("lolol");
-
 
 		Properties properties = readProperties();
 		GroupActor groupActor = createGroupActor(properties);
