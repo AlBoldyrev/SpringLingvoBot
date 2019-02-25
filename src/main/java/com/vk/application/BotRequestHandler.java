@@ -12,10 +12,14 @@ import com.vk.api.sdk.objects.groups.responses.GetLongPollServerResponse;
 import com.vk.strategy.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
+
+@Component
 public class BotRequestHandler {
     private static final Logger LOG = LoggerFactory.getLogger(BotRequestHandler.class);
     private static final int DEFAULT_WAIT = 10;
@@ -28,7 +32,7 @@ public class BotRequestHandler {
     private final Integer groupId;
     private final Integer waitTime;
 
-
+    @Autowired
     BotRequestHandler(VkApiClient apiClient, GroupActor groupActor) {
         this.apiClient = apiClient;
         this.groupActor = groupActor;
