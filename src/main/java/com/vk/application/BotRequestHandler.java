@@ -20,19 +20,34 @@ import com.vk.repository.MessageRepository;
 import com.vk.repository.PhraseRepository;
 import com.vk.repository.StorageRepository;
 import com.vk.repository.UserRepository;
+import com.vk.strategy.realizations.MessageNew;
+import com.vk.strategy.realizations.MessageReply;
+import com.vk.strategy.realizations.WallPostNew;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 
 
 @Component
 public class BotRequestHandler {
+
+
+    @Autowired
+    MessageNew messageNew;
+
+    @Autowired
+    MessageReply messageReply;
+
+    @Autowired
+    WallPostNew wallPostNew;
 
     @Autowired
     UserRepository userRepository;
@@ -55,156 +70,34 @@ public class BotRequestHandler {
     private final GroupActor groupActor;
     private final Random random = new Random();
     private UserActor userActor;
-    private final Integer groupId;
     private final Integer waitTime;
+
 
     @Autowired
     BotRequestHandler(VkApiClient apiClient, GroupActor groupActor) {
         this.apiClient = apiClient;
         this.groupActor = groupActor;
-        this.groupId = groupActor.getGroupId();
         this.waitTime = DEFAULT_WAIT;
     }
 
-    void handle(int userId) {
-        try {
-            apiClient.messages().send(groupActor).message("Hello my friend!").userId(userId).randomId(random.nextInt()).execute();
-        } catch (ApiException e) {
-            LOG.error("INVALID REQUEST", e);
-        } catch (ClientException e) {
-            LOG.error("NETWORK ERROR", e);
-        }
-    }
     void run() throws Exception {
+
+        Map<String, IResponseHandler> strategyHandlers = new HashMap<>();
+        strategyHandlers.put("message_new", messageNew);
+        strategyHandlers.put("message_reply", messageReply);
+        strategyHandlers.put("wall_post_new", wallPostNew);
 
         GetLongPollServerResponse longPollServer = getLongPollServer();
         int lastTimeStamp = longPollServer.getTs();
+
         while (true) try {
             GetLongPollEventsResponse eventsResponse = apiClient.longPoll().getEvents(longPollServer.getServer(), longPollServer.getKey(), lastTimeStamp).waitTime(waitTime).execute();
             for (JsonObject jsonObject : eventsResponse.getUpdates()) {
                 String type = jsonObject.get("type").getAsString();
                 System.out.println("jsonType: " + type + "  " + jsonObject);
 
-                if (type.equals("message_new")) {
-
-                    int min = 1;
-                    int max = 2;
-                    Random rnd = new Random(System.currentTimeMillis());
-                    int number = min + rnd.nextInt(max - min + 1);
-
-
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-                    ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
-                    int fromId = message.getInfo().getFromId();
-                    String messageValue = message.getInfo().getText();
-                    System.out.println("from_id: " + fromId);
-                    System.out.println("message: " + messageValue);
-                    User user = null;
-                    try {
-                        user = userRepository.findByUserVkId(fromId);
-                    } catch (NullPointerException npe) {
-                        user = new User();
-                        user.setUserVkId(fromId);
-                    }
-
-                    if (user == null) {
-                        user = new User ();
-                        user.setUserVkId(fromId);
-                    }
-                    Storage storage = new Storage();
-                    Phrase phrase = phraseRepository.findByPhraseId(number);
-                    boolean storageForCheck = true;
-                    Integer answeredId = 0;
-                    try {
-                        List<Storage> storages = storageRepository.findByUserVkId(fromId);
-                        List<Boolean> answeredList = new ArrayList<>();
-                        for (Storage storageLocal: storages) {
-                            Boolean answered = storageLocal.getAnswered();
-                            answeredId = storageLocal.getStorageId();
-                            answeredList.add(answered);
-                        }
-                        for (Boolean bool :answeredList) {
-                            if (!bool) {
-                                storageForCheck = false;
-                                break;
-                            }
-                        }
-                    } catch (NullPointerException npe) {
-                    }
-
-
-                    if (storageForCheck) {
-                        apiClient.messages().send(groupActor).message(phrase.getPhraseEnglishValue()).userId(fromId).randomId(random.nextInt()).execute();
-
-                        storage.setAnswered(false);
-                    } else {
-
-
-                        Storage byStorageId = storageRepository.findByStorageId(answeredId);
-                        Integer phraseId = byStorageId.getPhraseId();
-                        Phrase byPhraseId = phraseRepository.findByPhraseId(phraseId);
-                        byStorageId.setAnswered(true);
-                        storageRepository.save(byStorageId);
-
-
-                        apiClient.messages().send(groupActor).message(byPhraseId.getPhraseRussianValue()).userId(fromId).randomId(random.nextInt()).execute();
-                        storage.setAnswered(true);
-                    }
-
-
-
-                    Message messageForStoring = new Message();
-                    messageForStoring.setUserVkId(fromId);
-                    messageForStoring.setMessageValue(messageValue);
-
-                    userRepository.save(user);
-                    messageRepository.save(messageForStoring);
-
-
-
-                    storage.setUserVkId(fromId);
-                    storage.setPhraseId(phrase.getPhraseId());
-                    storageRepository.save(storage);
-
-
-
-                }
-
-                if (type.equals("message_reply")) {
-
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-                    ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
-                    int fromId = message.getInfo().getFromId();
-                    String messageValue = message.getInfo().getText();
-
-//                    apiClient.messages().send(groupActor).message("Hello my friend!").userId(fromId).randomId(random.nextInt()).execute();
-                }
-
-                if (type.equals("wall_post_new")) {
-                    Phrase phrase0 = new Phrase();
-                    phrase0.setPhraseEnglishValue("How can I get to the railway station?");
-                    phrase0.setPhraseRussianValue("Как мне добраться до железнодорожного вокзала?");
-
-                    Phrase phrase1 = new Phrase();
-                    phrase1.setPhraseEnglishValue("One ticket to London, please.");
-                    phrase1.setPhraseRussianValue("Один билет до Лондона, пожалуйста.");
-
-                    Phrase phrase2 = new Phrase();
-                    phrase2.setPhraseEnglishValue("I want to reserve two tickets for the 5:30 pm train.");
-                    phrase2.setPhraseRussianValue("Я хотел бы забронировать два билета на поезд, отходящий в 17.30.");
-
-
-
-
-                    phraseRepository.save(phrase0);
-                    phraseRepository.save(phrase1);
-                    phraseRepository.save(phrase2);
-
-                }
-
-//                    ActionType.valueOf(type).execute(jsonObject, apiClient, groupActor);
+                IResponseHandler responseHandler = strategyHandlers.get(type);
+                responseHandler.handle(jsonObject, apiClient, groupActor);
 
             }
             lastTimeStamp = eventsResponse.getTs();
