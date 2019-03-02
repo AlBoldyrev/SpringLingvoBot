@@ -1,3 +1,4 @@
+/*
 package com.vk.strategy;
 
 import com.google.gson.JsonObject;
@@ -8,15 +9,32 @@ import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.strategy.realizations.MessageNew;
 import com.vk.strategy.realizations.MessageReply;
 import com.vk.strategy.realizations.WallPostNew;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public enum Action {
+import javax.annotation.PostConstruct;
+import java.util.EnumSet;
+
+public enum ActionType {
+
     wall_post_new(new WallPostNew()),
     message_new(new MessageNew()),
     message_reply(new MessageReply());
 
+
+    public class Action {
+        @Autowired
+        private MessageNew messageNew;
+
+        @PostConstruct
+        public void postConstruct() {
+            for (ActionType actionType : EnumSet.allOf(ActionType.class))
+                System.out.println("actionType" + actionType);
+        }
+    }
+
     Executor executor;
 
-    Action(Executor e){
+    ActionType(Executor e){
         this.executor = e;
     }
 
@@ -25,3 +43,4 @@ public enum Action {
     }
 
 }
+*/

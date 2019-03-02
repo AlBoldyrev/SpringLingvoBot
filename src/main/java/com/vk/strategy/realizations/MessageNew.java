@@ -1,3 +1,4 @@
+/*
 package com.vk.strategy.realizations;
 
 import com.google.gson.Gson;
@@ -19,8 +20,10 @@ import java.util.Random;
 @Component
 public class MessageNew implements Executor {
 
-    @Autowired
-    UserRepository userRepository;
+   */
+/* @Autowired
+    UserRepository userRepository;*//*
+
 
     private final Random random = new Random();
 
@@ -35,10 +38,12 @@ public class MessageNew implements Executor {
         System.out.println("from_id: " + fromId);
         System.out.println("message: " + messageValue);
 
-        User user = new User();
+     */
+/*   User user = new User();
         user.setUserVkId(fromId);
 
-        userRepository.save(user);
+        userRepository.save(user);*//*
+
 
 
         System.out.println("Message saved.");
@@ -48,3 +53,4 @@ public class MessageNew implements Executor {
 
     }
 }
+*/

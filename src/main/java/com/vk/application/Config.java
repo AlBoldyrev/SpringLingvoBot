@@ -18,25 +18,21 @@ public class Config {
 
     @Bean
     public HttpTransportClient httpClient() {
-        System.out.println("------------------bean httpClient is initializated!");
         return HttpTransportClient.getInstance();
     }
 
     @Bean
     public VkApiClient vkApiClient(HttpTransportClient httpClient) {
-        System.out.println("------------------bean vkApiClient is initializated!");
         return new VkApiClient(httpClient);
     }
 
     @Bean
     public GroupActor groupActor(Properties properties) {
-        System.out.println("------------------bean groupActor is initializated!");
         return createGroupActor(properties);
     }
 
     @Bean
     public Properties properties() throws IOException {
-        System.out.println("------------------bean properties is initializated!");
         return readProperties();
     }
 

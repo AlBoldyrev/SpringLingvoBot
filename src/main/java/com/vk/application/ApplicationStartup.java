@@ -20,7 +20,7 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 
     @Autowired
     VkApiClient vk;
-    
+
     /**
      * This event is executed as late as conceivably possible to indicate that
      * the application is ready to service requests.
@@ -28,7 +28,6 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
 
-        System.out.println("lolol");
         try {
             if (!vk.groups().getLongPollSettings(groupActor).execute().isEnabled()) {
                 vk.groups().setLongPollSettings(groupActor).enabled(true).wallPostNew(true).execute();
