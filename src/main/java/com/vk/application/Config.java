@@ -3,9 +3,6 @@ package com.vk.application;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
-import com.vk.strategy.realizations.MessageNew;
-import com.vk.strategy.realizations.MessageReply;
-import com.vk.strategy.realizations.WallPostNew;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -44,15 +41,6 @@ public class Config {
         return new MessageNew();
     }
 
-    @Bean
-    MessageReply messageReply() {
-        return new MessageReply();
-    }
-
-    @Bean
-    WallPostNew wallPostNew() {
-        return new WallPostNew();
-    }
 
 
 
