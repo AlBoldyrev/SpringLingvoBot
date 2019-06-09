@@ -1,23 +1,20 @@
-package com.vk.application;
+package com.vk.lingvobot.application;
 
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.callback.longpoll.responses.GetLongPollEventsResponse;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
-import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.exceptions.LongPollServerKeyExpiredException;
 import com.vk.api.sdk.objects.responses.GetLongPollServerResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -26,22 +23,18 @@ class BotRequestHandler {
     @Autowired
     private MessageNew messageNew;
 
-
-    private static final Logger log = LoggerFactory.getLogger(BotRequestHandler.class);
     private static final int DEFAULT_WAIT = 10;
 
     private final VkApiClient apiClient;
 
     private final GroupActor groupActor;
-    private final Random random = new Random();
-    private UserActor userActor;
     private final Integer waitTime;
 
 
     @Autowired
-    BotRequestHandler(VkApiClient apiClient, GroupActor groupActor) {
-        this.apiClient = apiClient;
-        this.groupActor = groupActor;
+    BotRequestHandler(VkApiClient client, GroupActor actor) {
+        this.apiClient = client;
+        this.groupActor = actor;
         this.waitTime = DEFAULT_WAIT;
     }
 
@@ -59,7 +52,7 @@ class BotRequestHandler {
         } catch (ClientException e) {
             log.error("CLIENT Exception !!! " + e.getStackTrace());
         }
-        int lastTimeStamp = longPollServer.getTs();
+        int lastTimeStamp = Objects.requireNonNull(longPollServer).getTs();
 
 
         while (true) try {

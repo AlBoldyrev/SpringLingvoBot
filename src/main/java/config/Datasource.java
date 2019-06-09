@@ -1,5 +1,6 @@
 package config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:application.properties")
+@Slf4j
 public class Datasource {
 
     @Value("${db.driverClassName}")
@@ -23,7 +25,7 @@ public class Datasource {
     private String password;
 
     @Bean
-    public DataSource dataSource(){
+    private DataSource dataSource(){
         System.out.println(driverClass+" "+ url+" "+username+" "+password);
         DriverManagerDataSource source = new DriverManagerDataSource();
         source.setDriverClassName(driverClass);
@@ -35,7 +37,6 @@ public class Datasource {
 
     @Bean
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(){
-        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource());
-        return namedParameterJdbcTemplate;
+        return new NamedParameterJdbcTemplate(this.dataSource());
     }
 }

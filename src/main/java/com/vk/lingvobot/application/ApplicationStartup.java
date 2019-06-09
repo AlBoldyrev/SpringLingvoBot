@@ -1,12 +1,10 @@
-package com.vk.application;
+package com.vk.lingvobot.application;
 
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -24,8 +22,6 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 
     @Autowired
     private VkApiClient vk;
-
-    private Logger log = LoggerFactory.getLogger(ApplicationStartup.class);
 
     /**
      * This event is executed as late as conceivably possible to indicate that

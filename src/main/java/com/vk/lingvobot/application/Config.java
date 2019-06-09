@@ -1,8 +1,9 @@
-package com.vk.application;
+package com.vk.lingvobot.application;
 
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Configuration
+@Slf4j
 public class Config {
 
     private static final String PROPERTIES_FILE = "application.properties";
@@ -35,15 +37,7 @@ public class Config {
     public Properties properties() throws IOException {
         return readProperties();
     }
-
-    @Bean
-    MessageNew messageNew() {
-        return new MessageNew();
-    }
-
-
-
-
+    
     private static GroupActor createGroupActor(Properties properties) {
         String groupId = properties.getProperty("groupId");
         String accessToken = properties.getProperty("token");
