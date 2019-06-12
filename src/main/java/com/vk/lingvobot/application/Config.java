@@ -37,7 +37,7 @@ public class Config {
     public Properties properties() throws IOException {
         return readProperties();
     }
-    
+
     private static GroupActor createGroupActor(Properties properties) {
         String groupId = properties.getProperty("groupId");
         String accessToken = properties.getProperty("token");

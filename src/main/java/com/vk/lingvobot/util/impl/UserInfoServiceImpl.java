@@ -6,8 +6,10 @@ import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.users.Fields;
+import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.parser.Parser;
 import com.vk.lingvobot.parser.Response;
+import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.util.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     private VkApiClient apiClient;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public String getUserDomain(GroupActor groupActor, int userId) {
 
@@ -37,6 +42,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         List<Response> response = parser.getResponses();
 
         return response.get(0).getDomain();
+    }
 
+    public boolean checkIfUserWroteTheMessageBefore(int userId) {
+
+        User user = userRepository.findById(userId);
+        return user != null;
     }
 }
