@@ -5,7 +5,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.lingvobot.entities.Dialog;
+import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
+import com.vk.lingvobot.repositories.DialogRepository;
+import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.util.UserInfoService;
 import com.vk.lingvobot.util.impl.UserInfoServiceImpl;
@@ -18,10 +23,16 @@ import org.springframework.stereotype.Component;
 public class MessageNew implements IResponseHandler {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    UserInfoServiceImpl userInfoService;
+    private UserInfoServiceImpl userInfoService;
+
+    @Autowired
+    private UserDialogRepository userDialogRepository;
+
+    @Autowired
+    private DialogRepository dialogRepository;
 
     private Gson gson = new GsonBuilder().create();
 
@@ -29,14 +40,41 @@ public class MessageNew implements IResponseHandler {
     public void handle(JsonObject jsonObject, GroupActor groupActor) {
 
         ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
-        int userId = message.getObject().getUserId();
+        int userVkId = message.getObject().getUserId();
+        int currentDialogOfUser = findCurrentDialogOfUser(userVkId);
 
-        if (userInfoService.checkIfUserWroteTheMessageBefore(userId)) {
-            System.out.println("yes");
+        log.info("Current dialog of user " + userVkId + " is: " + currentDialogOfUser);
+
+
+        if (userInfoService.checkIfUserWroteTheMessageBefore(userVkId)) {
+//            specificAction();
         } else {
-            System.out.println("no");
+
+
+//            specificAction2();
         }
 
         System.out.println("break");
+    }
+
+    /**
+     * Creating new user and new UserDialog via {@param userVkId} with dialog_id = 1 in database. "Greeting dialog"
+     */
+    public void initUserInLingvoBot(int userVkId) {
+
+        User user = new User(userVkId);
+        userRepository.save(user);
+
+        Dialog startingDialog = dialogRepository.findStartingDialog();
+        UserDialog userDialog = new UserDialog(user, startingDialog, false, 1, false);
+        userDialogRepository.save(userDialog);
+
+    }
+
+
+    private int findCurrentDialogOfUser(int userVkId) {
+
+        UserDialog currentDialogOfUser = userDialogRepository.findCurrentDialogOfUser(userVkId);
+        return currentDialogOfUser.getDialog().getDialogId();
     }
 }

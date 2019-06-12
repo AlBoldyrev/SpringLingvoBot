@@ -44,9 +44,9 @@ public class UserInfoServiceImpl implements UserInfoService {
         return response.get(0).getDomain();
     }
 
-    public boolean checkIfUserWroteTheMessageBefore(int userId) {
+    public boolean checkIfUserWroteTheMessageBefore(int userVkId) {
 
-        User user = userRepository.findById(userId);
+        User user = userRepository.findByVkId(userVkId);
         return user != null;
     }
 }

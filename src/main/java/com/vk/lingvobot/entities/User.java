@@ -11,6 +11,10 @@ import javax.persistence.*;
 @Slf4j
 public class User {
 
+    public User() {}
+    public User(Integer userVkId) {
+        this.userVkId = userVkId;
+    }
     @Id
     @GeneratedValue
     @Column(name = "user_id")

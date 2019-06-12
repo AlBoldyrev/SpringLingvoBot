@@ -11,6 +11,16 @@ import javax.persistence.*;
 @Slf4j
 public class UserDialog {
 
+    public UserDialog(){}
+
+    public UserDialog(User user, Dialog dialog, boolean isCancelled, Integer state, boolean isFinished) {
+        this.user = user;
+        this.dialog = dialog;
+        this.isCancelled = isCancelled;
+        this.state = state;
+        this.isFinished = isFinished;
+    }
+
     @Id
     @GeneratedValue
     @Column(name = "user_dialog_id")
