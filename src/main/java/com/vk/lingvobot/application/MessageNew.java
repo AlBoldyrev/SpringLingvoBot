@@ -75,6 +75,6 @@ public class MessageNew implements IResponseHandler {
     private int findCurrentDialogOfUser(int userVkId) {
 
         UserDialog currentDialogOfUser = userDialogRepository.findCurrentDialogOfUser(userVkId);
-        return currentDialogOfUser.getDialog().getDialogId();
+        return currentDialogOfUser.getDialog().getDialogPK().getDialogId();
     }
 }

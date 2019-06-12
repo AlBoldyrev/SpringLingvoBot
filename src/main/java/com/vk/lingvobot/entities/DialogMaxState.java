@@ -12,12 +12,15 @@ import javax.persistence.*;
 public class DialogMaxState {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dialog_max_state_id")
     private Integer dialogMaxStateId;
 
-    @ManyToOne
-    @JoinColumn(name = "dialogs")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name="dialog_id", insertable = false, updatable = false),
+            @JoinColumn(name="state", insertable = false, updatable = false)
+    })
     private Dialog dialog;
 
     @Column(name = "max_state_value")

@@ -7,12 +7,12 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "dialog_phrase")
+@Table(name = "dialog_phrases")
 @Slf4j
 public class DialogPhrase {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dialog_phrase_id")
     private Integer dialogPhraseId;
 

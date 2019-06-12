@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class PhrasePair {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "phrase_pair_id")
     private Integer phrasePairId;
 

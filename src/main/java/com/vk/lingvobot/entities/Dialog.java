@@ -4,23 +4,25 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
 
 @Data
 @Entity
 @Table(name = "dialogs")
 @Slf4j
-public class Dialog {
+public class Dialog implements Serializable {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "dialog_id")
-    private Integer dialogId;
+    @EmbeddedId
+    private DialogPK dialogPK;
 
-    @Column(name = "state")
+    @Column(name = "state", insertable=false, updatable=false)
     private Integer state;
 
     @ManyToOne
-    @JoinColumn(name = "dialog_phrases")
+    @JoinColumn(name = "dialog_phrase_id")
     private DialogPhrase dialogPhrase;
 
 }
+
+

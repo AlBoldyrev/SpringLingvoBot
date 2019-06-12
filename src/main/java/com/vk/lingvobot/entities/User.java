@@ -16,7 +16,7 @@ public class User {
         this.userVkId = userVkId;
     }
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Integer userId;
 

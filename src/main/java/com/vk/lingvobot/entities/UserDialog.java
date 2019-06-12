@@ -22,16 +22,19 @@ public class UserDialog {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_dialog_id")
     private Integer userDialogId;
 
     @ManyToOne
-    @JoinColumn(name = "users")
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "dialogs")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name="dialog_id", insertable = false, updatable = false),
+            @JoinColumn(name="state", insertable = false, updatable = false)
+    })
     private Dialog dialog;
 
     @Column(name = "is_cancelled")
