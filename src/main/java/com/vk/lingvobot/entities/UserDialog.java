@@ -13,11 +13,10 @@ public class UserDialog {
 
     public UserDialog(){}
 
-    public UserDialog(User user, Dialog dialog, boolean isCancelled, Integer state, boolean isFinished) {
+    public UserDialog(User user, Dialog dialog, boolean isCancelled, boolean isFinished) {
         this.user = user;
         this.dialog = dialog;
         this.isCancelled = isCancelled;
-        this.state = state;
         this.isFinished = isFinished;
     }
 
@@ -32,16 +31,13 @@ public class UserDialog {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name="dialog_id", insertable = false, updatable = false),
-            @JoinColumn(name="state", insertable = false, updatable = false)
+            @JoinColumn(name="dialog_id", referencedColumnName = "dialog_id"),
+            @JoinColumn(name="state", referencedColumnName = "state")
     })
     private Dialog dialog;
 
     @Column(name = "is_cancelled")
     private boolean isCancelled;
-
-    @Column(name = "state")
-    private Integer state;
 
     @Column(name = "is_finished")
     private boolean isFinished;

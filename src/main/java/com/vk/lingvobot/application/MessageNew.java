@@ -12,7 +12,7 @@ import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.repositories.UserRepository;
-import com.vk.lingvobot.util.UserInfoService;
+import com.vk.lingvobot.util.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.util.impl.UserInfoServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +34,9 @@ public class MessageNew implements IResponseHandler {
     @Autowired
     private DialogRepository dialogRepository;
 
+    @Autowired
+    private UserDialogServiceImpl userDialogServiceImpl;
+
     private Gson gson = new GsonBuilder().create();
 
     @Override
@@ -47,14 +50,11 @@ public class MessageNew implements IResponseHandler {
 
 
         if (userInfoService.checkIfUserWroteTheMessageBefore(userVkId)) {
-//            specificAction();
+            log.info("We know this user with id: " + userVkId);
         } else {
-
-
-//            specificAction2();
+            log.info("This user with id : " + userVkId + " has never written us before!");
+            initUserInLingvoBot(userVkId);
         }
-
-        System.out.println("break");
     }
 
     /**
@@ -66,7 +66,7 @@ public class MessageNew implements IResponseHandler {
         userRepository.save(user);
 
         Dialog startingDialog = dialogRepository.findStartingDialog();
-        UserDialog userDialog = new UserDialog(user, startingDialog, false, 1, false);
+        UserDialog userDialog = new UserDialog(user, startingDialog, false, false);
         userDialogRepository.save(userDialog);
 
     }
@@ -74,7 +74,11 @@ public class MessageNew implements IResponseHandler {
 
     private int findCurrentDialogOfUser(int userVkId) {
 
-        UserDialog currentDialogOfUser = userDialogRepository.findCurrentDialogOfUser(userVkId);
+        UserDialog currentDialogOfUser = userDialogServiceImpl.findCurrentDialogOfUser(userVkId);
+        if (currentDialogOfUser == null) {
+            log.error("There is no active dialog for this user!!!");
+            return 0; //TODO magicNumber!
+        }
         return currentDialogOfUser.getDialog().getDialogPK().getDialogId();
     }
 }

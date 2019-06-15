@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,7 +14,10 @@ import java.util.Objects;
 @Slf4j
 public class DialogPK implements Serializable {
 
+    @Column(name = "dialog_id")
     private Integer dialogId;
+
+    @Column(name = "state")
     private Integer state;
 
     public DialogPK(){}
