@@ -1,8 +1,8 @@
-package com.vk.lingvobot.util.impl;
+package com.vk.lingvobot.services.impl;
 
 import com.vk.lingvobot.entities.PhrasePair;
 import com.vk.lingvobot.repositories.PhrasePairRepository;
-import com.vk.lingvobot.util.PhrasePairService;
+import com.vk.lingvobot.services.PhrasePairService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

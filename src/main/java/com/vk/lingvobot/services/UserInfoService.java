@@ -1,8 +1,7 @@
-package com.vk.lingvobot.util;
+package com.vk.lingvobot.services;
 
 import com.vk.api.sdk.client.actors.GroupActor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public interface UserInfoService {

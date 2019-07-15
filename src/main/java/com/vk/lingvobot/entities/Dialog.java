@@ -13,10 +13,16 @@ import java.util.Objects;
 @Slf4j
 public class Dialog implements Serializable {
 
-    @EmbeddedId
-    private DialogPK dialogPK;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
+    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
+    @Column(name = "id")
+    private Integer id;
 
-    @Column(name = "state", insertable=false, updatable=false)
+    @Column(name = "dialog_id")
+    private Integer dialogId;
+
+    @Column(name = "state")
     private Integer state;
 
     @ManyToOne

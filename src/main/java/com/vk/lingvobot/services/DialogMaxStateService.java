@@ -1,4 +1,4 @@
-package com.vk.lingvobot.util;
+package com.vk.lingvobot.services;
 
 import com.vk.lingvobot.entities.DialogMaxState;
 

@@ -16,7 +16,8 @@ public class User {
         this.userVkId = userVkId;
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
+    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
     @Column(name = "user_id")
     private Integer userId;
 

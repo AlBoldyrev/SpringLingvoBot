@@ -1,8 +1,8 @@
-package com.vk.lingvobot.util.impl;
+package com.vk.lingvobot.services.impl;
 
 import com.vk.lingvobot.entities.DialogPhrase;
 import com.vk.lingvobot.repositories.DialogPhraseRepository;
-import com.vk.lingvobot.util.DialogPhraseService;
+import com.vk.lingvobot.services.DialogPhraseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

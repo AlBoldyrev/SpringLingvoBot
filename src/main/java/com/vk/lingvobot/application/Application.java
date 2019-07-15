@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EnableJpaRepositories("com.vk.lingvobot.repositories")
 @EntityScan("com.vk.lingvobot.entities")
-@ComponentScan({"com.vk.lingvobot.application", "com.vk.lingvobot.util", "com.vk.lingvobot.parser", })
+@ComponentScan({"com.vk.lingvobot.application", "com.vk.lingvobot.services", "com.vk.lingvobot.parser", "com.vk.lingvobot.keyboards" })
 @Slf4j
 public class Application {
 

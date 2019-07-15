@@ -12,7 +12,8 @@ import javax.persistence.*;
 public class PhrasePair {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
+    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
     @Column(name = "phrase_pair_id")
     private Integer phrasePairId;
 

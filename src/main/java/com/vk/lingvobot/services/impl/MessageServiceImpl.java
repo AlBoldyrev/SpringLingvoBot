@@ -1,10 +1,10 @@
-package com.vk.lingvobot.util.impl;
+package com.vk.lingvobot.services.impl;
 
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
-import com.vk.lingvobot.util.MessageService;
+import com.vk.lingvobot.services.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -75,7 +75,19 @@ public class MessageServiceImpl implements MessageService {
         } catch (ClientException e) {
             log.error("Something wrong with CLIENT: " + e.getStackTrace());
         }
+    }
 
+    public void sendMessageWithTextAndKeyboard (int userId, String message, String keyboard) {
+
+        String userDomain = userInfo.getUserDomain(groupActor, userId);
+        try {
+            apiClient.messages().send(groupActor).peerId(userId).userIds(userId).randomId(random.nextInt())
+                    .domain(userDomain).message(" ").message(message).unsafeParam("keyboard", keyboard).execute();
+        } catch (ApiException e) {
+            log.error("Something wrong with API: " + e.getStackTrace());
+        } catch (ClientException e) {
+            log.error("Something wrong with CLIENT: " + e.getStackTrace());
+        }
     }
 
 }

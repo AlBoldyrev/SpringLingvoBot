@@ -1,4 +1,4 @@
-package com.vk.lingvobot.util;
+package com.vk.lingvobot.services;
 
 import org.springframework.stereotype.Service;
 
@@ -9,5 +9,6 @@ public interface MessageService {
     void sendMessageWithTextAndAttachements(int userId, String message, String attachments);
     void sendMessageWithAttachmentsAndKeyboard(int userId, String attachments, String keyboard);
     void sendMessageWithAttachmentsOnly(int userId, String attachments);
+    void sendMessageWithTextAndKeyboard(int userId, String message, String keyboard);
 
 }

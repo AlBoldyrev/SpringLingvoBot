@@ -1,8 +1,8 @@
-package com.vk.lingvobot.util.impl;
+package com.vk.lingvobot.services.impl;
 
 import com.vk.lingvobot.entities.Dialog;
 import com.vk.lingvobot.repositories.DialogRepository;
-import com.vk.lingvobot.util.DialogService;
+import com.vk.lingvobot.services.DialogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class DialogServiceImpl implements DialogService {
 
     @Override
     public Dialog findDialogViaPrimaryKey(int dialogId, int stateId) {
-        Dialog dialog = dialogRepository.findDialogViaPrimaryKey(dialogId, stateId);
+        Dialog dialog = dialogRepository.findDialogByDialogId(dialogId, stateId);
         if (dialog == null) {
             log.warn("There is no dialog with dialogId: " + dialogId + " and stateId: " + stateId);
             return null;

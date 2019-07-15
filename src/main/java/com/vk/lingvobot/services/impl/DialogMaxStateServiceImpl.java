@@ -1,8 +1,8 @@
-package com.vk.lingvobot.util.impl;
+package com.vk.lingvobot.services.impl;
 
 import com.vk.lingvobot.entities.DialogMaxState;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
-import com.vk.lingvobot.util.DialogMaxStateService;
+import com.vk.lingvobot.services.DialogMaxStateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

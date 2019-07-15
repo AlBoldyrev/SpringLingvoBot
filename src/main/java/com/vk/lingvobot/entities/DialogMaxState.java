@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Data
 @Entity
@@ -12,16 +13,14 @@ import javax.persistence.*;
 public class DialogMaxState {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
+    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
     @Column(name = "dialog_max_state_id")
     private Integer dialogMaxStateId;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name="dialog_id", insertable = false, updatable = false),
-            @JoinColumn(name="state", insertable = false, updatable = false)
-    })
-    private Dialog dialog;
+    @OneToMany(mappedBy  = "dialog_id")
+    @JoinColumn(name="dialog_id")
+    private Set<Dialog> dialogs;
 
     @Column(name = "max_state_value")
     private Integer maxStateValue;
