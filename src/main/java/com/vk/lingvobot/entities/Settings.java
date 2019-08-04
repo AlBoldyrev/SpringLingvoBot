@@ -7,12 +7,15 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "Dialogs")
+@Table(name = "Settings")
 @Slf4j
-public class Dialog {
+public class Settings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "dialog_id")
-    private Integer dialogId;
+    @Column(name = "setting_id")
+    Integer settingId;
+
+    @Column(name = "is_premium")
+    Boolean isPremium;
 }

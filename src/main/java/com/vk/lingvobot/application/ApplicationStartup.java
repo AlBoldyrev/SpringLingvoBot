@@ -2,6 +2,7 @@ package com.vk.lingvobot.application;
 
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,9 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 
     @Autowired
     private GroupActor groupActor;
+
+    @Autowired
+    private UserActor userActor;
 
     @Autowired
     private VkApiClient vk;

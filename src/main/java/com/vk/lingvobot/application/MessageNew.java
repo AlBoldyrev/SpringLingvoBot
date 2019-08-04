@@ -9,7 +9,6 @@ import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.Dialog1;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
-import com.vk.lingvobot.services.impl.MessageServiceImpl;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MessageNew implements IResponseHandler {
 
-    @Autowired
+   /* @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -47,12 +46,12 @@ public class MessageNew implements IResponseHandler {
     @Autowired
     private DialogMaxStateRepository dialogMaxStateRepository;
 
-    private Gson gson = new GsonBuilder().create();
+    private Gson gson = new GsonBuilder().create();*/
 
     @Override
     public void handle(JsonObject jsonObject, GroupActor groupActor) {
 
-        ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
+        /*ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
 
         int userVkId = message.getObject().getUserId();
         int currentDialogIdOfUser = findCurrentDialogOfUser(userVkId);
@@ -91,13 +90,13 @@ public class MessageNew implements IResponseHandler {
         } else {
             log.info("This user with id : " + userVkId + " has never written us before!");
             initUserInLingvoBot(userVkId);
-        }
+        }*/
     }
 
     /**
      * Creating new user and new UserDialog via {@param userVkId} with dialog_id = 1 in database. "Greeting dialog"
      */
-    private void initUserInLingvoBot(int userVkId) {
+ /*   private void initUserInLingvoBot(int userVkId) {
 
         User user = new User(userVkId);
         userRepository.save(user);
@@ -127,5 +126,5 @@ public class MessageNew implements IResponseHandler {
             return 1; //TODO magicNumber!
         }
         return currentDialogOfUser.getDialog().getState();
-    }
+    }*/
 }

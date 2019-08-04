@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "messages")
+@Table(name = "Messages")
 @Slf4j
 public class Message {
 

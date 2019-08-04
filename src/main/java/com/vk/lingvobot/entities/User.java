@@ -16,15 +16,18 @@ public class User {
         this.userVkId = userVkId;
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
-    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "user_vkid")
+    @Column(name = "user_vk_id")
     private Integer userVkId;
 
     @Column(name = "user_name")
     private String userName;
+
+    @ManyToOne
+    @JoinColumn(name = "setting_id")
+    private Settings settings;
 
 }

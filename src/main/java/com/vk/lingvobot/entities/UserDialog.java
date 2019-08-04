@@ -21,8 +21,7 @@ public class UserDialog {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
-    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_dialog_id")
     private Integer userDialogId;
 
@@ -30,10 +29,11 @@ public class UserDialog {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="dialog_id")
     private Dialog dialog;
 
+    @Column(name = "state")
     private Integer state;
 
     @Column(name = "is_cancelled")

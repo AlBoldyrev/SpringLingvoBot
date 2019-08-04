@@ -7,13 +7,12 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "phrase_pairs")
+@Table(name = "PhrasePairs")
 @Slf4j
 public class PhrasePair {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_generator")
-    @SequenceGenerator(name="lingvobot_generator", sequenceName = "lingvobot_sequence")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "phrase_pair_id")
     private Integer phrasePairId;
 
