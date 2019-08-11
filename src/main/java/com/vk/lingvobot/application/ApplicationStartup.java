@@ -22,9 +22,6 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
     private GroupActor groupActor;
 
     @Autowired
-    private UserActor userActor;
-
-    @Autowired
     private VkApiClient vk;
 
     /**

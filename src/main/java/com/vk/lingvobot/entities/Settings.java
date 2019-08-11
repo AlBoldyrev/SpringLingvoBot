@@ -7,15 +7,23 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "Settings")
-@Slf4j
+@Table(name = "settings")
 public class Settings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "setting_id")
-    Integer settingId;
+    private Integer settingId;
+
+    @OneToOne(mappedBy = "settings")
+    private User user;
 
     @Column(name = "is_premium")
-    Boolean isPremium;
+    private Boolean isPremium;
+
+    @Column(name = "difficulty_level")
+    private Integer difficultyLevel;
+
+    @Column(name = "lessons_per_day")
+    private Integer lessonsPerDay;
 }

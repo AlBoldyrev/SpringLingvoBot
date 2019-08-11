@@ -8,7 +8,6 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "users")
-@Slf4j
 public class User {
 
     public User() {}
@@ -26,7 +25,7 @@ public class User {
     @Column(name = "user_name")
     private String userName;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "setting_id")
     private Settings settings;
 

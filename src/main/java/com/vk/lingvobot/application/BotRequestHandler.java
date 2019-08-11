@@ -7,6 +7,7 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.exceptions.LongPollServerKeyExpiredException;
+import com.vk.api.sdk.objects.groups.LongPollServer;
 import com.vk.api.sdk.objects.responses.GetLongPollServerResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,9 @@ class BotRequestHandler {
         strategyHandlers.put("message_new", messageNew);
 
 
-        GetLongPollServerResponse longPollServer = null;
+        LongPollServer longPollServer = null;
         try {
-            longPollServer = apiClient.groupsLongPoll().getLongPollServer(groupActor).execute();
+            longPollServer = apiClient.groupsLongPoll().getLongPollServer(groupActor, groupActor.getGroupId()).execute();
         } catch (ApiException e) {
             log.error("API Exception !!! " + e.getStackTrace());
         } catch (ClientException e) {
@@ -74,7 +75,7 @@ class BotRequestHandler {
             lastTimeStamp = eventsResponse.getTs();
         } catch (LongPollServerKeyExpiredException | RuntimeException e) {
             try {
-                longPollServer = apiClient.groupsLongPoll().getLongPollServer(groupActor).execute();
+                longPollServer = apiClient.groupsLongPoll().getLongPollServer(groupActor, groupActor.getGroupId()).execute();
             } catch (ApiException ex) {
                 log.error("API client when trying to connect to LONG POLL server! " + ex.getStackTrace());
             } catch (ClientException ex) {

@@ -17,7 +17,7 @@ public class DialogMaxStates {
     @Column(name = "dialog_max_state_id")
     private Integer dialogMaxStateId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "dialog_id")
     private Dialog dialog;
 

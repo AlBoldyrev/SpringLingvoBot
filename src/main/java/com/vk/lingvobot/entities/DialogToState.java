@@ -17,7 +17,7 @@ public class DialogToState {
     @Column(name = "dialog_state_id")
     private Integer dialogStateId;
 
-    @ManyToOne
+    @OneToMany
     @JoinColumn(name = "dialog_id")
     private List<Dialog> dialogs;
 

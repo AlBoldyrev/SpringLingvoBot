@@ -1,4 +1,4 @@
-INSERT INTO lingvobot.dialog_phrases(dialog_phrase_id, dialog_phrase_value)
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
 VALUES (nextval('lingvobot_sequence'), 'Привет! Совсем скоро я всё расскажу, для начала позволю себе спросить, общаемся на ты или на вы?'),
 	   (nextval('lingvobot_sequence'), 'Отлично!'),
 	   (nextval('lingvobot_sequence'), 'Итак, почему мы учим английский в школе десять лет, но выходим без знаний?'),

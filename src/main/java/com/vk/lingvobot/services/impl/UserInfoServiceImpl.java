@@ -7,17 +7,20 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.users.Fields;
 import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.parser.Parser;
 import com.vk.lingvobot.parser.Response;
+import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.services.UserInfoService;
+import com.vk.lingvobot.util.Dialogs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
+@Service
 @Slf4j
 public class UserInfoServiceImpl implements UserInfoService {
 
@@ -26,6 +29,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserDialogRepository userDialogRepository;
 
     public String getUserDomain(GroupActor groupActor, int userId) {
 
@@ -48,5 +54,25 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         User user = userRepository.findByVkId(userVkId);
         return user != null;
+    }
+
+    /**
+     * Check if vk user is registered
+     * @param vkUserId
+     * @return {@link User}
+     */
+    public User isExists(int vkUserId) {
+        return userRepository.findByVkId(vkUserId);
+    }
+
+    /**
+     * Check if {@param user} completed initial set up
+     */
+    public UserDialog checkGreetingSetupDialog(User user) {
+        if (user == null) return null;
+        UserDialog dialog = userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(),
+                Dialogs.GREETING_SET_UP_DIALOG.getValue());
+
+        return dialog;
     }
 }

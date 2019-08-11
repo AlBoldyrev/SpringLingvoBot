@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public final class Dialog1 {
+public final class SetupKeyboard {
 
     public Map<Integer, String> stateAndKeyboard = new HashMap<>();
 
