@@ -17,14 +17,14 @@ public class DialogToState {
     @Column(name = "dialog_state_id")
     private Integer dialogStateId;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "dialog_id")
-    private List<Dialog> dialogs;
+    private Dialog dialog;
 
     @Column(name = "state")
     private Integer state;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "dialog_phrase_id")
     private DialogPhrase dialogPhrase;
 

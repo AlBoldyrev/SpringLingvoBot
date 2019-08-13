@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
@@ -28,5 +29,9 @@ public class User {
     @OneToOne
     @JoinColumn(name = "setting_id")
     private Settings settings;
+
+    @OneToMany
+    @JoinColumn(name = "user_dialog_id")
+    private List<UserDialog> userDialogList;
 
 }
