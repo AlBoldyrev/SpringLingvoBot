@@ -1,9 +1,10 @@
 package com.vk.lingvobot.services.impl
 
-import com.vk.api.sdk.actions.Messages
 import com.vk.api.sdk.client.VkApiClient
 import com.vk.api.sdk.client.actors.GroupActor
 import com.vk.api.sdk.objects.messages.*
+import com.vk.lingvobot.keyboard.getButton
+import com.vk.lingvobot.keyboard.getKeyboard
 import com.vk.lingvobot.services.MessageServiceKt
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -36,18 +37,21 @@ class MessageServiceKtImpl : MessageServiceKt {
         groupActor: GroupActor,
         userId: Int,
         message: String,
-        stringKeyboard: String
+        keyboardLabels: List<String>
     ) {
         val randomId = Random.nextInt()
-        val btnAction = KeyboardButtonAction().setType(KeyboardButtonActionType.TEXT).setLabel("PIECE OF KEYBOARD!")
-            .setPayload("{\"button\":\"4\"}")
-        val button = KeyboardButton().setColor(KeyboardButtonColor.DEFAULT).setAction(btnAction)
-        val keyboard = Keyboard()
-        keyboard.oneTime = true
-        keyboard.buttons = mutableListOf(mutableListOf(button))
+        val buttons = addButtons(keyboardLabels)
+        val keyboard = getKeyboard(buttons)
         vkApiClient.messages().send(groupActor).message(message).userId(userId).randomId(randomId).keyboard(keyboard)
             .execute()
     }
 
-
+    private fun addButtons(labels: List<String>): List<KeyboardButton> {
+        val buttons = mutableListOf<KeyboardButton>()
+        for (label in labels) {
+            val button = getButton(label)
+            buttons.add(button)
+        }
+        return buttons
+    }
 }

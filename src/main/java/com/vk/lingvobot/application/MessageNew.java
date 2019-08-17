@@ -19,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 @Slf4j
 public class MessageNew implements IResponseHandler {
@@ -121,8 +124,8 @@ public class MessageNew implements IResponseHandler {
             greetingSetUpDialog = new UserDialog(user, setupDialog, false, false);
         }
 
-        messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), "Stub setup message!");
-        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Just a keyboard", SetupKeyboard.KEYBOARD1);
+        List<String> labels = Arrays.asList("На Вы!", "На Ты!");
+        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Как к тебе обращаться?", labels);
 //        Dialog startingDialog = dialogRepository.findStartingDialog();
 //        UserDialog userDialog = new UserDialog(user, startingDialog, false, false);
 //        messageService.sendMessageWithTextAndKeyboard(userVkId, startingDialog.getDialogPhrase().getDialogPhraseValue(), Dialog1.KEYBOARD1);
