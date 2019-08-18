@@ -8,9 +8,9 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "DialogMaxStates")
+@Table(name = "DialogMaxState")
 @Slf4j
-public class DialogMaxStates {
+public class DialogMaxState {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,8 +12,8 @@ public class Settings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "setting_id")
-    private Integer settingId;
+    @Column(name = "settings_id")
+    private Integer settingsId;
 
     @OneToOne(mappedBy = "settings")
     private User user;

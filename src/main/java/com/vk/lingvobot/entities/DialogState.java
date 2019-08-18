@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "DialogMaxStates")
+@Table(name = "DialogState")
 @Slf4j
-public class DialogToState {
+public class DialogState {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

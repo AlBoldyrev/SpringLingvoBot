@@ -4,9 +4,7 @@ package com.vk.lingvobot.application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.vk.api.sdk.actions.Messages;
 import com.vk.api.sdk.client.actors.GroupActor;
-import com.vk.api.sdk.objects.messages.Message;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
@@ -40,6 +38,7 @@ public class MessageNew implements IResponseHandler {
 
     private final SetupKeyboard setupKeyboard;
 
+
     private Gson gson = new GsonBuilder().create();
 
     @Autowired
@@ -70,43 +69,6 @@ public class MessageNew implements IResponseHandler {
 
         checkInitialSetup(user, groupActor);
 
-        /*int currentDialogIdOfUser = userDialogRepository.findCurrentDialogOfUser(userVkId);
-        Integer maxStateValue = 0;
-        if (currentDialogIdOfUser != 0) {
-            maxStateValue = dialogMaxStateRepository.findByDialogId(currentDialogIdOfUser).getMaxStateValue();
-            log.info("Seems it's starting dialog");
-        }
-        int currentStateOfUser = findCurrentStateOfUser(userVkId);*/
-
-
-
-        /*log.info("Current dialog of user " + userVkId + " is: " + currentDialogIdOfUser);
-
-        if (userInfoService.checkIfUserWroteTheMessageBefore(userVkId)) {
-
-            UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
-            Integer state = currentDialogOfUser.getDialog().getState();
-
-            log.info("We know this user with id: " + userVkId);
-            log.info("Current state is : " + state);
-            String dialogPhraseValue = dialogRepository.findDialogByDialogId(currentDialogIdOfUser, state).getDialogPhrase().getDialogPhraseValue();
-            log.info("Phrase is : " + dialogPhraseValue);
-
-            messageService.sendMessageWithTextAndKeyboard(userVkId, dialogPhraseValue, dialog1.getStateAndKeyboard().get(2));
-
-            currentDialogOfUser.getDialog().setState(++state);
-            if (state.equals(maxStateValue)) {
-                currentDialogOfUser.setFinished(true);
-            }
-            userDialogRepository.save(currentDialogOfUser);
-            log.info("State of dialog with id: " + currentDialogIdOfUser + " is changed from " + --state + " to " + ++state);
-
-
-
-        } else {
-            log.info("This user with id : " + userVkId + " has never written us before!");
-            checkAndInitUserInLingvoBot(userVkId);
-        }*/
     }
 
     /**
@@ -165,5 +127,17 @@ public class MessageNew implements IResponseHandler {
             return 1; //TODO magicNumber!
         }
         return currentDialogOfUser.getDialog().getState();
+    }*/
+
+    /*public void createMasterDataForTestingDialogs() {
+
+        Dialog dialog = new Dialog();
+        DialogMaxState dialogMaxState = new DialogMaxState();
+        dialogMaxState.setDialog(dialog);
+        dialogMaxState.setDialogMaxStateValue(5);
+        dialog.setDialogId(1);
+        dialogMa
+        dialogRepository.save(dialog);
+        System.out.println("dialog has been saved...");
     }*/
 }

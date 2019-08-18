@@ -4,5 +4,5 @@ import com.vk.lingvobot.entities.PhrasePair;
 
 public interface PhrasePairService {
 
-    PhrasePair findById(int id);
+    PhrasePair findById(Integer id);
 }

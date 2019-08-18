@@ -5,23 +5,21 @@ import com.vk.lingvobot.repositories.PhrasePairRepository;
 import com.vk.lingvobot.services.PhrasePairService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 public class PhrasePairServiceImpl implements PhrasePairService {
 
     @Autowired
-    private PhrasePairRepository phrasePairRepository;
-
+    PhrasePairRepository phrasePairRepository;
 
     @Override
-    public PhrasePair findById(int id) {
-        PhrasePair phrasePair = phrasePairRepository.findById(id);
+    public PhrasePair findById(Integer id) {
+        PhrasePair phrasePair = phrasePairRepository.findByPhrasePairId(id);
         if (phrasePair == null) {
-            log.warn("There is no PhrasePair with id: " + id);
+            log.error("There is no phrasePair with id: " + id);
             return null;
         }
         return phrasePair;
     }
+
 }
