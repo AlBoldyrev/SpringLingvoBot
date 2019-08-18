@@ -13,7 +13,8 @@ import java.util.List;
 public class DialogState {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_dialogState_generator")
+    @SequenceGenerator(name="lingvobot_dialogState_generator", sequenceName = "lingvobot_dialogState_sequence")
     @Column(name = "dialog_state_id")
     private Integer dialogStateId;
 

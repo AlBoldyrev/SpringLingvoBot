@@ -13,7 +13,8 @@ import javax.persistence.*;
 public class DialogMaxState {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_dialogMaxState_generator")
+    @SequenceGenerator(name="lingvobot_dialogMaxState_generator", sequenceName = "lingvobot_dialogMaxState_sequence")
     @Column(name = "dialog_max_state_id")
     private Integer dialogMaxStateId;
 
