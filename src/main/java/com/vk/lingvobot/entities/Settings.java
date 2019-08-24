@@ -11,9 +11,10 @@ import javax.persistence.*;
 public class Settings {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "setting_id")
-    private Integer settingId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_settings_generator")
+    @SequenceGenerator(name="lingvobot_settings_generator", sequenceName = "lingvobot_settings_sequence")
+    @Column(name = "settings_id")
+    private Integer settingsId;
 
     @OneToOne(mappedBy = "settings")
     private User user;

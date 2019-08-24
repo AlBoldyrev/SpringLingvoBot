@@ -21,7 +21,8 @@ public class UserDialog {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_userDialog_generator")
+    @SequenceGenerator(name="lingvobot_userDialog_generator", sequenceName = "lingvobot_userDialog_sequence")
     @Column(name = "user_dialog_id")
     private Integer userDialogId;
 
