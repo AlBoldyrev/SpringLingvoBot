@@ -16,4 +16,7 @@ public class Dialog {
     @SequenceGenerator(name="lingvobot_dialog_generator", sequenceName = "lingvobot_dialog_sequence")
     @Column(name = "dialog_id")
     private Integer dialogId;
+
+    @Column(name = "dialog_name")
+    private String dialogName;
 }

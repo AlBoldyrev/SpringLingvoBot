@@ -1,6 +1,7 @@
 package com.vk.lingvobot.services
 
 import com.vk.api.sdk.client.actors.GroupActor
+import com.vk.lingvobot.keyboard.CustomButton
 
 interface MessageServiceKt {
 
@@ -12,7 +13,7 @@ interface MessageServiceKt {
         groupActor: GroupActor,
         userId: Int,
         message: String,
-        keyboardLabels: List<String>
+        keyboardButtons: MutableList<CustomButton>
     )
 
 }

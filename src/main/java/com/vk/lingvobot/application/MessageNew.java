@@ -10,6 +10,7 @@ import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.MessageServiceKt;
+import com.vk.lingvobot.services.SetupMessageService;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
 import com.vk.lingvobot.util.Dialogs;
@@ -38,6 +39,8 @@ public class MessageNew implements IResponseHandler {
 
     private final SetupKeyboard setupKeyboard;
 
+    private final SetupMessageService setupMessageService;
+
 
     private Gson gson = new GsonBuilder().create();
 
@@ -45,7 +48,7 @@ public class MessageNew implements IResponseHandler {
     public MessageNew(UserRepository userRepository, UserInfoServiceImpl userInfoService,
                       UserDialogRepository userDialogRepository, DialogRepository dialogRepository,
                       UserDialogServiceImpl userDialogService, SetupKeyboard setupKeyboard,
-                      MessageServiceKt messageService) {
+                      MessageServiceKt messageService, SetupMessageService setupMessageService) {
         this.userRepository = userRepository;
         this.userInfoService = userInfoService;
         this.userDialogRepository = userDialogRepository;
@@ -53,6 +56,7 @@ public class MessageNew implements IResponseHandler {
         this.userDialogService = userDialogService;
         this.setupKeyboard = setupKeyboard;
         this.messageService = messageService;
+        this.setupMessageService = setupMessageService;
     }
 
     @Override
@@ -77,21 +81,11 @@ public class MessageNew implements IResponseHandler {
     private void checkInitialSetup(User user, GroupActor groupActor) {
         UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
 
-        if (greetingSetUpDialog != null && greetingSetUpDialog.isFinished()) {
-            log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
-            return;
-        }
         if (greetingSetUpDialog == null) {
-            Dialog setupDialog = dialogRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.getValue());
-            greetingSetUpDialog = new UserDialog(user, setupDialog, false, false);
+            setupMessageService.handle(user, groupActor);
+        } else {
+            log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
         }
-
-        List<String> labels = Arrays.asList("На Вы!", "На Ты!");
-        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Как к тебе обращаться?", labels);
-//        Dialog startingDialog = dialogRepository.findStartingDialog();
-//        UserDialog userDialog = new UserDialog(user, startingDialog, false, false);
-//        messageService.sendMessageWithTextAndKeyboard(userVkId, startingDialog.getDialogPhrase().getDialogPhraseValue(), Dialog1.KEYBOARD1);
-//        userDialogRepository.save(userDialog);
     }
 
     private User createNewUser(int vkId) {

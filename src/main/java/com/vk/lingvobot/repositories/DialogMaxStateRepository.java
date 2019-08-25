@@ -10,4 +10,7 @@ public interface DialogMaxStateRepository extends JpaRepository<DialogMaxState, 
     @Query("SELECT dms FROM DialogMaxState dms WHERE dms.dialogMaxStateId = :dialogMaxStateId")
     DialogMaxState findByDialogMaxStateId(@Param("dialogMaxStateId") int dialogMaxStateId);
 
+    @Query("SELECT dms FROM DialogMaxState dms WHERE dms.dialog.dialogId = :dialogId")
+    DialogMaxState findByDialogId(@Param("dialogId") int dialogId);
+
 }

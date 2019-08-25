@@ -28,7 +28,7 @@ public class User {
     private String userName;
 
     @OneToOne
-    @JoinColumn(name = "setting_id")
+    @JoinColumn(name = "settings_id")
     private Settings settings;
 
     @OneToMany
