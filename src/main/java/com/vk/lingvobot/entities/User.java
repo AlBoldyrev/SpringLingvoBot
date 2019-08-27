@@ -35,4 +35,43 @@ public class User {
     @JoinColumn(name = "user_dialog_id")
     private List<UserDialog> userDialogList;
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getUserVkId() {
+        return userVkId;
+    }
+
+    public void setUserVkId(Integer userVkId) {
+        this.userVkId = userVkId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
+    public List<UserDialog> getUserDialogList() {
+        return userDialogList;
+    }
+
+    public void setUserDialogList(List<UserDialog> userDialogList) {
+        this.userDialogList = userDialogList;
+    }
 }

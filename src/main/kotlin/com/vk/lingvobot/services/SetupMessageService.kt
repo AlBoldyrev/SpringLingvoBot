@@ -5,5 +5,5 @@ import com.vk.lingvobot.entities.User
 
 interface SetupMessageService {
 
-    fun handle(user: User, groupActor: GroupActor)
+    fun handle(user: User, groupActor: GroupActor, messageBody: String)
 }

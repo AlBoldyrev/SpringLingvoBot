@@ -65,24 +65,25 @@ public class MessageNew implements IResponseHandler {
         ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
 
         int userVkId = message.getObject().getUserId();
+        String messageBody = message.getObject().getBody();
         User user = userInfoService.isExists(userVkId);
 
         if (user == null) {
             user = createNewUser(userVkId);
         }
 
-        checkInitialSetup(user, groupActor);
+        checkInitialSetup(user, groupActor, messageBody);
 
     }
 
     /**
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
      */
-    private void checkInitialSetup(User user, GroupActor groupActor) {
+    private void checkInitialSetup(User user, GroupActor groupActor, String messageBody) {
         UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
 
         if (greetingSetUpDialog == null) {
-            setupMessageService.handle(user, groupActor);
+            setupMessageService.handle(user, groupActor, messageBody);
         } else {
             log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
         }

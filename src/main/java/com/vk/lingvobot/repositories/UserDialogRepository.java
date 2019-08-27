@@ -17,9 +17,9 @@ public interface UserDialogRepository extends JpaRepository<UserDialog, Integer>
     @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId")
     UserDialog findUserDialogByUserIdAndDialogId(@Param("userId") int userId, @Param("dialogId") int dialogId);
 
-    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId and ud.finished = true")
+    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId and ud.isFinished = true")
     UserDialog findFinishedDialogByUserIdAndDialogId(@Param("userId") Integer userId, @Param("dialogId") Integer dialogId);
 
-    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId and ud.cancelled = true")
+    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId and ud.isCancelled = true")
     UserDialog findCanceledDialogByUserIdAndDialogId(@Param("userId") Integer userId, @Param("dialogId") Integer dialogId);
 }

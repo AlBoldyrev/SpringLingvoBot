@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "DialogState")
-@Slf4j
 public class DialogState {
 
     @Id
@@ -29,4 +28,35 @@ public class DialogState {
     @JoinColumn(name = "dialog_phrase_id")
     private DialogPhrase dialogPhrase;
 
+    public Integer getDialogStateId() {
+        return dialogStateId;
+    }
+
+    public void setDialogStateId(Integer dialogStateId) {
+        this.dialogStateId = dialogStateId;
+    }
+
+    public Dialog getDialog() {
+        return dialog;
+    }
+
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    public DialogPhrase getDialogPhrase() {
+        return dialogPhrase;
+    }
+
+    public void setDialogPhrase(DialogPhrase dialogPhrase) {
+        this.dialogPhrase = dialogPhrase;
+    }
 }

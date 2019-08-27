@@ -36,26 +36,30 @@ class SetupMessageServiceImpl : SetupMessageService {
     @Autowired
     private lateinit var settingsRepository: SettingsRepository
 
-    override fun handle(user: User, groupActor: GroupActor) {
+    override fun handle(user: User, groupActor: GroupActor, messageBody: String) {
         var greetingSetUpDialog = userDialogRepository.findCanceledDialogByUserIdAndDialogId(
             user.userId,
             Dialogs.GREETING_SET_UP_DIALOG.value
         )
+
         val setupDialog = dialogRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.value)
         val setupDialogMaxState = dialogMaxStateRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.value)
+
         if (greetingSetUpDialog == null) {
             greetingSetUpDialog = UserDialog(user, setupDialog, false, false)
             greetingSetUpDialog.state = 1
         }
+
         val dialogState = dialogStateRepository.findByDialogIdAndState(
             Dialogs.GREETING_SET_UP_DIALOG.value,
             greetingSetUpDialog.state
         )
 
-        processDialog(user, groupActor, dialogState, greetingSetUpDialog)
+        if (dialogState.state <= setupDialogMaxState.dialogMaxStateValue) {
+            processDialog(user, groupActor, dialogState, greetingSetUpDialog)
+        }
     }
 
-    //TODO Finish setup dialog
     private fun processDialog(
         user: User,
         groupActor: GroupActor,
@@ -64,7 +68,7 @@ class SetupMessageServiceImpl : SetupMessageService {
     ) {
         when (dialogState.state) {
             1 -> {
-                val buttons = mutableListOf<CustomButton>(CustomButton("Вы"), CustomButton("Ты"))
+                val buttons = mutableListOf(CustomButton("Вы"), CustomButton("Ты"))
                 messageService.sendMessageWithTextAndKeyboard(
                     groupActor,
                     user.userId,
@@ -74,9 +78,26 @@ class SetupMessageServiceImpl : SetupMessageService {
                 greetingSetUpDialog.state += 1
                 userDialogRepository.save(greetingSetUpDialog)
             }
-            7 -> {
+            6 -> {
+                val buttons = mutableListOf(CustomButton("Лёгкий"), CustomButton("Средний"), CustomButton("Сложный"))
+                messageService.sendMessageWithTextAndKeyboard(
+                    groupActor,
+                    user.userId,
+                    dialogState.dialogPhrase.dialogPhraseValue,
+                    buttons
+                )
+                greetingSetUpDialog.state += 1
+                userDialogRepository.save(greetingSetUpDialog)
             }
-            else -> messageService.sendMessageTextOnly(groupActor, user.userId, phrase!!.dialogPhraseValue)
+            else -> {
+                messageService.sendMessageTextOnly(
+                    groupActor,
+                    user.userId,
+                    dialogState.dialogPhrase.dialogPhraseValue
+                )
+                greetingSetUpDialog.state += 1
+                userDialogRepository.save(greetingSetUpDialog)
+            }
         }
     }
 }
