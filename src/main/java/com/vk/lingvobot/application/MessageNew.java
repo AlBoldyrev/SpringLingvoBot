@@ -5,21 +5,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;
-import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
-import com.vk.lingvobot.repositories.*;
+import com.vk.lingvobot.repositories.DialogRepository;
+import com.vk.lingvobot.repositories.UserDialogRepository;
+import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.services.MessageServiceKt;
 import com.vk.lingvobot.services.SetupMessageService;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
-import com.vk.lingvobot.util.Dialogs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -67,7 +66,6 @@ public class MessageNew implements IResponseHandler {
         int userVkId = message.getObject().getUserId();
         String messageBody = message.getObject().getBody();
         User user = userInfoService.isExists(userVkId);
-
         if (user == null) {
             user = createNewUser(userVkId);
         }
