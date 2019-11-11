@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -69,6 +70,13 @@ public class MessageNew implements IResponseHandler {
 
         checkInitialSetup(user, groupActor);
 
+        if (message.getObject().getBody().equals("!меню")) {
+            System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
+            List<Dialog> dialogs = dialogRepository.findAllDialogs();
+            List<String> dialogsNames = dialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
+            dialogsNames.forEach(System.out::println);
+        }
+
     }
 
     /**
@@ -88,6 +96,7 @@ public class MessageNew implements IResponseHandler {
 
         List<String> labels = Arrays.asList("На Вы!", "На Ты!");
         messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Как к тебе обращаться?", labels);
+        
 //        Dialog startingDialog = dialogRepository.findStartingDialog();
 //        UserDialog userDialog = new UserDialog(user, startingDialog, false, false);
 //        messageService.sendMessageWithTextAndKeyboard(userVkId, startingDialog.getDialogPhrase().getDialogPhraseValue(), Dialog1.KEYBOARD1);

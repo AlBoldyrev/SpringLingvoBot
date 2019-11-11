@@ -70,8 +70,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     public UserDialog checkGreetingSetupDialog(User user) {
         if (user == null) return null;
-        UserDialog dialog = userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(),
-                Dialogs.GREETING_SET_UP_DIALOG.getValue());
+        UserDialog dialog = userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(), Dialogs.GREETING_SET_UP_DIALOG.getValue());
 
         return dialog;
     }
