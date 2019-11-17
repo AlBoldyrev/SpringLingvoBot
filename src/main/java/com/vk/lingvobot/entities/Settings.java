@@ -16,7 +16,7 @@ public class Settings {
     @Column(name = "settings_id")
     private Integer settingsId;
 
-    @OneToOne(mappedBy = "settings")
+    @OneToOne(mappedBy = "settings", cascade=CascadeType.ALL)
     private User user;
 
     @Column(name = "is_premium")

@@ -83,19 +83,27 @@ public class MessageNew implements IResponseHandler {
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
      */
     private void checkInitialSetup(User user, GroupActor groupActor) {
-        UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
 
-        if (greetingSetUpDialog != null && greetingSetUpDialog.isFinished()) {
+        UserDialog userDialog = new UserDialog();
+        userDialogRepository.save(userDialog);
+       /* UserDialog setupUserDialog = userInfoService.getGreetingSetupDialog(user);
+
+        if (setupUserDialog != null && setupUserDialog.isFinished()) {
             log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
+            messageService.sendMessageTextOnly(groupActor, user.getUserId(), " setup finished! ");
             return;
         }
-        if (greetingSetUpDialog == null) {
-            Dialog setupDialog = dialogRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.getValue());
-            greetingSetUpDialog = new UserDialog(user, setupDialog, false, false);
-        }
+        if (setupUserDialog == null) {
+            Dialog setupDialog2 = dialogRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.getValue());
+            setupUserDialog = new UserDialog(user, setupDialog2, false, false);
 
-        List<String> labels = Arrays.asList("На Вы!", "На Ты!");
-        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Как к тебе обращаться?", labels);
+            userDialogService.create(setupUserDialog);
+            log.info("Initial setup for user: " + user.getUserName() + " has just begun!");
+            messageService.sendMessageTextOnly(groupActor, user.getUserId(), " setup NOT finished! ");
+        }*/
+
+/*        List<String> labels = Arrays.asList("На Вы!", "На Ты!");
+        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Как к тебе обращаться?", labels);*/
         
 //        Dialog startingDialog = dialogRepository.findStartingDialog();
 //        UserDialog userDialog = new UserDialog(user, startingDialog, false, false);

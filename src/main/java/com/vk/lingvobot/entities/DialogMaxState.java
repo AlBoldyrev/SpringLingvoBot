@@ -18,7 +18,7 @@ public class DialogMaxState {
     @Column(name = "dialog_max_state_id")
     private Integer dialogMaxStateId;
 
-    @OneToOne
+    @OneToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "dialog_id")
     private Dialog dialog;
 

@@ -17,7 +17,7 @@ public class Message {
     @Column(name = "message_id")
     private Integer messageId;
 
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 

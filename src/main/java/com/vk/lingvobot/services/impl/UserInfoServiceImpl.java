@@ -68,7 +68,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     /**
      * Check if {@param user} completed initial set up
      */
-    public UserDialog checkGreetingSetupDialog(User user) {
+    public UserDialog getGreetingSetupDialog(User user) {
         if (user == null) return null;
         UserDialog dialog = userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(), Dialogs.GREETING_SET_UP_DIALOG.getValue());
 

@@ -26,11 +26,11 @@ public class UserDialog {
     @Column(name = "user_dialog_id")
     private Integer userDialogId;
 
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
     @JoinColumn(name="dialog_id")
     private Dialog dialog;
 

@@ -6,6 +6,7 @@ import com.vk.lingvobot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -32,5 +33,10 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         return user;
+    }
+
+    @Transactional
+    public void save(User user) {
+        userRepository.save(user);
     }
 }

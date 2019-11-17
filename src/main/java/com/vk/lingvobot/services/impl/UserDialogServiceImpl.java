@@ -6,6 +6,9 @@ import com.vk.lingvobot.services.UserDialogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -33,4 +36,16 @@ public class UserDialogServiceImpl implements UserDialogService {
         }
         return userDialog;
     }
+
+    @Transactional
+    public Optional<UserDialog> get(Integer id) {
+        return userDialogRepository.findById(id);
+    }
+
+    @Transactional
+    public void create(UserDialog userDialog) {
+        userDialogRepository.save(userDialog);
+    }
+
+
 }

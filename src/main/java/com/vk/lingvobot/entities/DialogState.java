@@ -18,15 +18,19 @@ public class DialogState {
     @Column(name = "dialog_state_id")
     private Integer dialogStateId;
 
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "dialog_id")
     private Dialog dialog;
 
     @Column(name = "state")
     private Integer state;
 
-    @OneToOne
+    @OneToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "dialog_phrase_id")
     private DialogPhrase dialogPhrase;
+
+    @ManyToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "keyboard_id")
+    private Keyboard keyboard;
 
 }

@@ -1,17 +1,25 @@
 package com.vk.lingvobot.services.impl;
 
-import com.vk.api.sdk.objects.messages.Keyboard;
-import com.vk.api.sdk.objects.messages.KeyboardButton;
-import com.vk.api.sdk.objects.messages.KeyboardButtonAction;
-import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
+import com.vk.lingvobot.repositories.KeyboardRepository;
 import com.vk.lingvobot.services.KeyboardService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Slf4j
+@Component
 public class KeyboardServiceImpl implements KeyboardService {
 
-    public void test() {
-        Keyboard keyBoard = new Keyboard();
-        KeyboardButton button = new KeyboardButton();
-        KeyboardButtonAction action = new KeyboardButtonAction();
-        /*KeyboardButtonActionType type = new KeyboardButtonActionType();*/
+    @Autowired
+    private KeyboardRepository keyboardRepository;
+
+    @Override
+    public com.vk.lingvobot.entities.Keyboard findByKeyboardId(int id) {
+        com.vk.lingvobot.entities.Keyboard keyboard = keyboardRepository.findByKeyboardId(id);
+        if (keyboard == null) {
+            log.error("There is no keyboard with id: " + id);
+            return null;
+        }
+        return keyboard;
     }
 }

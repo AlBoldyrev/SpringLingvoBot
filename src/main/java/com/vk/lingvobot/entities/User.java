@@ -27,11 +27,11 @@ public class User {
     @Column(name = "user_name")
     private String userName;
 
-    @OneToOne
+    @OneToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "setting_id")
     private Settings settings;
 
-    @OneToMany
+    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
     @JoinColumn(name = "user_dialog_id")
     private List<UserDialog> userDialogList;
 
