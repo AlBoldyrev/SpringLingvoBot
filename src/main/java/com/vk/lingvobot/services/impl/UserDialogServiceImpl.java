@@ -28,10 +28,10 @@ public class UserDialogServiceImpl implements UserDialogService {
     }
 
     @Override
-    public UserDialog findCurrentDialogOfUser(int userVkId) {
-        UserDialog userDialog = userDialogRepository.findCurrentDialogOfUser(userVkId);
+    public UserDialog findCurrentDialogOfUser(int userId) {
+        UserDialog userDialog = userDialogRepository.findCurrentDialogOfUser(userId);
         if (userDialog == null) {
-            log.warn("There is no userDialog with userVkId: " + userVkId);
+            log.warn("There is no userDialog with userId: " + userId);
             return null;
         }
         return userDialog;
@@ -44,7 +44,7 @@ public class UserDialogServiceImpl implements UserDialogService {
 
     @Transactional
     public void create(UserDialog userDialog) {
-        userDialogRepository.save(userDialog);
+        userDialogRepository.saveAndFlush(userDialog);
     }
 
 

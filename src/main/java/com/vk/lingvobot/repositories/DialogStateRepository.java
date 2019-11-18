@@ -9,4 +9,7 @@ public interface DialogStateRepository extends JpaRepository<DialogState, Intege
 
     @Query("SELECT dts FROM DialogState dts WHERE dts.dialogStateId = :dialogStateId")
     DialogState findByDialogStateId(@Param("dialogStateId") int dialogStateId);
+
+    @Query("SELECT dts FROM DialogState dts WHERE dts.dialog.dialogId = :dialogId AND dts.state = :state")
+    DialogState findByDialogIdAndState(@Param("dialogId") int dialogId, @Param("state") int state);
 }

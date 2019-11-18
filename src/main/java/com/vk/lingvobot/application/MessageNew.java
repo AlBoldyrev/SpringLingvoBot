@@ -10,6 +10,7 @@ import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.MessageServiceKt;
+import com.vk.lingvobot.services.UserService;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
 import com.vk.lingvobot.util.Dialogs;
@@ -39,6 +40,12 @@ public class MessageNew implements IResponseHandler {
 
     private final SetupKeyboard setupKeyboard;
 
+    private final UserService userService;
+
+    private final DialogStateRepository dialogStateRepository;
+
+    private final DialogMaxStateRepository dialogMaxStateRepository;
+
 
     private Gson gson = new GsonBuilder().create();
 
@@ -46,7 +53,8 @@ public class MessageNew implements IResponseHandler {
     public MessageNew(UserRepository userRepository, UserInfoServiceImpl userInfoService,
                       UserDialogRepository userDialogRepository, DialogRepository dialogRepository,
                       UserDialogServiceImpl userDialogService, SetupKeyboard setupKeyboard,
-                      MessageServiceKt messageService) {
+                      MessageServiceKt messageService, UserService userService, DialogStateRepository dialogStateRepository,
+                      DialogMaxStateRepository dialogMaxStateRepository) {
         this.userRepository = userRepository;
         this.userInfoService = userInfoService;
         this.userDialogRepository = userDialogRepository;
@@ -54,6 +62,9 @@ public class MessageNew implements IResponseHandler {
         this.userDialogService = userDialogService;
         this.setupKeyboard = setupKeyboard;
         this.messageService = messageService;
+        this.userService = userService;
+        this.dialogStateRepository = dialogStateRepository;
+        this.dialogMaxStateRepository = dialogMaxStateRepository;
     }
 
     @Override
@@ -69,7 +80,33 @@ public class MessageNew implements IResponseHandler {
         }
 
         checkInitialSetup(user, groupActor);
+    //-----------
 
+        UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
+        Integer state = currentUserDialog.getState();
+        DialogState dialogState = dialogStateRepository.findByDialogIdAndState(currentUserDialog.getDialog().getDialogId(), state);
+        DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
+        String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
+
+        messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), dialogPhraseValue);
+        log.info("Сообщение отправлено! ");
+
+        DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
+        Integer dialogMaxStateValue = dialogMaxState.getDialogMaxStateValue();
+
+        log.info("CURRENT STATE : " + state);
+        log.info("DIALOG MAX STATE : " + dialogMaxStateValue);
+        if (++state <= dialogMaxStateValue) {
+            currentUserDialog.setState(state);
+            log.info("CURRENT STATE AFTER ++ : " + state);
+
+        } else {
+            currentUserDialog.setFinished(true);
+        }
+        userDialogRepository.save(currentUserDialog);
+
+
+        //-----------
         if (message.getObject().getBody().equals("!меню")) {
             System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
             List<Dialog> dialogs = dialogRepository.findAllDialogs();
@@ -84,8 +121,10 @@ public class MessageNew implements IResponseHandler {
      */
     private void checkInitialSetup(User user, GroupActor groupActor) {
 
-        UserDialog userDialog = new UserDialog();
-        userDialogRepository.save(userDialog);
+
+        /*UserDialog userDialog = new UserDialog();
+        userDialog.setUser(user);
+        userDialogService.create(userDialog);*/
        /* UserDialog setupUserDialog = userInfoService.getGreetingSetupDialog(user);
 
         if (setupUserDialog != null && setupUserDialog.isFinished()) {
@@ -126,7 +165,7 @@ public class MessageNew implements IResponseHandler {
     }
 
 
-    private int findCurrentDialogOfUser(int userVkId) {
+    /*private int findCurrentDialogOfUser(int userVkId) {
 
         UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
         if (currentDialogOfUser == null) {
@@ -134,27 +173,8 @@ public class MessageNew implements IResponseHandler {
             return 0; //TODO magicNumber!
         }
         return currentDialogOfUser.getDialog().getDialogId();
-    }
-
-    /*private int findCurrentStateOfUser(int userVkId) {
-
-        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
-        if (currentDialogOfUser == null) {
-            log.error("There is no active dialog for this user!!!");
-            return 1; //TODO magicNumber!
-        }
-        return currentDialogOfUser.getDialog().getState();
     }*/
 
-    /*public void createMasterDataForTestingDialogs() {
 
-        Dialog dialog = new Dialog();
-        DialogMaxState dialogMaxState = new DialogMaxState();
-        dialogMaxState.setDialog(dialog);
-        dialogMaxState.setDialogMaxStateValue(5);
-        dialog.setDialogId(1);
-        dialogMa
-        dialogRepository.save(dialog);
-        System.out.println("dialog has been saved...");
-    }*/
+
 }

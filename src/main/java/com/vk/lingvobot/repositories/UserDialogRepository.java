@@ -11,8 +11,8 @@ public interface UserDialogRepository extends JpaRepository<UserDialog, Integer>
 
     UserDialog findById(int id);
 
-    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userVkId = :userVkId AND ud.isFinished = false")
-    UserDialog findCurrentDialogOfUser(@Param("userVkId") int userVkId);
+    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId AND ud.isFinished = false AND ud.isCancelled = false")
+    UserDialog findCurrentDialogOfUser(@Param("userId") int userId);
 
     @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId")
     UserDialog findUserDialogByUserIdAndDialogId(@Param("userId") int userId, @Param("dialogId") int dialogId);
@@ -22,4 +22,5 @@ public interface UserDialogRepository extends JpaRepository<UserDialog, Integer>
 
     @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = 1")
     UserDialog findUserGreetingDialog(@Param("userId") Integer userId);
+
 }

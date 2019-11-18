@@ -31,7 +31,7 @@ public class User {
     @JoinColumn(name = "setting_id")
     private Settings settings;
 
-    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.EAGER)
     @JoinColumn(name = "user_dialog_id")
     private List<UserDialog> userDialogList;
 
