@@ -21,7 +21,7 @@ VALUES (nextval('lingvobot.lingvobot_dialog_phrase_sequence'), 'Привет! С
 	   (nextval('lingvobot.lingvobot_dialog_phrase_sequence'), 'Это было здорово!'),
 	   (nextval('lingvobot.lingvobot_dialog_phrase_sequence'), 'И последнее, я буду напоминать тебе о занятиях так часто как скажешь, пожалуйста выбери частоту наших занятий:'),
 	   (nextval('lingvobot.lingvobot_dialog_phrase_sequence'), 'И желаемое время! Я могу писать как в течение дня, так и утром или вечером в какое-то время.'),
-	   (nextval('lingvobot.lingvobot_dialog_phrase_sequence'), 'Ну вот и всё! Увидимся завтра:)')
+	   (nextval('lingvobot.lingvobot_dialog_phrase_sequence'), 'Ну вот и всё! Увидимся завтра:)');
 
 INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (nextval('lingvobot.lingvobot_dialog_sequence'), 'Приветственный диалог');
 
