@@ -29,7 +29,7 @@ public class UserDialog {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="dialog_id")
     private Dialog dialog;
 

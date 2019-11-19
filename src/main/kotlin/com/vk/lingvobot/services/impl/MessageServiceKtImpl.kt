@@ -17,34 +17,34 @@ class MessageServiceKtImpl : MessageServiceKt {
     @Autowired
     private lateinit var vkApiClient: VkApiClient
 
-    override fun sendMessageTextOnly(groupActor: GroupActor, userId: Int, message: String) {
+    override fun sendMessageTextOnly(groupActor: GroupActor, userVkId: Int, message: String) {
         val randomId = Random.nextInt()
-        vkApiClient.messages().send(groupActor).message(message).userId(userId).randomId(randomId).execute()
+        vkApiClient.messages().send(groupActor).message(message).userId(userVkId).randomId(randomId).execute()
     }
 
-    override fun sendMessageWithTextAndAttachments(userId: Int, message: String, attachments: String) {
+    override fun sendMessageWithTextAndAttachments(userVkId: Int, message: String, attachments: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun sendMessageWithAttachmentsAndKeyboard(userId: Int, attachments: String, keyboard: String) {
+    override fun sendMessageWithAttachmentsAndKeyboard(userVkId: Int, attachments: String, keyboard: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun sendMessageWithAttachmentsOnly(userId: Int, attachments: String) {
+    override fun sendMessageWithAttachmentsOnly(userVkId: Int, attachments: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun sendMessageWithTextAndKeyboard(
-        groupActor: GroupActor,
-        userId: Int,
-        message: String,
-        keyboardButtons: MutableList<CustomButton>
+            groupActor: GroupActor,
+            userVkId: Int,
+            message: String,
+            keyboardButtons: MutableList<CustomButton>
     ) {
         val randomId = Random.nextInt()
         val buttons = addButtons(keyboardButtons)
         val keyboard = getKeyboard(buttons)
-        vkApiClient.messages().send(groupActor).message(message).userId(userId).randomId(randomId).keyboard(keyboard)
-            .execute()
+        vkApiClient.messages().send(groupActor).message(message).userId(userVkId).randomId(randomId).keyboard(keyboard)
+                .execute()
     }
 
     private fun addButtons(buttonsToAdd: MutableList<CustomButton>): List<KeyboardButton> {

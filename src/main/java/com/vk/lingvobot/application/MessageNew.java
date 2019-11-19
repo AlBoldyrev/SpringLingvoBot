@@ -4,8 +4,13 @@ package com.vk.lingvobot.application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.api.sdk.exceptions.ClientException;
+import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
+import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
@@ -19,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,8 +47,11 @@ public class MessageNew implements IResponseHandler {
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private Gson gson = new GsonBuilder().create();
 
+    @Autowired
+    VkApiClient vkApiClient;
+
     @Override
-    public void handle(JsonObject jsonObject, GroupActor groupActor) {
+    public void handle(JsonObject jsonObject, GroupActor groupActor) throws ClientException {
 
         ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
 
@@ -53,9 +62,10 @@ public class MessageNew implements IResponseHandler {
             user = createNewUser(userVkId);
         }
 
+
         checkInitialSetup(user, groupActor, messageBody);
     //-----------
-
+/*
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
         Integer state = currentUserDialog.getState();
         DialogState dialogState = dialogStateRepository.findByDialogIdAndState(currentUserDialog.getDialog().getDialogId(), state);
@@ -77,7 +87,7 @@ public class MessageNew implements IResponseHandler {
         } else {
             currentUserDialog.setFinished(true);
         }
-        userDialogRepository.save(currentUserDialog);
+        userDialogRepository.save(currentUserDialog);*/
 
 
         //-----------

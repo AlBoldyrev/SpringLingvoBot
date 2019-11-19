@@ -38,10 +38,7 @@ class SetupMessageServiceImpl : SetupMessageService {
     private lateinit var settingsRepository: SettingsRepository
 
     override fun handle(user: User, groupActor: GroupActor, messageBody: String) {
-        var greetingSetUpDialog = userDialogRepository.findCanceledDialogByUserIdAndDialogId(
-                user.userId,
-                Dialogs.GREETING_SET_UP_DIALOG.value
-        )
+        var greetingSetUpDialog = userDialogRepository.findUserGreetingDialog(user.userId)
 
         val setupDialog = dialogRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.value)
         val setupDialogMaxState = dialogMaxStateRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.value)
@@ -49,6 +46,7 @@ class SetupMessageServiceImpl : SetupMessageService {
         if (greetingSetUpDialog == null) {
             greetingSetUpDialog = UserDialog(user, setupDialog, false, false)
             greetingSetUpDialog.state = 1
+            userDialogRepository.save(greetingSetUpDialog);
         }
 
         var userSettings = settingsRepository.findBySettingsId(user.settings.settingsId)
@@ -80,7 +78,7 @@ class SetupMessageServiceImpl : SetupMessageService {
                 val buttons = mutableListOf(CustomButton("Вы"), CustomButton("Ты"))
                 messageService.sendMessageWithTextAndKeyboard(
                         groupActor,
-                        user.userId,
+                        user.userVkId,
                         dialogState.dialogPhrase.dialogPhraseValue,
                         buttons
                 )
@@ -91,7 +89,7 @@ class SetupMessageServiceImpl : SetupMessageService {
                 val buttons = mutableListOf(CustomButton("Лёгкий"), CustomButton("Средний"), CustomButton("Сложный"))
                 messageService.sendMessageWithTextAndKeyboard(
                         groupActor,
-                        user.userId,
+                        user.userVkId,
                         dialogState.dialogPhrase.dialogPhraseValue,
                         buttons
                 )
@@ -106,7 +104,7 @@ class SetupMessageServiceImpl : SetupMessageService {
                         CustomButton("5"))
                 messageService.sendMessageWithTextAndKeyboard(
                         groupActor,
-                        user.userId,
+                        user.userVkId,
                         dialogState.dialogPhrase.dialogPhraseValue,
                         buttons
                 )
@@ -119,7 +117,7 @@ class SetupMessageServiceImpl : SetupMessageService {
                         CustomButton("Вечером"))
                 messageService.sendMessageWithTextAndKeyboard(
                         groupActor,
-                        user.userId,
+                        user.userVkId,
                         dialogState.dialogPhrase.dialogPhraseValue,
                         buttons
                 )
@@ -127,13 +125,18 @@ class SetupMessageServiceImpl : SetupMessageService {
                 userDialogRepository.save(greetingSetUpDialog)
             }
             8 -> {
+                messageService.sendMessageTextOnly(
+                        groupActor,
+                        user.userVkId,
+                        dialogState.dialogPhrase.dialogPhraseValue
+                )
                 greetingSetUpDialog.isFinished = true
                 userDialogRepository.save(greetingSetUpDialog)
             }
             else -> {
                 messageService.sendMessageTextOnly(
                         groupActor,
-                        user.userId,
+                        user.userVkId,
                         dialogState.dialogPhrase.dialogPhraseValue
                 )
                 greetingSetUpDialog.state += 1
@@ -145,11 +148,7 @@ class SetupMessageServiceImpl : SetupMessageService {
     //Checks user answers. One of the first candidates for refactoring
     private fun processSettings(userSettings: Settings, messageBody: String) {
         when (messageBody) {
-            "Ты" -> {
-                userSettings.pronoun = messageBody
-                settingsRepository.save(userSettings)
-            }
-            "Вы" -> {
+            "Ты", "Вы" -> {
                 userSettings.pronoun = messageBody
                 settingsRepository.save(userSettings)
             }
@@ -165,35 +164,11 @@ class SetupMessageServiceImpl : SetupMessageService {
                 userSettings.difficultyLevel = 3
                 settingsRepository.save(userSettings)
             }
-            "1" -> {
+            "1", "2", "3", "4", "5" -> {
                 userSettings.lessonsPerDay = messageBody.toInt()
                 settingsRepository.save(userSettings)
             }
-            "2" -> {
-                userSettings.lessonsPerDay = messageBody.toInt()
-                settingsRepository.save(userSettings)
-            }
-            "3" -> {
-                userSettings.lessonsPerDay = messageBody.toInt()
-                settingsRepository.save(userSettings)
-            }
-            "4" -> {
-                userSettings.lessonsPerDay = messageBody.toInt()
-                settingsRepository.save(userSettings)
-            }
-            "5" -> {
-                userSettings.lessonsPerDay = messageBody.toInt()
-                settingsRepository.save(userSettings)
-            }
-            "Утром" -> {
-                userSettings.partOfTheDay = messageBody
-                settingsRepository.save(userSettings)
-            }
-            "Днём" -> {
-                userSettings.partOfTheDay = messageBody
-                settingsRepository.save(userSettings)
-            }
-            "Вечером" -> {
+            "Утром", "Днём", "Вечером" -> {
                 userSettings.partOfTheDay = messageBody
                 settingsRepository.save(userSettings)
             }

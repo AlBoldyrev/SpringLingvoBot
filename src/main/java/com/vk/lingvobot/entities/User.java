@@ -31,10 +31,6 @@ public class User {
     @JoinColumn(name = "settings_id")
     private Settings settings;
 
-    @OneToMany
-    @JoinColumn(name = "user_dialog_id")
-    private List<UserDialog> userDialogList;
-
     public Integer getUserId() {
         return userId;
     }
@@ -67,11 +63,4 @@ public class User {
         this.settings = settings;
     }
 
-    public List<UserDialog> getUserDialogList() {
-        return userDialogList;
-    }
-
-    public void setUserDialogList(List<UserDialog> userDialogList) {
-        this.userDialogList = userDialogList;
-    }
 }

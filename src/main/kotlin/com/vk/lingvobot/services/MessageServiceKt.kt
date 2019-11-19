@@ -5,13 +5,13 @@ import com.vk.lingvobot.keyboard.CustomButton
 
 interface MessageServiceKt {
 
-    fun sendMessageTextOnly(groupActor: GroupActor, userId: Int, message: String)
-    fun sendMessageWithTextAndAttachments(userId: Int, message: String, attachments: String)
-    fun sendMessageWithAttachmentsAndKeyboard(userId: Int, attachments: String, keyboard: String)
-    fun sendMessageWithAttachmentsOnly(userId: Int, attachments: String)
+    fun sendMessageTextOnly(groupActor: GroupActor, userVkId: Int, message: String)
+    fun sendMessageWithTextAndAttachments(userVkId: Int, message: String, attachments: String)
+    fun sendMessageWithAttachmentsAndKeyboard(userVkId: Int, attachments: String, keyboard: String)
+    fun sendMessageWithAttachmentsOnly(userVkId: Int, attachments: String)
     fun sendMessageWithTextAndKeyboard(
         groupActor: GroupActor,
-        userId: Int,
+        userVkId: Int,
         message: String,
         keyboardButtons: MutableList<CustomButton>
     )
