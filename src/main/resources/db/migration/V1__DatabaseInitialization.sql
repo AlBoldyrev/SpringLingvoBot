@@ -9,7 +9,7 @@ SET default_with_oids = false;
 
 CREATE TABLE IF NOT EXISTS lingvobot.dialogs (
     dialog_id integer NOT NULL,
-    dialog_name character varying(255),
+    dialog_name text,
     PRIMARY KEY (dialog_id)
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS lingvobot.dialog_max_state (
 
 CREATE TABLE IF NOT EXISTS lingvobot.dialog_phrase (
     dialog_phrase_id integer NOT NULL,
-    dialog_phrase_value character varying(255),
+    dialog_phrase_value text,
     PRIMARY KEY (dialog_phrase_id)
 );
 
@@ -40,7 +40,6 @@ CREATE TABLE IF NOT EXISTS lingvobot.dialog_state (
     state integer,
     dialog_id integer,
     dialog_phrase_id integer,
-    keyboard_id integer,
     PRIMARY KEY (dialog_state_id),
     FOREIGN KEY (dialog_phrase_id) REFERENCES lingvobot.dialog_phrase(dialog_phrase_id),
     FOREIGN KEY (dialog_id) REFERENCES lingvobot.dialogs(dialog_id)
@@ -48,7 +47,7 @@ CREATE TABLE IF NOT EXISTS lingvobot.dialog_state (
 
 CREATE TABLE IF NOT EXISTS lingvobot.users (
     user_id integer NOT NULL,
-    user_name character varying(255),
+    user_name text,
     user_vk_id integer,
     setting_id integer,
     PRIMARY KEY (user_id),
@@ -57,7 +56,7 @@ CREATE TABLE IF NOT EXISTS lingvobot.users (
 
 CREATE TABLE IF NOT EXISTS lingvobot.messages (
     message_id integer NOT NULL,
-    message_value character varying(255),
+    message_value text,
     user_id integer,
     PRIMARY KEY (message_id),
     FOREIGN KEY (user_id) REFERENCES lingvobot.users(user_id)
@@ -65,8 +64,8 @@ CREATE TABLE IF NOT EXISTS lingvobot.messages (
 
 CREATE TABLE IF NOT EXISTS lingvobot.phrase_pairs (
     phrase_pair_id integer NOT NULL,
-    phrase_answer character varying(255),
-    phrase_question character varying(255),
+    phrase_answer text,
+    phrase_question text,
     PRIMARY KEY (phrase_pair_id)
 );
 
