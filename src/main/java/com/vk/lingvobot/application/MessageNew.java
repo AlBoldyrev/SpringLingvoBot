@@ -5,58 +5,40 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.lingvobot.entities.Settings;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.DialogRepository;
+import com.vk.lingvobot.repositories.SettingsRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.services.MessageServiceKt;
 import com.vk.lingvobot.services.SetupMessageService;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MessageNew implements IResponseHandler {
 
     private final UserRepository userRepository;
-
     private final UserInfoServiceImpl userInfoService;
-
     private final UserDialogRepository userDialogRepository;
-
     private final DialogRepository dialogRepository;
-
     private final UserDialogServiceImpl userDialogService;
-
     private final MessageServiceKt messageService;
-
     private final SetupKeyboard setupKeyboard;
-
     private final SetupMessageService setupMessageService;
-
-
+    private final SettingsRepository settingsRepository;
     private Gson gson = new GsonBuilder().create();
-
-    @Autowired
-    public MessageNew(UserRepository userRepository, UserInfoServiceImpl userInfoService,
-                      UserDialogRepository userDialogRepository, DialogRepository dialogRepository,
-                      UserDialogServiceImpl userDialogService, SetupKeyboard setupKeyboard,
-                      MessageServiceKt messageService, SetupMessageService setupMessageService) {
-        this.userRepository = userRepository;
-        this.userInfoService = userInfoService;
-        this.userDialogRepository = userDialogRepository;
-        this.dialogRepository = dialogRepository;
-        this.userDialogService = userDialogService;
-        this.setupKeyboard = setupKeyboard;
-        this.messageService = messageService;
-        this.setupMessageService = setupMessageService;
-    }
 
     @Override
     public void handle(JsonObject jsonObject, GroupActor groupActor) {
@@ -91,6 +73,10 @@ public class MessageNew implements IResponseHandler {
         log.info("There is no user with vk id: " + vkId + ". Creating new user...");
 
         User user = new User(vkId);
+
+        Settings settings = new Settings();
+        Settings saveSettings = settingsRepository.save(settings);
+        user.setSettings(saveSettings);
         User saved = userRepository.save(user);
 
         if (saved != null) {
@@ -100,6 +86,7 @@ public class MessageNew implements IResponseHandler {
 
         return null;
     }
+
 
 
     private int findCurrentDialogOfUser(int userVkId) {

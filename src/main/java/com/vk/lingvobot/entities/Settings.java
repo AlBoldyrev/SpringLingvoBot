@@ -16,23 +16,20 @@ public class Settings {
     @Column(name = "settings_id")
     private Integer settingsId;
 
-    @OneToOne(mappedBy = "settings")
-    private User user;
-
     @Column(name = "is_premium")
-    private Boolean isPremium;
+    private Boolean isPremium = false;
 
     @Column(name = "user_pronoun")
-    private String pronoun;
+    private String pronoun = "Вы";
 
     @Column(name = "difficulty_level")
-    private Integer difficultyLevel;
+    private Integer difficultyLevel = 1;
 
     @Column(name = "lessons_per_day")
-    private Integer lessonsPerDay;
+    private Integer lessonsPerDay = 5;
 
     @Column(name = "part_of_the_day")
-    private String partOfTheDay;
+    private String partOfTheDay = "Вечером";
 
     public Integer getSettingsId() {
         return settingsId;
@@ -40,14 +37,6 @@ public class Settings {
 
     public void setSettingsId(Integer settingsId) {
         this.settingsId = settingsId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Boolean getPremium() {

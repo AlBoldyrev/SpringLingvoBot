@@ -54,7 +54,6 @@ class SetupMessageServiceImpl : SetupMessageService {
         var userSettings = settingsRepository.findBySettingsId(user.settings.settingsId)
         if (userSettings == null) {
             userSettings = Settings()
-            userSettings.user = user
             user.settings = userSettings
         }
 
