@@ -3,14 +3,11 @@ package com.vk.lingvobot.keyboard
 import com.vk.api.sdk.objects.messages.*
 
 fun getButton(
-    label: String,
-    type: KeyboardButtonActionType = KeyboardButtonActionType.TEXT,
-    color: KeyboardButtonColor = KeyboardButtonColor.DEFAULT,
-    payload: String = ""
+    button: CustomButton
 ): KeyboardButton {
-    val btnAction = KeyboardButtonAction().setType(type).setLabel(label)
-        .setPayload(payload)
-    return KeyboardButton().setColor(KeyboardButtonColor.DEFAULT).setAction(btnAction)
+    val btnAction = KeyboardButtonAction().setType(button.type).setLabel(button.label)
+        .setPayload(button.payload)
+    return KeyboardButton().setColor(button.color).setAction(btnAction)
 }
 
 fun getKeyboard(buttons: List<KeyboardButton>): Keyboard {

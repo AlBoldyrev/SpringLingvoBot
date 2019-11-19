@@ -11,4 +11,8 @@ public enum Dialogs {
     Dialogs(int value) {
         this.value = value;
     }
+
+    public int getValue() {
+        return value;
+    }
 }

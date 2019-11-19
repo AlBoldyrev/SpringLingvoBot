@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DialogStateServiceImpl implements DialogStateService {
 
     @Autowired
-    DialogStateRepository dialogStateRepository;
+    private DialogStateRepository dialogStateRepository;
 
     @Override
     public DialogState findById(Integer id) {

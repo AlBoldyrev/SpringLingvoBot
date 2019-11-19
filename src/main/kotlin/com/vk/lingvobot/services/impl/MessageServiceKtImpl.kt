@@ -3,6 +3,7 @@ package com.vk.lingvobot.services.impl
 import com.vk.api.sdk.client.VkApiClient
 import com.vk.api.sdk.client.actors.GroupActor
 import com.vk.api.sdk.objects.messages.*
+import com.vk.lingvobot.keyboard.CustomButton
 import com.vk.lingvobot.keyboard.getButton
 import com.vk.lingvobot.keyboard.getKeyboard
 import com.vk.lingvobot.services.MessageServiceKt
@@ -37,19 +38,19 @@ class MessageServiceKtImpl : MessageServiceKt {
         groupActor: GroupActor,
         userId: Int,
         message: String,
-        keyboardLabels: List<String>
+        keyboardButtons: MutableList<CustomButton>
     ) {
         val randomId = Random.nextInt()
-        val buttons = addButtons(keyboardLabels)
+        val buttons = addButtons(keyboardButtons)
         val keyboard = getKeyboard(buttons)
         vkApiClient.messages().send(groupActor).message(message).userId(userId).randomId(randomId).keyboard(keyboard)
             .execute()
     }
 
-    private fun addButtons(labels: List<String>): List<KeyboardButton> {
+    private fun addButtons(buttonsToAdd: MutableList<CustomButton>): List<KeyboardButton> {
         val buttons = mutableListOf<KeyboardButton>()
-        for (label in labels) {
-            val button = getButton(label)
+        for (buttonToAdd in buttonsToAdd) {
+            val button = getButton(buttonToAdd)
             buttons.add(button)
         }
         return buttons

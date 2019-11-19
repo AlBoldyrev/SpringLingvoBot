@@ -58,7 +58,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * Check if vk user is registered
-     * @param vkUserId
+     *
+     * @param vkUserId user id number in vk.com
      * @return {@link User}
      */
     public User isExists(int vkUserId) {
@@ -68,10 +69,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     /**
      * Check if {@param user} completed initial set up
      */
-    public UserDialog getGreetingSetupDialog(User user) {
+    public UserDialog checkGreetingSetupDialog(User user) {
         if (user == null) return null;
-        UserDialog dialog = userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(), Dialogs.GREETING_SET_UP_DIALOG.getValue());
 
-        return dialog;
+        return userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(),
+                Dialogs.GREETING_SET_UP_DIALOG.getValue());
     }
 }

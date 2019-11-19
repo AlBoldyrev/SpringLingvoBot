@@ -2,14 +2,12 @@ package com.vk.lingvobot.entities;
 
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 
 @Data
 @Entity
 @Table(name = "DialogMaxState")
-@Slf4j
 public class DialogMaxState {
 
     @Id
@@ -24,4 +22,28 @@ public class DialogMaxState {
 
     @Column(name = "dialog_max_state_value")
     private Integer dialogMaxStateValue;
+
+    public Integer getDialogMaxStateId() {
+        return dialogMaxStateId;
+    }
+
+    public void setDialogMaxStateId(Integer dialogMaxStateId) {
+        this.dialogMaxStateId = dialogMaxStateId;
+    }
+
+    public Dialog getDialog() {
+        return dialog;
+    }
+
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
+    }
+
+    public Integer getDialogMaxStateValue() {
+        return dialogMaxStateValue;
+    }
+
+    public void setDialogMaxStateValue(Integer dialogMaxStateValue) {
+        this.dialogMaxStateValue = dialogMaxStateValue;
+    }
 }

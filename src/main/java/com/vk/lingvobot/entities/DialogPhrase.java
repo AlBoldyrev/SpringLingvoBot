@@ -1,15 +1,12 @@
 package com.vk.lingvobot.entities;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CollectionId;
 
 import javax.persistence.*;
 
 @Data
 @Entity
 @Table(name = "DialogPhrase")
-@Slf4j
 public class DialogPhrase {
 
     @Id
@@ -21,4 +18,19 @@ public class DialogPhrase {
     @Column(name = "dialog_phrase_value")
     private String dialogPhraseValue;
 
+    public Integer getDialogPhraseId() {
+        return dialogPhraseId;
+    }
+
+    public void setDialogPhraseId(Integer dialogPhraseId) {
+        this.dialogPhraseId = dialogPhraseId;
+    }
+
+    public String getDialogPhraseValue() {
+        return dialogPhraseValue;
+    }
+
+    public void setDialogPhraseValue(String dialogPhraseValue) {
+        this.dialogPhraseValue = dialogPhraseValue;
+    }
 }

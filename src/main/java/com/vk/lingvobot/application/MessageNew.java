@@ -11,9 +11,11 @@ import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.MessageServiceKt;
 import com.vk.lingvobot.services.UserService;
+import com.vk.lingvobot.services.SetupMessageService;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
-import com.vk.lingvobot.util.Dialogs;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,48 +26,22 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MessageNew implements IResponseHandler {
 
     private final UserRepository userRepository;
-
     private final UserInfoServiceImpl userInfoService;
-
     private final UserDialogRepository userDialogRepository;
-
     private final DialogRepository dialogRepository;
-
     private final UserDialogServiceImpl userDialogService;
-
     private final MessageServiceKt messageService;
-
     private final SetupKeyboard setupKeyboard;
-
+    private final SetupMessageService setupMessageService;
+    private final SettingsRepository settingsRepository;
     private final UserService userService;
-
     private final DialogStateRepository dialogStateRepository;
-
     private final DialogMaxStateRepository dialogMaxStateRepository;
-
-
     private Gson gson = new GsonBuilder().create();
-
-    @Autowired
-    public MessageNew(UserRepository userRepository, UserInfoServiceImpl userInfoService,
-                      UserDialogRepository userDialogRepository, DialogRepository dialogRepository,
-                      UserDialogServiceImpl userDialogService, SetupKeyboard setupKeyboard,
-                      MessageServiceKt messageService, UserService userService, DialogStateRepository dialogStateRepository,
-                      DialogMaxStateRepository dialogMaxStateRepository) {
-        this.userRepository = userRepository;
-        this.userInfoService = userInfoService;
-        this.userDialogRepository = userDialogRepository;
-        this.dialogRepository = dialogRepository;
-        this.userDialogService = userDialogService;
-        this.setupKeyboard = setupKeyboard;
-        this.messageService = messageService;
-        this.userService = userService;
-        this.dialogStateRepository = dialogStateRepository;
-        this.dialogMaxStateRepository = dialogMaxStateRepository;
-    }
 
     @Override
     public void handle(JsonObject jsonObject, GroupActor groupActor) {
@@ -73,13 +49,13 @@ public class MessageNew implements IResponseHandler {
         ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
 
         int userVkId = message.getObject().getUserId();
+        String messageBody = message.getObject().getBody();
         User user = userInfoService.isExists(userVkId);
-
         if (user == null) {
             user = createNewUser(userVkId);
         }
 
-        checkInitialSetup(user, groupActor);
+        checkInitialSetup(user, groupActor, messageBody);
     //-----------
 
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
@@ -119,41 +95,24 @@ public class MessageNew implements IResponseHandler {
     /**
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
      */
-    private void checkInitialSetup(User user, GroupActor groupActor) {
+    private void checkInitialSetup(User user, GroupActor groupActor, String messageBody) {
+        UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
 
-
-        /*UserDialog userDialog = new UserDialog();
-        userDialog.setUser(user);
-        userDialogService.create(userDialog);*/
-       /* UserDialog setupUserDialog = userInfoService.getGreetingSetupDialog(user);
-
-        if (setupUserDialog != null && setupUserDialog.isFinished()) {
+        if (greetingSetUpDialog == null) {
+            setupMessageService.handle(user, groupActor, messageBody);
+        } else {
             log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
-            messageService.sendMessageTextOnly(groupActor, user.getUserId(), " setup finished! ");
-            return;
         }
-        if (setupUserDialog == null) {
-            Dialog setupDialog2 = dialogRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.getValue());
-            setupUserDialog = new UserDialog(user, setupDialog2, false, false);
-
-            userDialogService.create(setupUserDialog);
-            log.info("Initial setup for user: " + user.getUserName() + " has just begun!");
-            messageService.sendMessageTextOnly(groupActor, user.getUserId(), " setup NOT finished! ");
-        }*/
-
-/*        List<String> labels = Arrays.asList("На Вы!", "На Ты!");
-        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getUserVkId(), "Как к тебе обращаться?", labels);*/
-        
-//        Dialog startingDialog = dialogRepository.findStartingDialog();
-//        UserDialog userDialog = new UserDialog(user, startingDialog, false, false);
-//        messageService.sendMessageWithTextAndKeyboard(userVkId, startingDialog.getDialogPhrase().getDialogPhraseValue(), Dialog1.KEYBOARD1);
-//        userDialogRepository.save(userDialog);
     }
 
     private User createNewUser(int vkId) {
         log.info("There is no user with vk id: " + vkId + ". Creating new user...");
 
         User user = new User(vkId);
+
+        Settings settings = new Settings();
+        Settings saveSettings = settingsRepository.save(settings);
+        user.setSettings(saveSettings);
         User saved = userRepository.save(user);
 
         if (saved != null) {
@@ -165,7 +124,8 @@ public class MessageNew implements IResponseHandler {
     }
 
 
-    /*private int findCurrentDialogOfUser(int userVkId) {
+
+    private int findCurrentDialogOfUser(int userVkId) {
 
         UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
         if (currentDialogOfUser == null) {
@@ -173,8 +133,27 @@ public class MessageNew implements IResponseHandler {
             return 0; //TODO magicNumber!
         }
         return currentDialogOfUser.getDialog().getDialogId();
+    }
+
+    /*private int findCurrentStateOfUser(int userVkId) {
+
+        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
+        if (currentDialogOfUser == null) {
+            log.error("There is no active dialog for this user!!!");
+            return 1; //TODO magicNumber!
+        }
+        return currentDialogOfUser.getDialog().getState();
     }*/
 
+    /*public void createMasterDataForTestingDialogs() {
 
-
+        Dialog dialog = new Dialog();
+        DialogMaxState dialogMaxState = new DialogMaxState();
+        dialogMaxState.setDialog(dialog);
+        dialogMaxState.setDialogMaxStateValue(5);
+        dialog.setDialogId(1);
+        dialogMa
+        dialogRepository.save(dialog);
+        System.out.println("dialog has been saved...");
+    }*/
 }
