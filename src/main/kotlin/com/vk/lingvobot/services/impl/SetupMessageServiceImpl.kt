@@ -143,7 +143,7 @@ class SetupMessageServiceImpl : SetupMessageService {
         }
     }
 
-    //Checks user answers. One of the first canditates for refactoring
+    //Checks user answers. One of the first candidates for refactoring
     private fun processSettings(userSettings: Settings, messageBody: String) {
         when (messageBody) {
             "Ты" -> {
