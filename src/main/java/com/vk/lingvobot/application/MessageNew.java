@@ -10,17 +10,15 @@ import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.MessageServiceKt;
-import com.vk.lingvobot.services.UserService;
 import com.vk.lingvobot.services.SetupMessageService;
+import com.vk.lingvobot.services.UserService;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
