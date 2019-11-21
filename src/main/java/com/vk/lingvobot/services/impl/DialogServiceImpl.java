@@ -6,11 +6,13 @@ import com.vk.lingvobot.services.DialogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 @Slf4j
 public class DialogServiceImpl implements DialogService {
 
     @Autowired
-    DialogRepository dialogRepository;
+    private DialogRepository dialogRepository;
 
     @Override
     public Dialog findById(Integer id) {
@@ -20,5 +22,10 @@ public class DialogServiceImpl implements DialogService {
             return null;
         }
         return dialog;
+    }
+
+    @Override
+    public List<Dialog> getAllDialogs() {
+        return dialogRepository.findAllDialogs();
     }
 }

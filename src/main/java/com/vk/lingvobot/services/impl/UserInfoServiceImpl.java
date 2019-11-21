@@ -56,6 +56,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         return user != null;
     }
 
+    public UserDialog findUserGreetingDialog(User user) {
+
+        return userDialogRepository.findUserGreetingDialog(user.getUserId());
+    }
+
     /**
      * Check if vk user is registered
      *
@@ -70,9 +75,8 @@ public class UserInfoServiceImpl implements UserInfoService {
      * Check if {@param user} completed initial set up
      */
     public UserDialog checkGreetingSetupDialog(User user) {
-        if (user == null) return null;
 
-        return userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(),
-                Dialogs.GREETING_SET_UP_DIALOG.getValue());
+        if (user == null) return null;
+        return userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(), Dialogs.GREETING_SET_UP_DIALOG.getValue());
     }
 }

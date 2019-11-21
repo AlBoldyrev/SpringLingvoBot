@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS lingvobot.settings (
     difficulty_level integer,
     is_premium boolean,
     lessons_per_day integer,
+    part_of_the_day text,
+    user_pronoun text,
     PRIMARY KEY (settings_id)
 );
 
@@ -49,9 +51,9 @@ CREATE TABLE IF NOT EXISTS lingvobot.users (
     user_id integer NOT NULL,
     user_name text,
     user_vk_id integer,
-    setting_id integer,
+    settings_id integer,
     PRIMARY KEY (user_id),
-    FOREIGN KEY (setting_id) REFERENCES lingvobot.settings(settings_id)
+    FOREIGN KEY (settings_id) REFERENCES lingvobot.settings(settings_id)
 );
 
 CREATE TABLE IF NOT EXISTS lingvobot.messages (

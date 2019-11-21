@@ -4,16 +4,15 @@ package com.vk.lingvobot.application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ClientException;
-import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
-import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
+import com.vk.lingvobot.services.DialogService;
 import com.vk.lingvobot.services.MessageServiceKt;
 import com.vk.lingvobot.services.SetupMessageService;
 import com.vk.lingvobot.services.UserService;
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +43,7 @@ public class MessageNew implements IResponseHandler {
     private final UserService userService;
     private final DialogStateRepository dialogStateRepository;
     private final DialogMaxStateRepository dialogMaxStateRepository;
+    private final GroupActor groupActor;
     private Gson gson = new GsonBuilder().create();
 
     @Autowired
@@ -52,6 +51,8 @@ public class MessageNew implements IResponseHandler {
 
     @Override
     public void handle(JsonObject jsonObject, GroupActor groupActor) throws ClientException {
+
+        groupActor = this.groupActor;
 
         ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
 
@@ -62,10 +63,62 @@ public class MessageNew implements IResponseHandler {
             user = createNewUser(userVkId);
         }
 
+        if (!isInitialSetupCompleted(user)) {
+            processInitialSetup(user, groupActor, messageBody);
+        } else {
+            if (!hasUserDialogInProcess(user)) {
+                sendListOfDialogs(user);
+            } else {
+                processCommonDialog(user);
+            }
+        }
 
-        checkInitialSetup(user, groupActor, messageBody);
-    //-----------
-/*
+        if (message.getObject().getBody().equals("!меню")) {
+            System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
+            List<Dialog> dialogs = dialogRepository.findAllDialogs();
+            List<String> dialogsNames = dialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
+            dialogsNames.forEach(System.out::println);
+        }
+    }
+
+    /**
+     * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
+     */
+    private void processInitialSetup(User user, GroupActor groupActor, String messageBody) {
+        UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
+
+        if (greetingSetUpDialog == null) {
+            setupMessageService.handle(user, groupActor, messageBody);
+        } else {
+            log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
+        }
+    }
+
+    private void sendListOfDialogs(User user) {
+        List<Dialog> allDialogs = dialogRepository.findAllDialogs();
+        List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
+        StringBuilder sb = new StringBuilder();
+        dialogsNames.forEach(sb::append);
+        messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());
+    }
+
+    private boolean hasUserDialogInProcess(User user) {
+        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(user.getUserId());
+        return currentDialogOfUser != null;
+    }
+
+    private boolean isInitialSetupCompleted(User user) {
+        UserDialog greetingSetUpDialog = userInfoService.findUserGreetingDialog(user);
+        if (greetingSetUpDialog == null) {
+            return false;
+        }
+        return greetingSetUpDialog.isFinished() || greetingSetUpDialog.isCancelled();
+    }
+
+
+
+    private void processCommonDialog(User user) {
+
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
         Integer state = currentUserDialog.getState();
         DialogState dialogState = dialogStateRepository.findByDialogIdAndState(currentUserDialog.getDialog().getDialogId(), state);
@@ -83,34 +136,11 @@ public class MessageNew implements IResponseHandler {
         if (++state <= dialogMaxStateValue) {
             currentUserDialog.setState(state);
             log.info("CURRENT STATE AFTER ++ : " + state);
-
         } else {
             currentUserDialog.setFinished(true);
         }
-        userDialogRepository.save(currentUserDialog);*/
+        userDialogRepository.save(currentUserDialog);
 
-
-        //-----------
-        if (message.getObject().getBody().equals("!меню")) {
-            System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
-            List<Dialog> dialogs = dialogRepository.findAllDialogs();
-            List<String> dialogsNames = dialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-            dialogsNames.forEach(System.out::println);
-        }
-
-    }
-
-    /**
-     * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
-     */
-    private void checkInitialSetup(User user, GroupActor groupActor, String messageBody) {
-        UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
-
-        if (greetingSetUpDialog == null) {
-            setupMessageService.handle(user, groupActor, messageBody);
-        } else {
-            log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
-        }
     }
 
     private User createNewUser(int vkId) {
