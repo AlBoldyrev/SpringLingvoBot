@@ -9,13 +9,11 @@ import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
-import com.vk.lingvobot.services.DialogService;
-import com.vk.lingvobot.services.MessageServiceKt;
-import com.vk.lingvobot.services.SetupMessageService;
-import com.vk.lingvobot.services.UserService;
+import com.vk.lingvobot.services.*;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +42,7 @@ public class MessageNew implements IResponseHandler {
     private final DialogStateRepository dialogStateRepository;
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
+    private final MainDialogServiceKt mainDialogServiceKt;
     private Gson gson = new GsonBuilder().create();
 
     @Autowired
@@ -99,7 +98,8 @@ public class MessageNew implements IResponseHandler {
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
         dialogsNames.forEach(sb::append);
-        messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());
+        mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);
+        /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
 
     private boolean hasUserDialogInProcess(User user) {
