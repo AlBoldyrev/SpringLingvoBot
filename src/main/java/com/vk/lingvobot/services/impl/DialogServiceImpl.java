@@ -28,4 +28,9 @@ public class DialogServiceImpl implements DialogService {
     public List<Dialog> getAllDialogs() {
         return dialogRepository.findAllDialogs();
     }
+
+    @Override
+    public Dialog getDialogViaName(String name) {
+        return dialogRepository.findByDialogName(name);
+    }
 }

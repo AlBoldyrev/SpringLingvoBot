@@ -66,11 +66,18 @@ public class MessageNew implements IResponseHandler {
             processInitialSetup(user, groupActor, messageBody);
         } else {
             if (!hasUserDialogInProcess(user)) {
-                sendListOfDialogs(user);
+                List<Dialog> allDialogs = dialogRepository.findAllDialogs();
+                List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
+                if (!dialogsNames.contains(messageBody)) {
+                    sendListOfDialogs(user);
+                } else {
+                    enterTheDialog(user, messageBody);
+                }
             } else {
                 processCommonDialog(user);
             }
         }
+
 
         if (message.getObject().getBody().equals("!меню")) {
             System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
@@ -90,6 +97,17 @@ public class MessageNew implements IResponseHandler {
             setupMessageService.handle(user, groupActor, messageBody);
         } else {
             log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
+        }
+    }
+
+    private void enterTheDialog(User user, String message) {
+        Dialog dialog = dialogRepository.findByDialogName(message);
+        if (dialog == null) {
+            log.error ("dialog with unexisting name");
+        } else {
+            UserDialog userDialog = new UserDialog(user, dialog, false, false);
+            userDialog.setState(1);
+            userDialogService.create(userDialog);
         }
     }
 

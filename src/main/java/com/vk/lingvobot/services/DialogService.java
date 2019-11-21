@@ -10,4 +10,5 @@ public interface DialogService {
 
     Dialog findById(Integer id);
     List<Dialog> getAllDialogs();
+    Dialog getDialogViaName(String name);
 }

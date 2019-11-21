@@ -58,4 +58,5 @@ INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phr
 INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 12, 3, 32) ON CONFLICT DO NOTHING;
 
 
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (2, 12, 2) ON CONFLICT DO NOTHING;
 INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (3, 12, 3) ON CONFLICT DO NOTHING;

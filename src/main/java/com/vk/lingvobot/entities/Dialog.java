@@ -17,6 +17,6 @@ public class Dialog {
     @Column(name = "dialog_id")
     private Integer dialogId;
 
-    @Column(name = "dialog_name")
+    @Column(name = "dialog_name", unique = true)
     private String dialogName;
 }
