@@ -45,9 +45,6 @@ public class MessageNew implements IResponseHandler {
     private final MainDialogServiceKt mainDialogServiceKt;
     private Gson gson = new GsonBuilder().create();
 
-    @Autowired
-    VkApiClient vkApiClient;
-
     @Override
     public void handle(JsonObject jsonObject, GroupActor groupActor) {
 
@@ -157,7 +154,7 @@ public class MessageNew implements IResponseHandler {
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
 
-        messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), dialogPhraseValue);
+        messageService.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
         Integer dialogMaxStateValue = dialogMaxState.getDialogMaxStateValue();
@@ -182,13 +179,6 @@ public class MessageNew implements IResponseHandler {
         Settings settings = new Settings();
         Settings saveSettings = settingsRepository.save(settings);
         user.setSettings(saveSettings);
-        User saved = userRepository.save(user);
-
-        if (saved != null) {
-            log.info("New user created: " + user);
-            return saved;
-        }
-
-        return null;
+        return userRepository.save(user);
     }
 }

@@ -1,10 +1,8 @@
 package com.vk.lingvobot.entities;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Data
 @Entity
@@ -12,8 +10,8 @@ import java.util.List;
 public class User {
 
     public User() {}
-    public User(Integer userVkId) {
-        this.userVkId = userVkId;
+    public User(Integer vkId) {
+        this.vkId = vkId;
     }
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_user_generator")
@@ -22,7 +20,7 @@ public class User {
     private Integer userId;
 
     @Column(name = "user_vk_id")
-    private Integer userVkId;
+    private Integer vkId;
 
     @Column(name = "user_name")
     private String userName;
@@ -39,12 +37,12 @@ public class User {
         this.userId = userId;
     }
 
-    public Integer getUserVkId() {
-        return userVkId;
+    public Integer getVkId() {
+        return vkId;
     }
 
-    public void setUserVkId(Integer userVkId) {
-        this.userVkId = userVkId;
+    public void setVkId(Integer vkId) {
+        this.vkId = vkId;
     }
 
     public String getUserName() {
