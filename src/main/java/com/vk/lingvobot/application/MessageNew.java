@@ -120,7 +120,7 @@ public class MessageNew implements IResponseHandler {
      * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.
      */
     private void sendListOfDialogs(User user) {
-        List<Dialog> allDialogs = dialogRepository.findAllDialogs();
+        List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
         dialogsNames.forEach(sb::append);
