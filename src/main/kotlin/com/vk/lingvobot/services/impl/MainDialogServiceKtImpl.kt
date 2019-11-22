@@ -21,10 +21,10 @@ class MainDialogServiceKtImpl : MainDialogServiceKt {
             buttons.add(CustomButton(button))
         }
         messageService.sendMessageWithTextAndKeyboard(
-                groupActor,
-                user.userVkId,
-                "Выберите один из диалогов:",
-                buttons
+            groupActor,
+            user.vkId,
+            "Выберите один из диалогов:",
+            buttons
         )
         println("KOTLIN 4ever!!!!!")
     }

@@ -35,16 +35,16 @@ class MessageServiceKtImpl : MessageServiceKt {
     }
 
     override fun sendMessageWithTextAndKeyboard(
-            groupActor: GroupActor,
-            userVkId: Int,
-            message: String,
-            keyboardButtons: MutableList<CustomButton>
+        groupActor: GroupActor,
+        userVkId: Int,
+        message: String,
+        keyboardButtons: MutableList<CustomButton>
     ) {
         val randomId = Random.nextInt()
         val buttons = addButtons(keyboardButtons)
         val keyboard = getKeyboard(buttons)
         vkApiClient.messages().send(groupActor).message(message).userId(userVkId).randomId(randomId).keyboard(keyboard)
-                .execute()
+            .execute()
     }
 
     private fun addButtons(buttonsToAdd: MutableList<CustomButton>): List<KeyboardButton> {
