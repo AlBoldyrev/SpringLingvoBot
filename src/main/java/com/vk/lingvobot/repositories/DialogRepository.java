@@ -23,6 +23,4 @@ public interface DialogRepository extends JpaRepository<Dialog, Integer> {
     @Query("SELECT d FROM Dialog d WHERE d.dialogName = :dialogName")
     Dialog findByDialogName(@Param("dialogName") String dialogName);
 
-
-
 }
