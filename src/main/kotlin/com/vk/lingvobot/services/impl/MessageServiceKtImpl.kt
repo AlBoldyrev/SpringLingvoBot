@@ -38,7 +38,7 @@ class MessageServiceKtImpl : MessageServiceKt {
         groupActor: GroupActor,
         userVkId: Int,
         message: String,
-        keyboardButtons: MutableList<CustomButton>
+        keyboardButtons: List<CustomButton>
     ) {
         val randomId = Random.nextInt()
         val buttons = addButtons(keyboardButtons)
@@ -47,7 +47,7 @@ class MessageServiceKtImpl : MessageServiceKt {
             .execute()
     }
 
-    private fun addButtons(buttonsToAdd: MutableList<CustomButton>): List<KeyboardButton> {
+    private fun addButtons(buttonsToAdd: List<CustomButton>): List<KeyboardButton> {
         val buttons = mutableListOf<KeyboardButton>()
         for (buttonToAdd in buttonsToAdd) {
             val button = getButton(buttonToAdd)

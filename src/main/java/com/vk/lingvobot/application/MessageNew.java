@@ -5,11 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
-import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
@@ -42,7 +39,7 @@ public class MessageNew implements IResponseHandler {
     private final DialogStateRepository dialogStateRepository;
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
-    private final MainDialogServiceKt mainDialogServiceKt;
+    private final MenuServiceKt menuServiceKt;
     private Gson gson = new GsonBuilder().create();
 
     @Override
@@ -63,13 +60,17 @@ public class MessageNew implements IResponseHandler {
             processInitialSetup(user, groupActor, messageBody);
         } else {
             if (!hasUserDialogInProcess(user)) {
-                List<Dialog> allDialogs = dialogRepository.findAllDialogs();
+
+                /*List<Dialog> allDialogs = dialogRepository.findAllDialogs();
                 List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-                if (!dialogsNames.contains(messageBody)) {
-                    sendListOfDialogs(user);
-                } else {
+                if (dialogsNames.contains(messageBody)) {
                     enterTheDialog(user, messageBody);
-                }
+//                    sendListOfDialogs(user);
+                } else if (messageBody.equals("Далее")) {
+                    mainDialogServiceKt.callDialogListMenu(user, groupActor);
+                } else {
+                    mainDialogServiceKt.callMainMenu(user, messageBody, groupActor);
+                }*/
             } else {
                 processCommonDialog(user);
             }
@@ -104,7 +105,7 @@ public class MessageNew implements IResponseHandler {
     private void enterTheDialog(User user, String message) {
         Dialog dialog = dialogRepository.findByDialogName(message);
         if (dialog == null) {
-            log.error ("dialog with unexisting name");
+            log.error("dialog with unexisting name");
         } else {
             UserDialog userDialog = new UserDialog(user, dialog, false, false);
             userDialog.setState(1);
@@ -119,9 +120,9 @@ public class MessageNew implements IResponseHandler {
     private void sendListOfDialogs(User user) {
         List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-        StringBuilder sb = new StringBuilder();
-        dialogsNames.forEach(sb::append);
-        mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);
+//        StringBuilder sb = new StringBuilder();
+//        dialogsNames.forEach(sb::append);
+        menuServiceKt.processMainDialog(user, groupActor, dialogsNames);
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
 
