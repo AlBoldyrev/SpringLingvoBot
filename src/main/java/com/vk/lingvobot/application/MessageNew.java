@@ -14,6 +14,7 @@ import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.*;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ public class MessageNew implements IResponseHandler {
                     sendListOfDialogs(user);
                 } else {
                     enterTheDialog(user, messageBody);
+                    processCommonDialog(user);
                 }
             } else {
                 processCommonDialog(user);
@@ -119,7 +121,7 @@ public class MessageNew implements IResponseHandler {
         dialogsNames.forEach(sb::append);
         Keyboard keyboardWithButtons = localJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
         System.out.println(keyboardWithButtons);
-        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), "message" , keyboardWithButtons);
+        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogLisatIntoListForVK(dialogsNames).toString() , keyboardWithButtons);
         /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
@@ -179,5 +181,16 @@ public class MessageNew implements IResponseHandler {
         Settings saveSettings = settingsRepository.save(settings);
         user.setSettings(saveSettings);
         return userRepository.save(user);
+    }
+
+    private StringBuilder convertDialogLisatIntoListForVK(List<String> dialogNames) {
+
+        int dialogCounter = 1;
+        StringBuilder result = new StringBuilder(StringUtil.EMPTY_STRING);
+        for (String dialogName: dialogNames) {
+            result.append(dialogCounter).append(". ").append(dialogName).append('\n');
+            dialogCounter++;
+        }
+        return result;
     }
 }

@@ -48,6 +48,27 @@ public class LocalJavaKeyboard {
     }
 
     /**
+     * This method created Keyboards with buttons: one button - one row.
+     * @param buttonNames
+     * @return Keyboard object legit to use in original VK methods
+     */
+    public Keyboard createKeyboardWithButtonsNButtonsPerRow(List<String> buttonNames, int n) {
+
+        // VK restricts more than 5 buttons per row :(
+        if (n > 5) {
+            n = 5;
+        }
+        List<KeyboardButton> keyboardButtons = convertStringsIntoKeyboardButton(buttonNames);
+        Keyboard keyboard = new Keyboard();
+        for (KeyboardButton keyboardButton: keyboardButtons) {
+            List<List<KeyboardButton>> oneButtonInRowListOfLists = ListChopper.chop(keyboardButtons, n);
+            keyboard.setButtons(oneButtonInRowListOfLists);
+            keyboard.setOneTime(true);
+        }
+        return keyboard;
+    }
+
+    /**
      * Method takes button names and convert it into original VK object @KeyboardButton
      *
      * @param buttonNames

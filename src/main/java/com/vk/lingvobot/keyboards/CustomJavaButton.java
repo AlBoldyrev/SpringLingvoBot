@@ -15,7 +15,7 @@ public class CustomJavaButton {
     private KeyboardButtonActionType type;
     private KeyboardButtonAction action = new KeyboardButtonAction();
     private KeyboardButtonColor color;
-    
+
     CustomJavaButton(String label, String payload) {
         type = KeyboardButtonActionType.TEXT;
         color = KeyboardButtonColor.DEFAULT;
