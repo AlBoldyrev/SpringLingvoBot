@@ -100,7 +100,6 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
-
     /**
      * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
      */
@@ -115,7 +114,6 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
-
     /**
      * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.
      */
@@ -126,7 +124,7 @@ public class MessageNew implements IResponseHandler {
         dialogsNames.forEach(sb::append);
         Keyboard keyboardWithButtons = localJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
         System.out.println(keyboardWithButtons);
-        messageService.sendMessageWithTextAndKeyboard(user.getUserVkId(), "message" , keyboardWithButtons);
+        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), "message" , keyboardWithButtons);
         /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
@@ -160,8 +158,7 @@ public class MessageNew implements IResponseHandler {
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
 
-        messageService.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
-        messageServiceKt.sendMessageTextOnly(groupActor, user.getUserVkId(), dialogPhraseValue);
+        messageServiceKt.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
         log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
