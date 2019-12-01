@@ -8,8 +8,9 @@ import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ClientException;
+import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboard.CustomButton;
+import com.vk.lingvobot.keyboards.LocalJavaKeyboard;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
@@ -34,7 +35,8 @@ public class MessageNew implements IResponseHandler {
     private final UserDialogRepository userDialogRepository;
     private final DialogRepository dialogRepository;
     private final UserDialogServiceImpl userDialogService;
-    private final MessageServiceKt messageService;
+    private final MessageServiceKt messageServiceKt;
+    private final MessageService messageService;
     private final SetupKeyboard setupKeyboard;
     private final SetupMessageService setupMessageService;
     private final SettingsRepository settingsRepository;
@@ -43,6 +45,7 @@ public class MessageNew implements IResponseHandler {
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
     private final MainDialogServiceKt mainDialogServiceKt;
+    private final LocalJavaKeyboard localJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
     @Autowired
@@ -116,7 +119,10 @@ public class MessageNew implements IResponseHandler {
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
         dialogsNames.forEach(sb::append);
-        mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);
+        Keyboard keyboardWithButtons = localJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
+        System.out.println(keyboardWithButtons);
+        messageService.sendMessageWithTextAndKeyboard(user.getUserVkId(), "message" , keyboardWithButtons);
+        /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
 
@@ -143,7 +149,7 @@ public class MessageNew implements IResponseHandler {
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
 
-        messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), dialogPhraseValue);
+        messageServiceKt.sendMessageTextOnly(groupActor, user.getUserVkId(), dialogPhraseValue);
         log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());

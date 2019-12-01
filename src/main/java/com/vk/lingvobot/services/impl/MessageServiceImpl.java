@@ -4,6 +4,7 @@ import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
+import com.vk.api.sdk.objects.messages.Keyboard;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,11 +27,11 @@ public class MessageServiceImpl implements MessageService {
 
     private final Random random = new Random();
 
-    public void sendMessageTextOnly(int userId, String message) {
+    public void sendMessageTextOnly(int userVkId, String message) {
 
-        String userDomain = userInfo.getUserDomain(groupActor, userId);
+        String userDomain = userInfo.getUserDomain(groupActor, userVkId);
         try {
-            apiClient.messages().send(groupActor).peerId(userId).userIds(userId).message(message).randomId(random.nextInt()).domain(userDomain).execute();
+            apiClient.messages().send(groupActor).peerId(userVkId).userIds(userVkId).message(message).randomId(random.nextInt()).domain(userDomain).execute();
         } catch (ApiException e) {
             log.error("Something wrong with API: " + e.getStackTrace());
         } catch (ClientException e) {
@@ -39,11 +40,11 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
-    public void sendMessageWithTextAndAttachements(int userId, String message, String attachments) {
+    public void sendMessageWithTextAndAttachements(int userVkId, String message, String attachments) {
 
-        String userDomain = userInfo.getUserDomain(groupActor, userId);
+        String userDomain = userInfo.getUserDomain(groupActor, userVkId);
         try {
-            apiClient.messages().send(groupActor).peerId(userId).userIds(userId).message(message).randomId(random.nextInt()).domain(userDomain).attachment(attachments).execute();
+            apiClient.messages().send(groupActor).peerId(userVkId).userIds(userVkId).message(message).randomId(random.nextInt()).domain(userDomain).attachment(attachments).execute();
         } catch (ApiException e) {
             log.error("Something wrong with API: " + e.getStackTrace());
         } catch (ClientException e) {
@@ -51,12 +52,12 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
-    public void sendMessageWithAttachmentsAndKeyboard(int userId, String attachments, String keyboard) {
+    public void sendMessageWithAttachmentsAndKeyboard(int userVkId, String attachments, Keyboard keyboard) {
 
-        String userDomain = userInfo.getUserDomain(groupActor, userId);
+        String userDomain = userInfo.getUserDomain(groupActor, userVkId);
         try {
-            apiClient.messages().send(groupActor).peerId(userId).userIds(userId).randomId(random.nextInt())
-                    .domain(userDomain).message(" ").attachment(attachments).unsafeParam("keyboard", keyboard).execute();
+            apiClient.messages().send(groupActor).peerId(userVkId).userIds(userVkId).randomId(random.nextInt())
+                    .domain(userDomain).message(" ").attachment(attachments).keyboard(keyboard).execute();
         } catch (ApiException e) {
             log.error("Something wrong with API: " + e.getStackTrace());
         } catch (ClientException e) {
@@ -64,11 +65,11 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
-    public void sendMessageWithAttachmentsOnly(int userId, String attachments) {
+    public void sendMessageWithAttachmentsOnly(int userVkId, String attachments) {
 
-        String userDomain = userInfo.getUserDomain(groupActor, userId);
+        String userDomain = userInfo.getUserDomain(groupActor, userVkId);
         try {
-            apiClient.messages().send(groupActor).peerId(userId).userIds(userId).randomId(random.nextInt())
+            apiClient.messages().send(groupActor).peerId(userVkId).userIds(userVkId).randomId(random.nextInt())
                     .domain(userDomain).message("    ").attachment(attachments).execute();
         } catch (ApiException e) {
             log.error("Something wrong with API: " + e.getStackTrace());
@@ -79,12 +80,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendMessageWithTextAndKeyboard(int userId, String message, String keyboard) {
+    public void sendMessageWithTextAndKeyboard(int userVkId, String message, Keyboard keyboard) {
 
-        String userDomain = userInfo.getUserDomain(groupActor, userId);
+        String userDomain = userInfo.getUserDomain(groupActor, userVkId);
         try {
-            apiClient.messages().send(groupActor).peerId(userId).userIds(userId).randomId(random.nextInt())
-                    .domain(userDomain).message(message).unsafeParam("keyboard", keyboard).execute();
+            apiClient.messages().send(groupActor).peerId(userVkId).userIds(userVkId).randomId(random.nextInt())
+                    .domain(userDomain).message(message).keyboard(keyboard).execute();
         } catch (ApiException e) {
             log.error("Something wrong with API: " + e.getStackTrace());
         } catch (ClientException e) {
