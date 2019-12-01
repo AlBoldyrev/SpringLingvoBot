@@ -5,13 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
-import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.LocalJavaKeyboard;
-import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.*;
@@ -37,7 +34,6 @@ public class MessageNew implements IResponseHandler {
     private final UserDialogServiceImpl userDialogService;
     private final MessageServiceKt messageServiceKt;
     private final MessageService messageService;
-    private final SetupKeyboard setupKeyboard;
     private final SetupMessageService setupMessageService;
     private final SettingsRepository settingsRepository;
     private final UserService userService;
@@ -86,7 +82,6 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
-
     /**
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
      */
@@ -128,7 +123,6 @@ public class MessageNew implements IResponseHandler {
         /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
-
 
     /**
      * Checks if User has any UserDialog which is not cancelled or not finished

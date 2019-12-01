@@ -30,6 +30,11 @@ public class LocalJavaKeyboard {
         return keyboard;
     }
 
+    /**
+     * This method created Keyboards with buttons: one button - one row.
+     * @param buttonNames
+     * @return Keyboard object legit to use in original VK methods
+     */
     public Keyboard createKeyboardWithButtonsOneButtonOneRow(List<String> buttonNames) {
 
         List<KeyboardButton> keyboardButtons = convertStringsIntoKeyboardButton(buttonNames);
@@ -42,6 +47,12 @@ public class LocalJavaKeyboard {
         return keyboard;
     }
 
+    /**
+     * Method takes button names and convert it into original VK object @KeyboardButton
+     *
+     * @param buttonNames
+     * @return
+     */
     private List<KeyboardButton> convertStringsIntoKeyboardButton(List<String> buttonNames) {
 
         List<CustomJavaButton> customJavaButtons = convertStringsToCustomJavaButtons(buttonNames);
@@ -56,6 +67,12 @@ public class LocalJavaKeyboard {
         return keyboardButtons;
     }
 
+    /**
+     * Method takes button names and convert it into our @CustomJavaButton object
+     *
+     * @param buttonNames
+     * @return
+     */
     private List<CustomJavaButton> convertStringsToCustomJavaButtons(List<String> buttonNames) {
         List<CustomJavaButton> customJavaButtons = new ArrayList<>();
         for (String buttonName: buttonNames) {
