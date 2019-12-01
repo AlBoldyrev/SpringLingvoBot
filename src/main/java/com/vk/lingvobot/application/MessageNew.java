@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboards.LocalJavaKeyboard;
+import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.*;
@@ -42,7 +42,7 @@ public class MessageNew implements IResponseHandler {
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
     private final MainDialogServiceKt mainDialogServiceKt;
-    private final LocalJavaKeyboard localJavaKeyboard;
+    private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
     @Override
@@ -119,7 +119,7 @@ public class MessageNew implements IResponseHandler {
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
         dialogsNames.forEach(sb::append);
-        Keyboard keyboardWithButtons = localJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
+        Keyboard keyboardWithButtons = customJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
         System.out.println(keyboardWithButtons);
         messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogLisatIntoListForVK(dialogsNames).toString() , keyboardWithButtons);
         /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/

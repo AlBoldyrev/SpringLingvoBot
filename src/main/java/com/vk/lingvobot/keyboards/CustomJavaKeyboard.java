@@ -2,6 +2,8 @@ package com.vk.lingvobot.keyboards;
 
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.api.sdk.objects.messages.KeyboardButton;
+import com.vk.api.sdk.objects.messages.KeyboardButtonAction;
+import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
 import com.vk.lingvobot.util.ListChopper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class LocalJavaKeyboard {
+public class CustomJavaKeyboard {
 
     /**
      * This method created Keyboards with buttons: 5 button max in row. If you need to have more buttons - user another method.
@@ -78,6 +80,8 @@ public class LocalJavaKeyboard {
 
         List<CustomJavaButton> customJavaButtons = convertStringsToCustomJavaButtons(buttonNames);
 
+        CustomJavaButton vkPayButton = createVKPAYButton();
+        customJavaButtons.add(vkPayButton);
         List<KeyboardButton> keyboardButtons = new ArrayList<>();
         for (CustomJavaButton customJavaButton: customJavaButtons) {
             KeyboardButton keyboardButton = new KeyboardButton();
@@ -102,4 +106,24 @@ public class LocalJavaKeyboard {
         }
         return customJavaButtons;
     }
+
+    /**
+     * Create VK PAY Button!
+     *
+     * @return
+     */
+    private CustomJavaButton createVKPAYButton() {
+
+        String hash = "action=pay-to-group&amount=50&group_id=170362981&aid=10";
+        CustomJavaButton customJavaButton = new CustomJavaButton();
+        KeyboardButtonAction keyboardButtonAction = new KeyboardButtonAction();
+        keyboardButtonAction.setType(KeyboardButtonActionType.VKPAY);
+        keyboardButtonAction.setHash(hash);
+        customJavaButton.setType(KeyboardButtonActionType.VKPAY);
+        customJavaButton.setAction(keyboardButtonAction);
+
+        return customJavaButton;
+    }
+
+
 }
