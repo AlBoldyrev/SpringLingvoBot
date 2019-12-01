@@ -48,11 +48,8 @@ public class MessageNew implements IResponseHandler {
     private final LocalJavaKeyboard localJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
-    @Autowired
-    VkApiClient vkApiClient;
-
     @Override
-    public void handle(JsonObject jsonObject, GroupActor groupActor) throws ClientException {
+    public void handle(JsonObject jsonObject, GroupActor groupActor) {
 
         groupActor = this.groupActor;
 
@@ -81,7 +78,6 @@ public class MessageNew implements IResponseHandler {
             }
         }
 
-
         if (message.getObject().getBody().equals("!меню")) {
             System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
             List<Dialog> dialogs = dialogRepository.findAllDialogs();
@@ -89,6 +85,7 @@ public class MessageNew implements IResponseHandler {
             dialogsNames.forEach(System.out::println);
         }
     }
+
 
     /**
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
@@ -103,6 +100,10 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
+
+    /**
+     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
+     */
     private void enterTheDialog(User user, String message) {
         Dialog dialog = dialogRepository.findByDialogName(message);
         if (dialog == null) {
@@ -114,8 +115,12 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
+
+    /**
+     * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.
+     */
     private void sendListOfDialogs(User user) {
-        List<Dialog> allDialogs = dialogRepository.findAllDialogs();
+        List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
         dialogsNames.forEach(sb::append);
@@ -126,6 +131,10 @@ public class MessageNew implements IResponseHandler {
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
 
+
+    /**
+     * Checks if User has any UserDialog which is not cancelled or not finished
+     */
     private boolean hasUserDialogInProcess(User user) {
         UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(user.getUserId());
         return currentDialogOfUser != null;
@@ -140,7 +149,9 @@ public class MessageNew implements IResponseHandler {
     }
 
 
-
+    /**
+     * User sends the message - we send particular dialogPhrase and increment state
+     */
     private void processCommonDialog(User user) {
 
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
@@ -149,17 +160,15 @@ public class MessageNew implements IResponseHandler {
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
 
+        messageService.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
         messageServiceKt.sendMessageTextOnly(groupActor, user.getUserVkId(), dialogPhraseValue);
         log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
         Integer dialogMaxStateValue = dialogMaxState.getDialogMaxStateValue();
 
-        log.info("CURRENT STATE : " + state);
-        log.info("DIALOG MAX STATE : " + dialogMaxStateValue);
         if (++state <= dialogMaxStateValue) {
             currentUserDialog.setState(state);
-            log.info("CURRENT STATE AFTER ++ : " + state);
         } else {
             currentUserDialog.setFinished(true);
         }
@@ -167,6 +176,9 @@ public class MessageNew implements IResponseHandler {
 
     }
 
+    /**
+     * Create new user using his vkId.
+     */
     private User createNewUser(int vkId) {
         log.info("There is no user with vk id: " + vkId + ". Creating new user...");
 
@@ -175,47 +187,6 @@ public class MessageNew implements IResponseHandler {
         Settings settings = new Settings();
         Settings saveSettings = settingsRepository.save(settings);
         user.setSettings(saveSettings);
-        User saved = userRepository.save(user);
-
-        if (saved != null) {
-            log.info("New user created: " + user);
-            return saved;
-        }
-
-        return null;
+        return userRepository.save(user);
     }
-
-
-
-    private int findCurrentDialogOfUser(int userVkId) {
-
-        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
-        if (currentDialogOfUser == null) {
-            log.error("There is no active dialog for this user!!!");
-            return 0; //TODO magicNumber!
-        }
-        return currentDialogOfUser.getDialog().getDialogId();
-    }
-
-    /*private int findCurrentStateOfUser(int userVkId) {
-
-        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(userVkId);
-        if (currentDialogOfUser == null) {
-            log.error("There is no active dialog for this user!!!");
-            return 1; //TODO magicNumber!
-        }
-        return currentDialogOfUser.getDialog().getState();
-    }*/
-
-    /*public void createMasterDataForTestingDialogs() {
-
-        Dialog dialog = new Dialog();
-        DialogMaxState dialogMaxState = new DialogMaxState();
-        dialogMaxState.setDialog(dialog);
-        dialogMaxState.setDialogMaxStateValue(5);
-        dialog.setDialogId(1);
-        dialogMa
-        dialogRepository.save(dialog);
-        System.out.println("dialog has been saved...");
-    }*/
 }
