@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserDialogRepository extends JpaRepository<UserDialog, Integer> {
 
@@ -15,7 +17,7 @@ public interface UserDialogRepository extends JpaRepository<UserDialog, Integer>
     UserDialog findCurrentDialogOfUser(@Param("userId") int userId);
 
     @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId")
-    UserDialog findUserDialogByUserIdAndDialogId(@Param("userId") int userId, @Param("dialogId") int dialogId);
+    UserDialog findByUserAndDialog(@Param("userId") int userId, @Param("dialogId") int dialogId);
 
     @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = :dialogId and ud.isFinished = true")
     UserDialog findFinishedDialogByUserIdAndDialogId(@Param("userId") Integer userId, @Param("dialogId") Integer dialogId);
@@ -25,5 +27,8 @@ public interface UserDialogRepository extends JpaRepository<UserDialog, Integer>
 
     @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId and ud.dialog.dialogId = 1")
     UserDialog findUserGreetingDialog(@Param("userId") Integer userId);
+
+    @Query("SELECT ud FROM UserDialog ud WHERE ud.user.userId = :userId")
+    List<UserDialog> findAllUserDialogs(@Param("userId") Integer userId);
 
 }

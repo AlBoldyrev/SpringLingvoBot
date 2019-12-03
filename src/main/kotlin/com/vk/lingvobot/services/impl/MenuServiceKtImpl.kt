@@ -1,25 +1,40 @@
 package com.vk.lingvobot.services.impl
 
 import com.vk.api.sdk.client.actors.GroupActor
+import com.vk.api.sdk.objects.messages.KeyboardButtonColor
 import com.vk.lingvobot.entities.User
+import com.vk.lingvobot.entities.UserDialog
 import com.vk.lingvobot.keyboard.CustomButton
 import com.vk.lingvobot.keyboard.MenuButtons
-import com.vk.lingvobot.menu.MenuLevel
+import com.vk.lingvobot.entities.menu.MenuLevel
+import com.vk.lingvobot.entities.menu.MenuStage
+import com.vk.lingvobot.repositories.DialogRepository
 import com.vk.lingvobot.repositories.MenuStageRepository
+import com.vk.lingvobot.repositories.UserDialogRepository
 import com.vk.lingvobot.services.MenuServiceKt
 import com.vk.lingvobot.services.MessageServiceKt
+import com.vk.lingvobot.services.UserDialogService
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class MenuServiceKtImpl @Autowired constructor(
     private val messageService: MessageServiceKt,
-    private val menuStageRepository: MenuStageRepository
+    private val menuStageRepository: MenuStageRepository,
+    private val dialogRepository: DialogRepository,
+    private val userDialogRepository: UserDialogRepository,
+    private val userDialogService: UserDialogService
 ) :
     MenuServiceKt {
 
     private val mainMenuButtons =
-        listOf(CustomButton(MenuButtons.PHRASES.value), CustomButton(MenuButtons.DIALOGS.value))
+        listOf(listOf(CustomButton(MenuButtons.PHRASES.value), CustomButton(MenuButtons.DIALOGS.value)))
 
     override fun processMainDialog(user: User, groupActor: GroupActor, buttonList: List<String>) {
 
@@ -27,29 +42,39 @@ class MenuServiceKtImpl @Autowired constructor(
         for (button in buttonList) {
             buttons.add(CustomButton(button))
         }
-        messageService.sendMessageWithTextAndKeyboard(
+        /*messageService.sendMessageWithTextAndKeyboard(
             groupActor,
             user.vkId,
             "Выберите один из диалогов:",
             buttons
-        )
+        )*/
     }
 
     override fun handle(user: User, messageBody: String, groupActor: GroupActor) {
-        val menuStage = menuStageRepository.findByUser(user.userId)
+        var menuStage = menuStageRepository.findByUser(user.userId)
+        if (menuStage == null) {
+            menuStage = MenuStage(user = user, menuLevel = MenuLevel.MAIN, currentDialogPage = 0)
+            menuStage = menuStageRepository.save(menuStage)
+        }
 
-        when (menuStage.menuLevel) {
-            MenuLevel.MAIN -> callMainMenu(user, messageBody, groupActor)
-            MenuLevel.DIALOG -> callDialogMenu()
+        when (menuStage?.menuLevel) {
+            MenuLevel.MAIN -> callMainMenu(user, messageBody, menuStage, groupActor)
+            MenuLevel.DIALOG -> callDialogMenu(user, messageBody, menuStage, groupActor)
             MenuLevel.PHRASE -> callPhraseMenu()
         }
     }
 
-    private fun callMainMenu(user: User, messageBody: String, groupActor: GroupActor) {
+    private fun callMainMenu(user: User, messageBody: String, menuStage: MenuStage, groupActor: GroupActor) {
         when (messageBody) {
-            MenuButtons.DIALOGS.value -> Unit
+            MenuButtons.DIALOGS.value -> {
+                menuStage.menuLevel = MenuLevel.DIALOG
+                menuStageRepository.save(menuStage)
+                callDialogMenu(user, messageBody, menuStage, groupActor)
+            }
             MenuButtons.PHRASES.value -> {
-
+                menuStage.menuLevel = MenuLevel.PHRASE
+                menuStageRepository.save(menuStage)
+                callPhraseMenu()
             }
             else -> messageService.sendMessageWithTextAndKeyboard(
                 groupActor,
@@ -60,11 +85,92 @@ class MenuServiceKtImpl @Autowired constructor(
         }
     }
 
-    private fun callDialogMenu() {
+    private fun callDialogMenu(user: User, messageBody: String, menuStage: MenuStage, groupActor: GroupActor) {
+        val allDialogs = dialogRepository.findAllDialogExceptSettingOne()
+
+        when (messageBody) {
+            MenuButtons.NEXT.value -> {
+                val nextDialogPage = menuStage.currentDialogPage + 1
+                sendDialogsKeyboard(user, nextDialogPage, groupActor)
+                menuStage.currentDialogPage = nextDialogPage
+                menuStageRepository.save(menuStage)
+            }
+            MenuButtons.BACK.value -> {
+                val previousDialogPage = menuStage.currentDialogPage - 1
+                sendDialogsKeyboard(user, previousDialogPage, groupActor)
+                menuStage.currentDialogPage = previousDialogPage
+                menuStageRepository.save(menuStage)
+            }
+            MenuButtons.HOME.value -> {
+                menuStage.menuLevel = MenuLevel.MAIN
+                menuStageRepository.save(menuStage)
+                callMainMenu(user, messageBody, menuStage, groupActor)
+            }
+            else -> {
+                if (allDialogs.any { it.dialogName == messageBody }) {
+                    enterTheDialog(user, messageBody)
+                } else {
+                    sendDialogsKeyboard(user, 0, groupActor)
+                }
+            }
+        }
 
     }
 
     private fun callPhraseMenu() {
 
+    }
+
+    //TODO !!!!!!!!!!!!!!!!!!!
+    private fun sendDialogsKeyboard(user: User, pageNumber: Int, groupActor: GroupActor) {
+        val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
+
+        val allButtons = mutableListOf<List<CustomButton>>()
+        val buttonsInRow = mutableListOf<CustomButton>()
+        val navigationButtons = mutableListOf<CustomButton>()
+
+        val page: Pageable = PageRequest.of(pageNumber, 5, Sort.by("dialogId").ascending())
+        val dialogsPage = dialogRepository.findAll(page)
+        if (dialogsPage.content.isNotEmpty()) {
+            dialogsPage.forEach { dialog ->
+                val foundUserDialog = allUserDialogs.find { it.dialog == dialog }
+                buttonsInRow += if (foundUserDialog != null && foundUserDialog.isFinished) {
+                    CustomButton(dialog.dialogName, color = KeyboardButtonColor.POSITIVE)
+                } else {
+                    CustomButton(dialog.dialogName)
+                }
+            }
+            allButtons += buttonsInRow
+        }
+
+        if (dialogsPage.isFirst) {
+            navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
+            navigationButtons += CustomButton(MenuButtons.NEXT.value, color = KeyboardButtonColor.PRIMARY)
+        } else if (dialogsPage.isLast) {
+            navigationButtons += CustomButton(MenuButtons.BACK.value, color = KeyboardButtonColor.PRIMARY)
+            navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
+        }
+        allButtons += navigationButtons
+
+        messageService.sendMessageWithTextAndKeyboard(
+            groupActor,
+            user.vkId,
+            "Выберите один из диалогов:",
+            allButtons
+        )
+    }
+
+    /**
+     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
+     */
+    private fun enterTheDialog(user: User, message: String) {
+        val dialog = dialogRepository.findByDialogName(message)
+        if (dialog == null) {
+            logger.error("dialog with unexisting name")
+        } else {
+            val userDialog = UserDialog(user, dialog, false, false)
+            userDialog.state = 1
+            userDialogService.create(userDialog)
+        }
     }
 }

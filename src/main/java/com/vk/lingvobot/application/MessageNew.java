@@ -60,7 +60,7 @@ public class MessageNew implements IResponseHandler {
             processInitialSetup(user, groupActor, messageBody);
         } else {
             if (!hasUserDialogInProcess(user)) {
-
+                menuServiceKt.handle(user, messageBody, groupActor);
                 /*List<Dialog> allDialogs = dialogRepository.findAllDialogs();
                 List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
                 if (dialogsNames.contains(messageBody)) {
@@ -97,22 +97,6 @@ public class MessageNew implements IResponseHandler {
             log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
         }
     }
-
-
-    /**
-     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
-     */
-    private void enterTheDialog(User user, String message) {
-        Dialog dialog = dialogRepository.findByDialogName(message);
-        if (dialog == null) {
-            log.error("dialog with unexisting name");
-        } else {
-            UserDialog userDialog = new UserDialog(user, dialog, false, false);
-            userDialog.setState(1);
-            userDialogService.create(userDialog);
-        }
-    }
-
 
     /**
      * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.

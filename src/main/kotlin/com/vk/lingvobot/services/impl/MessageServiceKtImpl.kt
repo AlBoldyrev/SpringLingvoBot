@@ -7,6 +7,7 @@ import com.vk.lingvobot.keyboard.CustomButton
 import com.vk.lingvobot.keyboard.getButton
 import com.vk.lingvobot.keyboard.getKeyboard
 import com.vk.lingvobot.services.MessageServiceKt
+import com.vk.lingvobot.util.chop
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -38,7 +39,7 @@ class MessageServiceKtImpl : MessageServiceKt {
         groupActor: GroupActor,
         userVkId: Int,
         message: String,
-        keyboardButtons: List<CustomButton>
+        keyboardButtons: List<List<CustomButton>>
     ) {
         val randomId = Random.nextInt()
         val buttons = addButtons(keyboardButtons)
@@ -47,11 +48,15 @@ class MessageServiceKtImpl : MessageServiceKt {
             .execute()
     }
 
-    private fun addButtons(buttonsToAdd: List<CustomButton>): List<KeyboardButton> {
-        val buttons = mutableListOf<KeyboardButton>()
-        for (buttonToAdd in buttonsToAdd) {
-            val button = getButton(buttonToAdd)
-            buttons.add(button)
+    private fun addButtons(buttonsToAdd: List<List<CustomButton>>): List<List<KeyboardButton>> {
+        val buttons = mutableListOf<MutableList<KeyboardButton>>()
+        for (buttonListToAdd in buttonsToAdd) {
+            val listToAdd = mutableListOf<KeyboardButton>()
+            for (buttonToAdd in buttonListToAdd) {
+                val button = getButton(buttonToAdd)
+                listToAdd += button
+            }
+            buttons += listToAdd
         }
         return buttons
     }

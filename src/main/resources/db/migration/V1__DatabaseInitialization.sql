@@ -92,8 +92,10 @@ CREATE TYPE lingvobot.menu_level AS ENUM (
 CREATE TABLE IF NOT EXISTS lingvobot.menu_stage (
     id integer NOT NULL,
     user_id integer,
+    current_dialog_page integer,
     menu_level lingvobot.menu_level,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES lingvobot.users(user_id)
 );
 
 ------------------------------------------------------------------------------------------------------------------------

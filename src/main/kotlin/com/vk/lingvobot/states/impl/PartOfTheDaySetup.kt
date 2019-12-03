@@ -23,10 +23,12 @@ class PartOfTheDaySetup @Autowired constructor(
         dialogState: DialogState,
         greetingSetUpDialog: UserDialog
     ) {
-        val buttons = mutableListOf(
-            CustomButton("Утром"),
-            CustomButton("Днём"),
-            CustomButton("Вечером")
+        val buttons = listOf(
+            listOf(
+                CustomButton("Утром"),
+                CustomButton("Днём"),
+                CustomButton("Вечером")
+            )
         )
         messageService.sendMessageWithTextAndKeyboard(
             groupActor,
