@@ -34,7 +34,12 @@ class MenuServiceKtImpl @Autowired constructor(
     MenuServiceKt {
 
     private val mainMenuButtons =
-        listOf(listOf(CustomButton(MenuButtons.PHRASES.value), CustomButton(MenuButtons.DIALOGS.value)))
+        listOf(
+            listOf(
+                CustomButton(MenuButtons.PHRASES.value, color = KeyboardButtonColor.PRIMARY),
+                CustomButton(MenuButtons.DIALOGS.value, color = KeyboardButtonColor.PRIMARY)
+            )
+        )
 
     override fun processMainDialog(user: User, groupActor: GroupActor, buttonList: List<String>) {
 
@@ -109,8 +114,11 @@ class MenuServiceKtImpl @Autowired constructor(
             else -> {
                 if (allDialogs.any { it.dialogName == messageBody }) {
                     enterTheDialog(user, messageBody)
+                    userDialogService.processCommonDialog(user, groupActor)
                 } else {
                     sendDialogsKeyboard(user, 0, groupActor)
+                    menuStage.currentDialogPage = 0
+                    menuStageRepository.save(menuStage)
                 }
             }
         }
@@ -130,6 +138,7 @@ class MenuServiceKtImpl @Autowired constructor(
 
         val page: Pageable = PageRequest.of(pageNumber, 5, Sort.by("dialogId").ascending())
         val dialogsPage = dialogRepository.findAllDialogExceptSettingOne(page)
+
         if (dialogsPage.content.isNotEmpty()) {
             dialogsPage.forEach { dialog ->
                 val foundUserDialog = allUserDialogs.find { it.dialog == dialog }
@@ -144,10 +153,10 @@ class MenuServiceKtImpl @Autowired constructor(
 
         when {
             dialogsPage.isFirst -> {
+                navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
                 if (dialogsPage.hasNext()) {
                     navigationButtons += CustomButton(MenuButtons.NEXT.value, color = KeyboardButtonColor.PRIMARY)
                 }
-                navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
             }
             dialogsPage.isLast -> {
                 navigationButtons += CustomButton(MenuButtons.BACK.value, color = KeyboardButtonColor.PRIMARY)
@@ -164,7 +173,7 @@ class MenuServiceKtImpl @Autowired constructor(
         messageService.sendMessageWithTextAndKeyboard(
             groupActor,
             user.vkId,
-            "Выберите один из диалогов:",
+            "Выберите один из диалогов",
             allButtons
         )
     }

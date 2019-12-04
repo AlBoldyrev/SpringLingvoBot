@@ -1,6 +1,7 @@
 package com.vk.lingvobot.repositories;
 
 import com.vk.lingvobot.entities.Dialog;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,7 +24,7 @@ public interface DialogRepository extends JpaRepository<Dialog, Integer> {
     List<Dialog> findAllDialogExceptSettingOne();
 
     @Query("SELECT d FROM Dialog d WHERE d.dialogId <> 1")
-    Slice<Dialog> findAllDialogExceptSettingOne(Pageable pageable);
+    Page<Dialog> findAllDialogExceptSettingOne(Pageable pageable);
 
     @Query("SELECT d FROM Dialog d WHERE d.dialogName = :dialogName")
     Dialog findByDialogName(@Param("dialogName") String dialogName);

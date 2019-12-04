@@ -4,11 +4,9 @@ package com.vk.lingvobot.application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboards.SetupKeyboard;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
@@ -43,7 +41,6 @@ public class MessageNew implements IResponseHandler {
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
     private final MenuServiceKt menuServiceKt;
-    private final MainDialogServiceKt mainDialogServiceKt;
     private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
@@ -73,19 +70,20 @@ public class MessageNew implements IResponseHandler {
                 } else {
                     enterTheDialog(user, messageBody);
                     processCommonDialog(user);
-                }
+                }*/
             } else {
-                processCommonDialog(user);
+                userDialogService.processCommonDialog(user, groupActor);
             }
         }
 
-        if (message.getObject().getBody().equals("!меню")) {
+        /*if (message.getObject().getBody().equals("!меню")) {
             System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
             List<Dialog> dialogs = dialogRepository.findAllDialogs();
             List<String> dialogsNames = dialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
             dialogsNames.forEach(System.out::println);
-        }
+        }*/
     }
+
 
     /**
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
@@ -106,7 +104,7 @@ public class MessageNew implements IResponseHandler {
     private void enterTheDialog(User user, String message) {
         Dialog dialog = dialogRepository.findByDialogName(message);
         if (dialog == null) {
-            log.error ("dialog with unexisting name");
+            log.error("dialog with unexisting name");
         } else {
             UserDialog userDialog = new UserDialog(user, dialog, false, false);
             userDialog.setState(1);
@@ -124,7 +122,7 @@ public class MessageNew implements IResponseHandler {
         dialogsNames.forEach(sb::append);
         Keyboard keyboardWithButtons = customJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
         System.out.println(keyboardWithButtons);
-        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogLisatIntoListForVK(dialogsNames).toString() , keyboardWithButtons);
+        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogLisatIntoListForVK(dialogsNames).toString(), keyboardWithButtons);
         /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
@@ -148,7 +146,7 @@ public class MessageNew implements IResponseHandler {
 
     /**
      * User sends the message - we send particular dialogPhrase and increment state
-     */
+     *//*
     private void processCommonDialog(User user) {
 
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
@@ -170,7 +168,7 @@ public class MessageNew implements IResponseHandler {
         }
         userDialogRepository.save(currentUserDialog);
 
-    }
+    }*/
 
     /**
      * Create new user using his vkId.
@@ -190,7 +188,7 @@ public class MessageNew implements IResponseHandler {
 
         int dialogCounter = 1;
         StringBuilder result = new StringBuilder(StringUtil.EMPTY_STRING);
-        for (String dialogName: dialogNames) {
+        for (String dialogName : dialogNames) {
             result.append(dialogCounter).append(". ").append(dialogName).append('\n');
             dialogCounter++;
         }
