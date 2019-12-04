@@ -6,13 +6,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.SetupKeyboard;
+import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.*;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +34,8 @@ public class MessageNew implements IResponseHandler {
     private final UserDialogRepository userDialogRepository;
     private final DialogRepository dialogRepository;
     private final UserDialogServiceImpl userDialogService;
-    private final MessageServiceKt messageService;
-    private final SetupKeyboard setupKeyboard;
+    private final MessageServiceKt messageServiceKt;
+    private final MessageService messageService;
     private final SetupMessageService setupMessageService;
     private final SettingsRepository settingsRepository;
     private final UserService userService;
@@ -40,6 +43,8 @@ public class MessageNew implements IResponseHandler {
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
     private final MenuServiceKt menuServiceKt;
+    private final MainDialogServiceKt mainDialogServiceKt;
+    private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
     @Override
@@ -63,14 +68,12 @@ public class MessageNew implements IResponseHandler {
                 menuServiceKt.handle(user, messageBody, groupActor);
                 /*List<Dialog> allDialogs = dialogRepository.findAllDialogs();
                 List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-                if (dialogsNames.contains(messageBody)) {
-                    enterTheDialog(user, messageBody);
-//                    sendListOfDialogs(user);
-                } else if (messageBody.equals("Далее")) {
-                    mainDialogServiceKt.callDialogListMenu(user, groupActor);
+                if (!dialogsNames.contains(messageBody)) {
+                    sendListOfDialogs(user);
                 } else {
-                    mainDialogServiceKt.callMainMenu(user, messageBody, groupActor);
-                }*/
+                    enterTheDialog(user, messageBody);
+                    processCommonDialog(user);
+                }
             } else {
                 processCommonDialog(user);
             }
@@ -83,7 +86,6 @@ public class MessageNew implements IResponseHandler {
             dialogsNames.forEach(System.out::println);
         }
     }
-
 
     /**
      * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
@@ -99,17 +101,33 @@ public class MessageNew implements IResponseHandler {
     }
 
     /**
+     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
+     */
+    private void enterTheDialog(User user, String message) {
+        Dialog dialog = dialogRepository.findByDialogName(message);
+        if (dialog == null) {
+            log.error ("dialog with unexisting name");
+        } else {
+            UserDialog userDialog = new UserDialog(user, dialog, false, false);
+            userDialog.setState(1);
+            userDialogService.create(userDialog);
+        }
+    }
+
+    /**
      * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.
      */
     private void sendListOfDialogs(User user) {
         List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-//        StringBuilder sb = new StringBuilder();
-//        dialogsNames.forEach(sb::append);
-        menuServiceKt.processMainDialog(user, groupActor, dialogsNames);
+        StringBuilder sb = new StringBuilder();
+        dialogsNames.forEach(sb::append);
+        Keyboard keyboardWithButtons = customJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
+        System.out.println(keyboardWithButtons);
+        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogLisatIntoListForVK(dialogsNames).toString() , keyboardWithButtons);
+        /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
-
 
     /**
      * Checks if User has any UserDialog which is not cancelled or not finished
@@ -139,7 +157,8 @@ public class MessageNew implements IResponseHandler {
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
 
-        messageService.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        messageServiceKt.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
         Integer dialogMaxStateValue = dialogMaxState.getDialogMaxStateValue();
@@ -165,5 +184,16 @@ public class MessageNew implements IResponseHandler {
         Settings saveSettings = settingsRepository.save(settings);
         user.setSettings(saveSettings);
         return userRepository.save(user);
+    }
+
+    private StringBuilder convertDialogLisatIntoListForVK(List<String> dialogNames) {
+
+        int dialogCounter = 1;
+        StringBuilder result = new StringBuilder(StringUtil.EMPTY_STRING);
+        for (String dialogName: dialogNames) {
+            result.append(dialogCounter).append(". ").append(dialogName).append('\n');
+            dialogCounter++;
+        }
+        return result;
     }
 }
