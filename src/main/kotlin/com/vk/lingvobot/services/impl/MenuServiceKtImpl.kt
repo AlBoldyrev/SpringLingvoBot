@@ -121,7 +121,6 @@ class MenuServiceKtImpl @Autowired constructor(
 
     }
 
-    //TODO !!!!!!!!!!!!!!!!!!!
     private fun sendDialogsKeyboard(user: User, pageNumber: Int, groupActor: GroupActor) {
         val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
 
@@ -130,7 +129,7 @@ class MenuServiceKtImpl @Autowired constructor(
         val navigationButtons = mutableListOf<CustomButton>()
 
         val page: Pageable = PageRequest.of(pageNumber, 5, Sort.by("dialogId").ascending())
-        val dialogsPage = dialogRepository.findAll(page)
+        val dialogsPage = dialogRepository.findAllDialogExceptSettingOne(page)
         if (dialogsPage.content.isNotEmpty()) {
             dialogsPage.forEach { dialog ->
                 val foundUserDialog = allUserDialogs.find { it.dialog == dialog }
@@ -143,12 +142,22 @@ class MenuServiceKtImpl @Autowired constructor(
             allButtons += buttonsInRow
         }
 
-        if (dialogsPage.isFirst) {
-            navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
-            navigationButtons += CustomButton(MenuButtons.NEXT.value, color = KeyboardButtonColor.PRIMARY)
-        } else if (dialogsPage.isLast) {
-            navigationButtons += CustomButton(MenuButtons.BACK.value, color = KeyboardButtonColor.PRIMARY)
-            navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
+        when {
+            dialogsPage.isFirst -> {
+                if (dialogsPage.hasNext()) {
+                    navigationButtons += CustomButton(MenuButtons.NEXT.value, color = KeyboardButtonColor.PRIMARY)
+                }
+                navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
+            }
+            dialogsPage.isLast -> {
+                navigationButtons += CustomButton(MenuButtons.BACK.value, color = KeyboardButtonColor.PRIMARY)
+                navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
+            }
+            else -> {
+                navigationButtons += CustomButton(MenuButtons.BACK.value, color = KeyboardButtonColor.PRIMARY)
+                navigationButtons += CustomButton(MenuButtons.HOME.value, color = KeyboardButtonColor.PRIMARY)
+                navigationButtons += CustomButton(MenuButtons.NEXT.value, color = KeyboardButtonColor.PRIMARY)
+            }
         }
         allButtons += navigationButtons
 
