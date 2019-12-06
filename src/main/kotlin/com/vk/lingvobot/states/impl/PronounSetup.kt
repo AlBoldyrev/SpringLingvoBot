@@ -23,7 +23,7 @@ class PronounSetup @Autowired constructor(
         dialogState: DialogState,
         greetingSetUpDialog: UserDialog
     ) {
-        val buttons = mutableListOf(CustomButton("Вы"), CustomButton("Ты"))
+        val buttons = listOf(listOf(CustomButton("Вы"), CustomButton("Ты")))
         messageService.sendMessageWithTextAndKeyboard(
             groupActor,
             user.vkId,

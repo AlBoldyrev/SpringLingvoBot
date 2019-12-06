@@ -4,15 +4,16 @@ package com.vk.lingvobot.application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboards.SetupKeyboard;
+import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.*;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,10 @@ public class MessageNew implements IResponseHandler {
     private final UserDialogRepository userDialogRepository;
     private final DialogRepository dialogRepository;
     private final UserDialogServiceImpl userDialogService;
-    private final MessageServiceKt messageService;
-    private final SetupKeyboard setupKeyboard;
+    private final MessageServiceKt messageServiceKt;
+    private final MessageService messageService;
     private final SetupMessageService setupMessageService;
+    private final PhrasePairStateService phrasePairStateService;
     private final SettingsRepository settingsRepository;
     private final UserService userService;
     private final DialogStateRepository dialogStateRepository;
@@ -41,8 +43,8 @@ public class MessageNew implements IResponseHandler {
     private final PhrasePairStateRepository phrasePairStateRepository;
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
-    private final MainDialogServiceKt mainDialogServiceKt;
-    private final PhrasePairStateService phrasePairStateService;
+    private final MenuServiceKt menuServiceKt;
+    private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
     @Override
@@ -63,13 +65,15 @@ public class MessageNew implements IResponseHandler {
             processInitialSetup(user, groupActor, messageBody);
         } else {
             if (!hasUserDialogInProcess(user)) {
-                List<Dialog> allDialogs = dialogRepository.findAllDialogs();
+                menuServiceKt.handle(user, messageBody, groupActor);
+                /*List<Dialog> allDialogs = dialogRepository.findAllDialogs();
                 List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
                 if (!dialogsNames.contains(messageBody)) {
                     sendListOfDialogs(user);
                 } else {
                     enterTheDialog(user, messageBody);
-                }
+                    processCommonDialog(user);
+                }*/
             } else {
                 if (hasUserPhrasesDialogInProcess(user)) {
                     if(hasUserPhrasesDialogStarted(user)) {
@@ -79,17 +83,17 @@ public class MessageNew implements IResponseHandler {
                         processPhrasesPairDialog(user);
                     }
                 } else {
-                    processCommonDialog(user);
+                    userDialogService.processCommonDialog(user, groupActor);
                 }
             }
         }
 
-        if (message.getObject().getBody().equals("!меню")) {
+        /*if (message.getObject().getBody().equals("!меню")) {
             System.out.println("ВЫЗЫВАЕТСЯ МЕНЮ!");
             List<Dialog> dialogs = dialogRepository.findAllDialogs();
             List<String> dialogsNames = dialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
             dialogsNames.forEach(System.out::println);
-        }
+        }*/
     }
 
 
@@ -106,7 +110,6 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
-
     /**
      * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
      */
@@ -121,7 +124,6 @@ public class MessageNew implements IResponseHandler {
         }
     }
 
-
     /**
      * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.
      */
@@ -130,10 +132,12 @@ public class MessageNew implements IResponseHandler {
         List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
         dialogsNames.forEach(sb::append);
-        mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);
+        Keyboard keyboardWithButtons = customJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
+        System.out.println(keyboardWithButtons);
+        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogLisatIntoListForVK(dialogsNames).toString(), keyboardWithButtons);
+        /* mainDialogServiceKt.processMainDialog(user, groupActor, dialogsNames);*/
         /*messageService.sendMessageTextOnly(groupActor, user.getUserVkId(), sb.toString());*/
     }
-
 
     /**
      * Checks if User has any UserDialog which is not cancelled or not finished
@@ -154,7 +158,7 @@ public class MessageNew implements IResponseHandler {
 
     /**
      * User sends the message - we send particular dialogPhrase and increment state
-     */
+     *//*
     private void processCommonDialog(User user) {
 
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
@@ -163,7 +167,8 @@ public class MessageNew implements IResponseHandler {
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
 
-        messageService.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        messageServiceKt.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
         Integer dialogMaxStateValue = dialogMaxState.getDialogMaxStateValue();
@@ -174,7 +179,33 @@ public class MessageNew implements IResponseHandler {
             currentUserDialog.setFinished(true);
         }
         userDialogRepository.save(currentUserDialog);
+    }
 
+    }*/
+
+    /**
+     * Create new user using his vkId.
+     */
+    private User createNewUser(int vkId) {
+        log.info("There is no user with vk id: " + vkId + ". Creating new user...");
+
+        User user = new User(vkId);
+
+        Settings settings = new Settings();
+        Settings saveSettings = settingsRepository.save(settings);
+        user.setSettings(saveSettings);
+        return userRepository.save(user);
+    }
+
+    private StringBuilder convertDialogLisatIntoListForVK(List<String> dialogNames) {
+
+        int dialogCounter = 1;
+        StringBuilder result = new StringBuilder(StringUtil.EMPTY_STRING);
+        for (String dialogName : dialogNames) {
+            result.append(dialogCounter).append(". ").append(dialogName).append('\n');
+            dialogCounter++;
+        }
+        return result;
     }
 
     private void processPhrasesPairDialog(User user) {
@@ -256,19 +287,5 @@ public class MessageNew implements IResponseHandler {
         Dialog dialog = currentUserDialog.getDialog();
         String dialogName = dialog.getDialogName();
         return dialogName.equalsIgnoreCase("Фразы");
-    }
-
-    /**
-     * Create new user using his vkId.
-     */
-    private User createNewUser(int vkId) {
-        log.info("There is no user with vk id: " + vkId + ". Creating new user...");
-
-        User user = new User(vkId);
-
-        Settings settings = new Settings();
-        Settings saveSettings = settingsRepository.save(settings);
-        user.setSettings(saveSettings);
-        return userRepository.save(user);
     }
 }

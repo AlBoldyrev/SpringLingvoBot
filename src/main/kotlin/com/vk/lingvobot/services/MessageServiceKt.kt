@@ -13,7 +13,7 @@ interface MessageServiceKt {
         groupActor: GroupActor,
         userVkId: Int,
         message: String,
-        keyboardButtons: MutableList<CustomButton>
+        keyboardButtons: List<List<CustomButton>>
     )
 
 }

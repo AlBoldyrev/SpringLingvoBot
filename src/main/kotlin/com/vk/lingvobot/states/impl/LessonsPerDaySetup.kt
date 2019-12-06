@@ -23,12 +23,14 @@ class LessonsPerDaySetup @Autowired constructor(
         dialogState: DialogState,
         greetingSetUpDialog: UserDialog
     ) {
-        val buttons = mutableListOf(
-            CustomButton("1"),
-            CustomButton("2"),
-            CustomButton("3"),
-            CustomButton("4"),
-            CustomButton("5")
+        val buttons = listOf(
+            listOf(
+                CustomButton("1"),
+                CustomButton("2"),
+                CustomButton("3"),
+                CustomButton("4"),
+                CustomButton("5")
+            )
         )
         messageService.sendMessageWithTextAndKeyboard(
             groupActor,

@@ -1,14 +1,14 @@
 package com.vk.lingvobot.application;
 
 import com.google.gson.JsonObject;
-import com.vk.api.sdk.callback.longpoll.responses.GetLongPollEventsResponse;
+
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.exceptions.LongPollServerKeyExpiredException;
+import com.vk.api.sdk.objects.callback.longpoll.responses.GetLongPollEventsResponse;
 import com.vk.api.sdk.objects.groups.LongPollServer;
-import com.vk.api.sdk.objects.responses.GetLongPollServerResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -53,13 +53,13 @@ class BotRequestHandler {
         } catch (ClientException e) {
             log.error("CLIENT Exception !!! " + e.getStackTrace());
         }
-        int lastTimeStamp = Objects.requireNonNull(longPollServer).getTs();
+        int ts = Integer.parseInt(Objects.requireNonNull(longPollServer).getTs());
 
 
         while (true) try {
 
             GetLongPollEventsResponse eventsResponse = apiClient.longPoll().getEvents(longPollServer.getServer(),
-                    longPollServer.getKey(), lastTimeStamp).waitTime(waitTime).execute();
+                    longPollServer.getKey(), ts).waitTime(waitTime).execute();
 
             for (JsonObject jsonObject : eventsResponse.getUpdates()) {
                 String type = jsonObject.get("type").getAsString();
@@ -72,7 +72,8 @@ class BotRequestHandler {
                 }
 
             }
-            lastTimeStamp = eventsResponse.getTs();
+
+            ts = eventsResponse.getTs();
         } catch (LongPollServerKeyExpiredException | RuntimeException e) {
             try {
                 longPollServer = apiClient.groupsLongPoll().getLongPollServer(groupActor, groupActor.getGroupId()).execute();

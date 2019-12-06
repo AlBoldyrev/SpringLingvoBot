@@ -83,6 +83,21 @@ CREATE TABLE IF NOT EXISTS lingvobot.user_dialogs (
     FOREIGN KEY (dialog_id) REFERENCES lingvobot.dialogs(dialog_id)
 );
 
+CREATE TYPE lingvobot.menu_level AS ENUM (
+    'MAIN',
+    'DIALOG',
+    'PHRASE'
+);
+
+CREATE TABLE IF NOT EXISTS lingvobot.menu_stage (
+    id integer NOT NULL,
+    user_id integer,
+    current_dialog_page integer,
+    menu_level lingvobot.menu_level,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES lingvobot.users(user_id)
+);
+
 ------------------------------------------------------------------------------------------------------------------------
 
 CREATE SEQUENCE IF NOT EXISTS lingvobot.lingvobot_dialog_max_state_sequence
@@ -148,6 +163,13 @@ CREATE SEQUENCE IF NOT EXISTS lingvobot.lingvobot_user_sequence
     NO MAXVALUE
     CACHE 1;
 
+CREATE SEQUENCE IF NOT EXISTS lingvobot.lingvobot_menustage_sequence
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    NO MAXVALUE
+    CACHE 1;
+
 ------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE lingvobot.dialogs OWNER TO postgres;
@@ -159,6 +181,7 @@ ALTER TABLE lingvobot.phrase_pairs OWNER TO postgres;
 ALTER TABLE lingvobot.settings OWNER TO postgres;
 ALTER TABLE lingvobot.user_dialogs OWNER TO postgres;
 ALTER TABLE lingvobot.users OWNER TO postgres;
+ALTER TABLE lingvobot.menu_stage OWNER TO postgres;
 
 ALTER TABLE lingvobot.lingvobot_dialog_max_state_sequence OWNER TO postgres;
 ALTER TABLE lingvobot.lingvobot_dialog_phrase_sequence OWNER TO postgres;
@@ -169,5 +192,6 @@ ALTER TABLE lingvobot.lingvobot_phrase_pair_sequence OWNER TO postgres;
 ALTER TABLE lingvobot.lingvobot_settings_sequence OWNER TO postgres;
 ALTER TABLE lingvobot.lingvobot_user_dialog_sequence OWNER TO postgres;
 ALTER TABLE lingvobot.lingvobot_user_sequence OWNER TO postgres;
+ALTER TABLE lingvobot.lingvobot_menustage_sequence OWNER TO postgres;
 
 ------------------------------------------------------------------------------------------------------------------------
