@@ -13,6 +13,7 @@ import com.vk.lingvobot.repositories.MenuStageRepository
 import com.vk.lingvobot.repositories.UserDialogRepository
 import com.vk.lingvobot.services.MenuServiceKt
 import com.vk.lingvobot.services.MessageServiceKt
+import com.vk.lingvobot.services.PhraseService
 import com.vk.lingvobot.services.UserDialogService
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +30,8 @@ class MenuServiceKtImpl @Autowired constructor(
     private val menuStageRepository: MenuStageRepository,
     private val dialogRepository: DialogRepository,
     private val userDialogRepository: UserDialogRepository,
-    private val userDialogService: UserDialogService
+    private val userDialogService: UserDialogService,
+    private val phraseService: PhraseService
 ) :
     MenuServiceKt {
 
@@ -122,20 +124,21 @@ class MenuServiceKtImpl @Autowired constructor(
                 }
             }
         }
+
     }
 
     private fun callPhraseMenu(user: User, messageBody: String, menuStage: MenuStage, groupActor: GroupActor) {
-    /*
-        val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
-        for(userDialog in allUserDialogs){
-            val dialogName = userDialog.dialog.dialogName;
-            if(dialogName == "Фразы" && userDialog.isFinished) {
-                menuStage.menuLevel = MenuLevel.MAIN
-                menuStageRepository.save(menuStage)
-                callMainMenu(user, messageBody, menuStage, groupActor)
+        /*
+            val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
+            for(userDialog in allUserDialogs){
+                val dialogName = userDialog.dialog.dialogName;
+                if(dialogName == "Фразы" && userDialog.isFinished) {
+                    menuStage.menuLevel = MenuLevel.MAIN
+                    menuStageRepository.save(menuStage)
+                    callMainMenu(user, messageBody, menuStage, groupActor)
+                }
             }
-        }
-       */
+           */
         enterTheDialog(user, messageBody)
         userDialogService.processPhrasesPairDialog(user)
     }
