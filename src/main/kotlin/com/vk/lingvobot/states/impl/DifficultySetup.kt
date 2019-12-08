@@ -22,7 +22,8 @@ class DifficultySetup @Autowired constructor(
         dialogState: DialogState,
         greetingSetUpDialog: UserDialog
     ) {
-        val buttons = mutableListOf(CustomButton("Лёгкий"), CustomButton("Средний"), CustomButton("Сложный"))
+        val buttons =
+            listOf(listOf(CustomButton("Лёгкий"), CustomButton("Средний"), CustomButton("Сложный")))
         messageService.sendMessageWithTextAndKeyboard(
             groupActor,
             user.vkId,

@@ -28,8 +28,57 @@ VALUES (21, 'Привет! Это диалог 2 фраза 1'),
    (32, 'Привет! Это диалог 2 фраза 12')
    ON CONFLICT DO NOTHING;
 
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (33, 'Привет! Это диалог 3 фраза 1'),
+   (34, 'Привет! Это диалог 3 фраза 2'),
+   (35, 'Привет! Это диалог 3 фраза 3')
+   ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (36, 'Привет! Это диалог 4 фраза 1'),
+   (37, 'Привет! Это диалог 4 фраза 2'),
+   (38, 'Привет! Это диалог 4 фраза 3')
+   ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (39, 'Привет! Это диалог 5 фраза 1'),
+	   (40, 'Привет! Это диалог 5 фраза 2'),
+	   (41, 'Привет! Это диалог 5 фраза 3')
+	   ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (42, 'Привет! Это диалог 6 фраза 1'),
+   (43, 'Привет! Это диалог 6 фраза 2'),
+   (44, 'Привет! Это диалог 6 фраза 3')
+   ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (45, 'Привет! Это диалог 7 фраза 1'),
+	   (46, 'Привет! Это диалог 7 фраза 2'),
+	   (47, 'Привет! Это диалог 7 фраза 3')
+	   ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (48, 'Привет! Это диалог 8 фраза 1'),
+   (49, 'Привет! Это диалог 8 фраза 2'),
+   (50, 'Привет! Это диалог 8 фраза 3')
+   ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_phrase(dialog_phrase_id, dialog_phrase_value)
+VALUES (51, 'Привет! Это диалог 9 фраза 1'),
+	   (52, 'Привет! Это диалог 9 фраза 2'),
+	   (53, 'Привет! Это диалог 9 фраза 3')
+	   ON CONFLICT DO NOTHING;
+
 INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (2, 'Тестовый Диалог №1') ON CONFLICT DO NOTHING;
 INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (3, 'Тестовый Диалог №2') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (4, 'Тестовый Диалог №3') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (5, 'Тестовый Диалог №4') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (6, 'Тестовый Диалог №5') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (7, 'Тестовый Диалог №6') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (8, 'Тестовый Диалог №7') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (9, 'Тестовый Диалог №8') ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialogs(dialog_id, dialog_name) VALUES (10, 'Тестовый Диалог №9') ON CONFLICT DO NOTHING;
 
 INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 2, 9) ON CONFLICT DO NOTHING;
 INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 2, 10) ON CONFLICT DO NOTHING;
@@ -57,6 +106,42 @@ INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phr
 INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 11, 3, 31) ON CONFLICT DO NOTHING;
 INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 12, 3, 32) ON CONFLICT DO NOTHING;
 
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 4, 33) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 4, 34) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 4, 35) ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 5, 36) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 5, 37) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 5, 38) ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 6, 39) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 6, 40) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 6, 41) ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 7, 42) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 7, 43) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 7, 44) ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 8, 45) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 8, 46) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 8, 47) ON CONFLICT DO NOTHING;
+
+
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 9, 48) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 9, 49) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 9, 50) ON CONFLICT DO NOTHING;
+
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 1, 10, 51) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 2, 10, 52) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_state(dialog_state_id, state, dialog_id, dialog_phrase_id)	VALUES (nextval('lingvobot.lingvobot_dialog_state_sequence'), 3, 10, 53) ON CONFLICT DO NOTHING;
+
 
 INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (2, 12, 2) ON CONFLICT DO NOTHING;
 INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (3, 12, 3) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (4, 3, 4) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (5, 3, 5) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (6, 3, 6) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (7, 3, 7) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (8, 3, 8) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (9, 3, 9) ON CONFLICT DO NOTHING;
+INSERT INTO lingvobot.dialog_max_state(dialog_max_state_id, dialog_max_state_value, dialog_id) VALUES (10, 3, 10) ON CONFLICT DO NOTHING;

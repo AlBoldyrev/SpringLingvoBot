@@ -19,4 +19,20 @@ public class Dialog {
 
     @Column(name = "dialog_name", unique = true)
     private String dialogName;
+
+    public Integer getDialogId() {
+        return dialogId;
+    }
+
+    public void setDialogId(Integer dialogId) {
+        this.dialogId = dialogId;
+    }
+
+    public String getDialogName() {
+        return dialogName;
+    }
+
+    public void setDialogName(String dialogName) {
+        this.dialogName = dialogName;
+    }
 }
