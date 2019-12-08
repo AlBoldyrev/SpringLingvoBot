@@ -4,8 +4,11 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
 import com.vk.lingvobot.repositories.DialogStateRepository;
+import com.vk.lingvobot.repositories.PhrasePairStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.services.MessageServiceKt;
+import com.vk.lingvobot.services.PhrasePairService;
+import com.vk.lingvobot.services.PhrasePairStateService;
 import com.vk.lingvobot.services.UserDialogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,10 @@ public class UserDialogServiceImpl implements UserDialogService {
     private MessageServiceKt messageServiceKt;
     @Autowired
     private DialogMaxStateRepository dialogMaxStateRepository;
+    @Autowired
+    private PhrasePairStateService phrasePairStateService;
+    @Autowired
+    private PhrasePairService phrasePairService;
 
 
     @Override
@@ -72,6 +79,40 @@ public class UserDialogServiceImpl implements UserDialogService {
         }
         userDialogRepository.save(currentUserDialog);
 
+    }
+
+    public void processPhrasesPairDialog(User user) {
+
+        UserDialog currentUserDialog = findCurrentDialogOfUser(user.getUserId());
+        PhrasePairState userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
+
+        if (userPhrasePairState == null) {
+            phrasePairStateService.createPhrasesPairState(user);
+            userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
+        }
+
+        if(!phrasePairStateService.checkUserPhraseState(user)) {
+            phrasePairService.sendPhraseQuestion(userPhrasePairState, user, null);
+            phrasePairStateService.changeUserPhrasesState(user);
+
+        } else {
+            phrasePairService.sendPhraseAnswer(userPhrasePairState, user);
+            phrasePairStateService.changeUserPhrasesState(user);
+
+            Integer currentPhrasePairId = userPhrasePairState.getPhrasePair().getPhrasePairId();
+
+            if(phrasePairService.checkPhrasePairLastState(currentPhrasePairId)) {
+                phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
+            } else {
+                userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
+                phrasePairStateService.save(userPhrasePairState);
+                userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
+
+                String question = "Следующая фраза: \n" + userPhrasePairState.getPhrasePair().getPhraseQuestion();
+                phrasePairService.sendPhraseQuestion(userPhrasePairState, user, question);
+                phrasePairStateService.changeUserPhrasesState(user);
+            }
+        }
     }
 
     @Transactional

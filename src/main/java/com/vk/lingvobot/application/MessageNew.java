@@ -36,6 +36,7 @@ public class MessageNew implements IResponseHandler {
     private final MessageService messageService;
     private final SetupMessageService setupMessageService;
     private final PhrasePairStateService phrasePairStateService;
+    private final PhrasePairService phrasePairService;
     private final SettingsRepository settingsRepository;
     private final UserService userService;
     private final DialogStateRepository dialogStateRepository;
@@ -75,12 +76,12 @@ public class MessageNew implements IResponseHandler {
                     processCommonDialog(user);
                 }*/
             } else {
-                if (hasUserPhrasesDialogInProcess(user)) {
-                    if(hasUserPhrasesDialogStarted(user)) {
-                        processPhrasesPairDialog(user);
+                if (phrasePairService.hasUserPhrasesDialogInProcess(user)) {
+                    if(phrasePairStateService.hasUserPhrasesDialogStarted(user)) {
+                        userDialogService.processPhrasesPairDialog(user);
                     } else {
                         phrasePairStateService.phrasesDialogStart(user);
-                        processPhrasesPairDialog(user);
+                        userDialogService.processPhrasesPairDialog(user);
                     }
                 } else {
                     userDialogService.processCommonDialog(user, groupActor);
@@ -206,86 +207,5 @@ public class MessageNew implements IResponseHandler {
             dialogCounter++;
         }
         return result;
-    }
-
-    private void processPhrasesPairDialog(User user) {
-
-        UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
-        PhrasePairState userPhrasePairState = phrasePairStateRepository.findByUserId(user.getUserId());
-
-        if (userPhrasePairState == null) {
-            createPhrasesPairState(user);
-            userPhrasePairState = phrasePairStateRepository.findByUserId(user.getUserId());
-        }
-
-        if(!checkUserPhrasesPairState(user)) {
-            sendPhraseQuestion(userPhrasePairState, user, null);
-            phrasePairStateService.changeUserPhrasesState(user);
-
-        } else {
-            sendPhraseAnswer(userPhrasePairState, user);
-            phrasePairStateService.changeUserPhrasesState(user);
-
-            Integer currentPhrasePairId = userPhrasePairState.getPhrasePair().getPhrasePairId();
-            if(checkPhrasePairLastState(currentPhrasePairId)) {
-                finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
-            } else {
-                userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
-                phrasePairStateRepository.save(userPhrasePairState);
-                userPhrasePairState = phrasePairStateRepository.findByUserId(user.getUserId());
-
-                String question = "Следующая фраза: \n" + userPhrasePairState.getPhrasePair().getPhraseQuestion();
-                sendPhraseQuestion(userPhrasePairState, user, question);
-                phrasePairStateService.changeUserPhrasesState(user);
-            }
-        }
-    }
-
-    private void sendPhraseQuestion(PhrasePairState phrasePairState, User user, String question) {
-        if(question == null) {
-            question = phrasePairState.getPhrasePair().getPhraseQuestion();
-        }
-        messageService.sendMessageTextOnly(groupActor, user.getVkId(), question);
-    }
-
-    private void sendPhraseAnswer(PhrasePairState phrasePairState, User user) {
-        String answer = "Правильный ответ: \n" + phrasePairState.getPhrasePair().getPhraseAnswer();
-        messageService.sendMessageTextOnly(groupActor, user.getVkId(), answer);
-    }
-
-    private boolean hasUserPhrasesDialogStarted(User user) {
-        return phrasePairStateService.hasUserPhrasesDialogStarted(user);
-
-    }
-
-    private boolean checkUserPhrasesPairState(User user) {
-        return phrasePairStateService.checkUserPhraseState(user);
-    }
-
-    private void createPhrasesPairState(User user) {
-        PhrasePair phrasePair = phrasePairRepository.findByPhrasePairId(1);
-        PhrasePairState phrasePairState = new PhrasePairState();
-        phrasePairState.setPhrasePair(phrasePair);
-        phrasePairState.setUser(user);
-        phrasePairStateRepository.save(phrasePairState);
-    }
-
-    private boolean checkPhrasePairLastState(Integer phrasePairId) {
-        List<PhrasePair> phrasePairList = phrasePairRepository.findTopN(1);
-        return phrasePairId.equals(phrasePairList.get(0).getPhrasePairId());
-    }
-
-    private void finishPhrasesPairDialog(PhrasePairState phrasePairState, UserDialog currentUserDialog) {
-        phrasePairState.getPhrasePair().setPhrasePairId(1);
-        phrasePairStateRepository.save(phrasePairState);
-        currentUserDialog.setFinished(true);
-        userDialogRepository.save(currentUserDialog);
-    }
-
-    private boolean hasUserPhrasesDialogInProcess(User user) {
-        UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
-        Dialog dialog = currentUserDialog.getDialog();
-        String dialogName = dialog.getDialogName();
-        return dialogName.equalsIgnoreCase("Фразы");
     }
 }

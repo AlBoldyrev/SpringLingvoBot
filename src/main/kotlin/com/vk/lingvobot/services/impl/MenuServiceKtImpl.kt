@@ -65,7 +65,7 @@ class MenuServiceKtImpl @Autowired constructor(
         when (menuStage?.menuLevel) {
             MenuLevel.MAIN -> callMainMenu(user, messageBody, menuStage, groupActor)
             MenuLevel.DIALOG -> callDialogMenu(user, messageBody, menuStage, groupActor)
-            MenuLevel.PHRASE -> callPhraseMenu()
+            MenuLevel.PHRASE -> callPhraseMenu(user, messageBody, menuStage, groupActor)
         }
     }
 
@@ -79,7 +79,7 @@ class MenuServiceKtImpl @Autowired constructor(
             MenuButtons.PHRASES.value -> {
                 menuStage.menuLevel = MenuLevel.PHRASE
                 menuStageRepository.save(menuStage)
-                callPhraseMenu()
+                callPhraseMenu(user, messageBody, menuStage, groupActor)
             }
             else -> messageService.sendMessageWithTextAndKeyboard(
                 groupActor,
@@ -122,11 +122,22 @@ class MenuServiceKtImpl @Autowired constructor(
                 }
             }
         }
-
     }
 
-    private fun callPhraseMenu() {
-
+    private fun callPhraseMenu(user: User, messageBody: String, menuStage: MenuStage, groupActor: GroupActor) {
+    /*
+        val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
+        for(userDialog in allUserDialogs){
+            val dialogName = userDialog.dialog.dialogName;
+            if(dialogName == "Фразы" && userDialog.isFinished) {
+                menuStage.menuLevel = MenuLevel.MAIN
+                menuStageRepository.save(menuStage)
+                callMainMenu(user, messageBody, menuStage, groupActor)
+            }
+        }
+       */
+        enterTheDialog(user, messageBody)
+        userDialogService.processPhrasesPairDialog(user)
     }
 
     private fun sendDialogsKeyboard(user: User, pageNumber: Int, groupActor: GroupActor) {
