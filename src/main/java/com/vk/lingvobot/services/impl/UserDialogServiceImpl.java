@@ -103,6 +103,7 @@ public class UserDialogServiceImpl implements UserDialogService {
 
             if(phrasePairService.checkPhrasePairLastState(currentPhrasePairId)) {
                 phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
+                phrasePairStateService.phrasesDialogFinish(user);
             } else {
                 userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
                 phrasePairStateService.save(userPhrasePairState);

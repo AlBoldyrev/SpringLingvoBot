@@ -4,8 +4,12 @@ import com.vk.lingvobot.entities.PhrasePair;
 import com.vk.lingvobot.entities.PhrasePairState;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.entities.UserDialog;
+import com.vk.lingvobot.entities.menu.MenuLevel;
+import com.vk.lingvobot.entities.menu.MenuStage;
+import com.vk.lingvobot.repositories.MenuStageRepository;
 import com.vk.lingvobot.repositories.PhrasePairRepository;
 import com.vk.lingvobot.repositories.PhrasePairStateRepository;
+import com.vk.lingvobot.services.MenuServiceKt;
 import com.vk.lingvobot.services.PhrasePairStateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +26,8 @@ public class PhrasePairStateServiceImpl implements PhrasePairStateService {
     PhrasePairStateRepository phrasePairStateRepository;
     @Autowired
     PhrasePairRepository phrasePairRepository;
+    @Autowired
+    MenuStageRepository menuStageRepository;
 
     private static Map<User, Boolean> usersPhraseStates = new HashMap<>();
 
@@ -51,13 +57,19 @@ public class PhrasePairStateServiceImpl implements PhrasePairStateService {
     }
 
     @Override
-    public  void phrasesDialogStart(User user) {
+    public void phrasesDialogStart(User user) {
         usersPhraseStates.put(user, false);
     }
 
     @Override
     public void phrasesDialogFinish(User user) {
         usersPhraseStates.remove(user);
+        MenuStage menuStage = menuStageRepository.findByUser(user.getUserId());
+        if (menuStage != null) {
+            menuStage.setMenuLevel(MenuLevel.MAIN);
+            menuStage.setCurrentDialogPage(0);
+            menuStageRepository.save(menuStage);
+        }
     }
 
     @Override
