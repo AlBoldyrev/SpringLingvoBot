@@ -68,7 +68,7 @@ public class UserDialogServiceImpl implements UserDialogService {
         if (++state <= dialogMaxStateValue) {
             currentUserDialog.setState(state);
         } else {
-            currentUserDialog.setFinished(true);
+            currentUserDialog.setIsFinished(true);
         }
         userDialogRepository.save(currentUserDialog);
 

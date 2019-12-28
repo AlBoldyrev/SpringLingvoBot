@@ -7,7 +7,6 @@ import com.vk.lingvobot.keyboard.CustomButton
 import com.vk.lingvobot.keyboard.getButton
 import com.vk.lingvobot.keyboard.getKeyboard
 import com.vk.lingvobot.services.MessageServiceKt
-import com.vk.lingvobot.util.chop
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import kotlin.random.Random
