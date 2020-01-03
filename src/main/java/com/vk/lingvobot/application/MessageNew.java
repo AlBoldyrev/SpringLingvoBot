@@ -6,7 +6,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.objects.messages.Keyboard;
-import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.entities.Dialog;
+import com.vk.lingvobot.entities.Settings;
+import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.*;
@@ -44,7 +47,7 @@ public class MessageNew implements IResponseHandler {
     private final PhrasePairStateRepository phrasePairStateRepository;
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
-    private final MenuServiceKt menuServiceKt;
+    private final MenuService menuServiceKt;
     private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
@@ -153,7 +156,7 @@ public class MessageNew implements IResponseHandler {
         if (greetingSetUpDialog == null) {
             return false;
         }
-        return greetingSetUpDialog.isFinished() || greetingSetUpDialog.isCancelled();
+        return greetingSetUpDialog.getIsFinished() || greetingSetUpDialog.getIsCancelled();
     }
 
 
