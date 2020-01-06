@@ -74,7 +74,7 @@ public class PhraseServiceImpl implements PhraseService {
     public void finishPhrasesPairDialog(PhrasePairState phrasePairState, UserDialog currentUserDialog) {
         phrasePairState.getPhrasePair().setPhrasePairId(1);
         phrasePairStateRepository.save(phrasePairState);
-        currentUserDialog.setFinished(true);
+        currentUserDialog.setIsFinished(true);
         userDialogRepository.save(currentUserDialog);
     }
 

@@ -78,7 +78,6 @@ public class UserDialogServiceImpl implements UserDialogService {
             currentUserDialog.setIsFinished(true);
         }
         userDialogRepository.save(currentUserDialog);
-
     }
 
     public void processPhrasesPairDialog(User user) {

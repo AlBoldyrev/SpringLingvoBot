@@ -18,19 +18,4 @@ public class DialogPhrase {
     @Column(name = "dialog_phrase_value")
     private String dialogPhraseValue;
 
-    public Integer getDialogPhraseId() {
-        return dialogPhraseId;
-    }
-
-    public void setDialogPhraseId(Integer dialogPhraseId) {
-        this.dialogPhraseId = dialogPhraseId;
-    }
-
-    public String getDialogPhraseValue() {
-        return dialogPhraseValue;
-    }
-
-    public void setDialogPhraseValue(String dialogPhraseValue) {
-        this.dialogPhraseValue = dialogPhraseValue;
-    }
 }

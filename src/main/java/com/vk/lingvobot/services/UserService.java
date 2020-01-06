@@ -9,4 +9,5 @@ public interface UserService {
     void save(User user);
     User findById(int id);
     User findByVkId(int vkId);
+    User createNewUser(int vkId);
 }

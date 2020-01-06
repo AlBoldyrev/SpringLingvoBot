@@ -35,7 +35,6 @@ public class MessageNew implements IResponseHandler {
     private final UserDialogRepository userDialogRepository;
     private final DialogRepository dialogRepository;
     private final UserDialogServiceImpl userDialogService;
-    private final MessageServiceKt messageServiceKt;
     private final MessageService messageService;
     private final SetupMessageService setupMessageService;
     private final PhrasePairStateService phrasePairStateService;
@@ -47,7 +46,7 @@ public class MessageNew implements IResponseHandler {
     private final PhrasePairStateRepository phrasePairStateRepository;
     private final DialogMaxStateRepository dialogMaxStateRepository;
     private final GroupActor groupActor;
-    private final MenuService menuServiceKt;
+    private final MenuService menuService;
     private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
@@ -60,24 +59,17 @@ public class MessageNew implements IResponseHandler {
 
         int userVkId = message.getObject().getUserId();
         String messageBody = message.getObject().getBody();
+
         User user = userInfoService.isExists(userVkId);
         if (user == null) {
-            user = createNewUser(userVkId);
+            user = userService.createNewUser(userVkId);
         }
 
         if (!isInitialSetupCompleted(user)) {
             processInitialSetup(user, groupActor, messageBody);
         } else {
             if (!hasUserDialogInProcess(user)) {
-                menuServiceKt.handle(user, messageBody, groupActor);
-                /*List<Dialog> allDialogs = dialogRepository.findAllDialogs();
-                List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-                if (!dialogsNames.contains(messageBody)) {
-                    sendListOfDialogs(user);
-                } else {
-                    enterTheDialog(user, messageBody);
-                    processCommonDialog(user);
-                }*/
+                menuService.handle(user, messageBody, groupActor);
             } else {
                 if (phrasePairService.hasUserPhrasesDialogInProcess(user)) {
                     if(phrasePairStateService.hasUserPhrasesDialogStarted(user)) {
@@ -187,19 +179,7 @@ public class MessageNew implements IResponseHandler {
 
     }*/
 
-    /**
-     * Create new user using his vkId.
-     */
-    private User createNewUser(int vkId) {
-        log.info("There is no user with vk id: " + vkId + ". Creating new user...");
 
-        User user = new User(vkId);
-
-        Settings settings = new Settings();
-        Settings saveSettings = settingsRepository.save(settings);
-        user.setSettings(saveSettings);
-        return userRepository.save(user);
-    }
 
     private StringBuilder convertDialogLisatIntoListForVK(List<String> dialogNames) {
 
