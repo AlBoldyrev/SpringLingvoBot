@@ -1,6 +1,8 @@
 package com.vk.lingvobot.entities;
 
+import com.vk.lingvobot.util.VKAttachable;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 
@@ -17,5 +19,8 @@ public class DialogPhrase {
 
     @Column(name = "dialog_phrase_value")
     private String dialogPhraseValue;
+
+    @Column(name = "attach")
+    private String attach;
 
 }

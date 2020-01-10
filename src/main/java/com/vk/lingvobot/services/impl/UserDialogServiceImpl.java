@@ -65,8 +65,13 @@ public class UserDialogServiceImpl implements UserDialogService {
         DialogState dialogState = dialogStateRepository.findByDialogIdAndState(currentUserDialog.getDialog().getDialogId(), state);
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
+        String dialogPhraseAttach = dialogPhrase.getAttach();
 
-        messageServiceKt.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        if (dialogPhraseAttach == null) {
+            messageServiceKt.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        } else {
+            messageServiceKt.sendMessageWithTextAndAttachments(groupActor, user.getVkId(), dialogPhraseValue, dialogPhraseAttach);
+        }
         log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());

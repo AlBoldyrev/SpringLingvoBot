@@ -6,7 +6,7 @@ import com.vk.lingvobot.keyboard.CustomButton
 interface MessageServiceKt {
 
     fun sendMessageTextOnly(groupActor: GroupActor, userVkId: Int, message: String)
-    fun sendMessageWithTextAndAttachments(userVkId: Int, message: String, attachments: String)
+    fun sendMessageWithTextAndAttachments(groupActor: GroupActor, userVkId: Int, message: String, attachments: String)
     fun sendMessageWithAttachmentsAndKeyboard(userVkId: Int, attachments: String, keyboard: String)
     fun sendMessageWithAttachmentsOnly(userVkId: Int, attachments: String)
     fun sendMessageWithTextAndKeyboard(
