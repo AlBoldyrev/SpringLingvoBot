@@ -74,7 +74,7 @@ public class MenuServiceImpl implements MenuService {
                 callDialogMenu(user, messageBody, menuStage, groupActor);
                 break;
             case PHRASE:
-                callPhraseMenu();
+                callPhraseMenu(user, messageBody, menuStage, groupActor);
                 break;
         }
     }
@@ -87,7 +87,7 @@ public class MenuServiceImpl implements MenuService {
         } else if (messageBody.equals(MenuButtons.PHRASES.getValue())) {
             menuStage.setMenuLevel(MenuLevel.PHRASE);
             menuStageRepository.save(menuStage);
-            callPhraseMenu();
+            callPhraseMenu(user, messageBody, menuStage, groupActor);
         } else {
             messageService.sendMessageWithTextAndKeyboard(
                     groupActor, user.getVkId(), "Выберите режим обучения", mainMenuButtons);
@@ -124,8 +124,8 @@ public class MenuServiceImpl implements MenuService {
 
     }
 
-    private void callPhraseMenu() {
-
+    private void callPhraseMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
+        enterTheDialog(user, messageBody);
     }
 
     private void sendDialogsKeyboard(User user, int pageNumber, GroupActor groupActor) {

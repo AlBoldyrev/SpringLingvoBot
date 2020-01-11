@@ -2,7 +2,7 @@ package com.vk.lingvobot.services.impl;
 
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.lingvobot.entities.*;
-import com.vk.lingvobot.keyboard.MenuButtons;
+import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
 import com.vk.lingvobot.repositories.DialogStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
@@ -22,8 +22,6 @@ public class UserDialogServiceImpl implements UserDialogService {
     private UserDialogRepository userDialogRepository;
     @Autowired
     private DialogStateRepository dialogStateRepository;
-    @Autowired
-    private MessageServiceKt messageServiceKt;
     @Autowired
     private MessageService messageService;
     @Autowired

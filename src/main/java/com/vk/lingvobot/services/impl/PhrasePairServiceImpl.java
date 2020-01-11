@@ -5,7 +5,7 @@ import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
 import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboard.CustomButton;
-import com.vk.lingvobot.keyboard.MenuButtons;
+import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.repositories.PhrasePairRepository;
 import com.vk.lingvobot.repositories.PhrasePairStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
