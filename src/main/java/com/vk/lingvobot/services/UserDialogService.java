@@ -15,6 +15,6 @@ public interface UserDialogService {
     void processCommonDialog(User user, GroupActor groupActor);
     Optional<UserDialog> get(Integer id);
     void create(UserDialog userDialog);
-    void processPhrasesPairDialog(User user);
+    void processPhrasesPairDialog(User user, GroupActor groupActor, String messageBody);
 }
 

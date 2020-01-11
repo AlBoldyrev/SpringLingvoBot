@@ -78,10 +78,10 @@ public class MessageNew implements IResponseHandler {
             } else {
                 if (phrasePairService.hasUserPhrasesDialogInProcess(user)) {
                     if(phrasePairStateService.hasUserPhrasesDialogStarted(user)) {
-                        userDialogService.processPhrasesPairDialog(user);
+                        userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
                     } else {
                         phrasePairStateService.phrasesDialogStart(user);
-                        userDialogService.processPhrasesPairDialog(user);
+                        userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
                     }
                 } else {
                     userDialogService.processCommonDialog(user, groupActor);

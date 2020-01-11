@@ -131,6 +131,20 @@ class MenuServiceKtImpl @Autowired constructor(
         enterTheDialog(user, messageBody)
     }
 
+    private fun sendPhraseDialogKeyboard(user: User, groupActor: GroupActor) {
+
+        val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
+
+        val allButtons = mutableListOf<List<CustomButton>>()
+
+        messageService.sendMessageWithTextAndKeyboard(
+                groupActor,
+                user.vkId,
+                "Выберите один из диалогов",
+                allButtons
+        )
+    }
+
     private fun sendDialogsKeyboard(user: User, pageNumber: Int, groupActor: GroupActor) {
         val allUserDialogs = userDialogRepository.findAllUserDialogs(user.userId)
 

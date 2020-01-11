@@ -5,5 +5,6 @@ enum class MenuButtons constructor(val value: String) {
     DIALOGS("Диалоги"),
     NEXT("Далее"),
     BACK("Назад"),
-    HOME("В главное меню")
+    HOME("В главное меню"),
+    EXIT("Выйти")
 }
