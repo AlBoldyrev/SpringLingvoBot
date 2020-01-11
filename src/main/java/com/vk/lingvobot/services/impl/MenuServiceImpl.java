@@ -15,6 +15,7 @@ import com.vk.lingvobot.repositories.MenuStageRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.services.MenuService;
 import com.vk.lingvobot.services.MessageServiceKt;
+import com.vk.lingvobot.services.PhrasePairStateService;
 import com.vk.lingvobot.services.UserDialogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class MenuServiceImpl implements MenuService {
     private final DialogRepository dialogRepository;
     private final UserDialogRepository userDialogRepository;
     private final UserDialogService userDialogService;
+    private final PhrasePairStateService phrasePairStateService;
 
     private List<List<CustomButton>> mainMenuButtons = new ArrayList<>();
     private List<CustomButton> buttons = new ArrayList<>();
@@ -126,6 +128,8 @@ public class MenuServiceImpl implements MenuService {
 
     private void callPhraseMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
         enterTheDialog(user, messageBody);
+        phrasePairStateService.phrasesDialogStart(user);
+        userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
     }
 
     private void sendDialogsKeyboard(User user, int pageNumber, GroupActor groupActor) {

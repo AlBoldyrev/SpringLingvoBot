@@ -59,7 +59,8 @@ public class PhrasePairServiceImpl implements PhrasePairService {
     @Override
     public void sendPhraseQuestion(PhrasePairState phrasePairState, User user, String question, GroupActor groupActor) {
         if(question == null) {
-            question = phrasePairState.getPhrasePair().getPhraseQuestion();
+            question = "Фраза: ";
+            question += phrasePairState.getPhrasePair().getPhraseQuestion();
         }
         messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), question, phraseButtonsList);
     }
