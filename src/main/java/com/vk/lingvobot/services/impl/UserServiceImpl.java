@@ -1,6 +1,8 @@
 package com.vk.lingvobot.services.impl;
 
+import com.vk.lingvobot.entities.Settings;
 import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.repositories.SettingsRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SettingsRepository settingsRepository;
 
     @Override
     public User findById(int id) {
@@ -39,4 +44,21 @@ public class UserServiceImpl implements UserService {
     public void save(User user) {
         userRepository.save(user);
     }
+
+
+    /**
+     * Create new user using his vkId.
+     */
+    public User createNewUser(int vkId) {
+
+        log.info("There is no user with vk id: " + vkId + ". Creating new user...");
+
+        User user = new User(vkId);
+        Settings settings = new Settings();
+        Settings saveSettings = settingsRepository.save(settings);
+        user.setSettings(saveSettings);
+        return userRepository.save(user);
+    }
+
+
 }

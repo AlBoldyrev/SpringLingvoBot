@@ -29,36 +29,4 @@ public class User {
     @JoinColumn(name = "settings_id")
     private Settings settings;
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getVkId() {
-        return vkId;
-    }
-
-    public void setVkId(Integer vkId) {
-        this.vkId = vkId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
-
 }

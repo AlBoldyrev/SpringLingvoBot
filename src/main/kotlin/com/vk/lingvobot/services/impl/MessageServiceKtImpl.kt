@@ -7,7 +7,6 @@ import com.vk.lingvobot.keyboard.CustomButton
 import com.vk.lingvobot.keyboard.getButton
 import com.vk.lingvobot.keyboard.getKeyboard
 import com.vk.lingvobot.services.MessageServiceKt
-import com.vk.lingvobot.util.chop
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -23,8 +22,9 @@ class MessageServiceKtImpl : MessageServiceKt {
         vkApiClient.messages().send(groupActor).message(message).userId(userVkId).randomId(randomId).execute()
     }
 
-    override fun sendMessageWithTextAndAttachments(userVkId: Int, message: String, attachments: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun sendMessageWithTextAndAttachments(groupActor: GroupActor, userVkId: Int, message: String, attachment: String) {
+        val randomId = Random.nextInt()
+        vkApiClient.messages().send(groupActor).message(message).userId(userVkId).attachment(attachment).randomId(randomId).execute()
     }
 
     override fun sendMessageWithAttachmentsAndKeyboard(userVkId: Int, attachments: String, keyboard: String) {

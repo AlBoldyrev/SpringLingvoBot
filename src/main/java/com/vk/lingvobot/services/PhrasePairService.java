@@ -20,5 +20,5 @@ public interface PhrasePairService {
 
     void finishPhrasesPairDialog(PhrasePairState phrasePairState, UserDialog currentUserDialog);
 
-    public boolean hasUserPhrasesDialogInProcess(User user);
+    boolean hasUserPhrasesDialogInProcess(User user);
 }

@@ -37,56 +37,9 @@ public class UserDialog {
     private Integer state;
 
     @Column(name = "is_cancelled")
-    private boolean isCancelled;
+    private Boolean isCancelled;
 
     @Column(name = "is_finished")
-    private boolean isFinished;
+    private Boolean isFinished;
 
-    public Integer getUserDialogId() {
-        return userDialogId;
-    }
-
-    public void setUserDialogId(Integer userDialogId) {
-        this.userDialogId = userDialogId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Dialog getDialog() {
-        return dialog;
-    }
-
-    public void setDialog(Dialog dialog) {
-        this.dialog = dialog;
-    }
-
-    public Integer getState() {
-        return state;
-    }
-
-    public void setState(Integer state) {
-        this.state = state;
-    }
-
-    public boolean isCancelled() {
-        return isCancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        isCancelled = cancelled;
-    }
-
-    public boolean isFinished() {
-        return isFinished;
-    }
-
-    public void setFinished(boolean finished) {
-        isFinished = finished;
-    }
 }

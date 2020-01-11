@@ -6,10 +6,7 @@ import com.vk.lingvobot.keyboard.MenuButtons;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
 import com.vk.lingvobot.repositories.DialogStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
-import com.vk.lingvobot.services.MessageServiceKt;
-import com.vk.lingvobot.services.PhrasePairService;
-import com.vk.lingvobot.services.PhrasePairStateService;
-import com.vk.lingvobot.services.UserDialogService;
+import com.vk.lingvobot.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +24,8 @@ public class UserDialogServiceImpl implements UserDialogService {
     private DialogStateRepository dialogStateRepository;
     @Autowired
     private MessageServiceKt messageServiceKt;
+    @Autowired
+    private MessageService messageService;
     @Autowired
     private DialogMaxStateRepository dialogMaxStateRepository;
     @Autowired
@@ -65,8 +64,13 @@ public class UserDialogServiceImpl implements UserDialogService {
         DialogState dialogState = dialogStateRepository.findByDialogIdAndState(currentUserDialog.getDialog().getDialogId(), state);
         DialogPhrase dialogPhrase = dialogState.getDialogPhrase();
         String dialogPhraseValue = dialogPhrase.getDialogPhraseValue();
+        String dialogPhraseAttach = dialogPhrase.getAttach();
 
-        messageServiceKt.sendMessageTextOnly(groupActor, user.getVkId(), dialogPhraseValue);
+        if (dialogPhraseAttach == null) {
+            messageService.sendMessageTextOnly(user.getVkId(), dialogPhraseValue);
+        } else {
+            messageService.sendMessageWithTextAndAttachments(user.getVkId(), dialogPhraseValue, dialogPhraseAttach);
+        }
         log.info("Сообщение отправлено! ");
 
         DialogMaxState dialogMaxState = dialogMaxStateRepository.findByDialogId(currentUserDialog.getDialog().getDialogId());
@@ -75,10 +79,9 @@ public class UserDialogServiceImpl implements UserDialogService {
         if (++state <= dialogMaxStateValue) {
             currentUserDialog.setState(state);
         } else {
-            currentUserDialog.setFinished(true);
+            currentUserDialog.setIsFinished(true);
         }
         userDialogRepository.save(currentUserDialog);
-
     }
 
     public void processPhrasesPairDialog(User user, GroupActor groupActor, String messageBody) {
