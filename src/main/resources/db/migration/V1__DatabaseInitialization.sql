@@ -7,6 +7,14 @@ SET default_with_oids = false;
 
 ------------------------------------------------------------------------------------------------------------------------
 
+
+DROP TYPE IF EXISTS lingvobot.menu_level CASCADE ;
+CREATE TYPE lingvobot.menu_level AS ENUM (
+    'MAIN',
+    'DIALOG',
+    'PHRASE'
+);
+
 CREATE TABLE IF NOT EXISTS lingvobot.dialogs (
     dialog_id integer NOT NULL,
     dialog_name text,
@@ -83,11 +91,7 @@ CREATE TABLE IF NOT EXISTS lingvobot.user_dialogs (
     FOREIGN KEY (dialog_id) REFERENCES lingvobot.dialogs(dialog_id)
 );
 
-CREATE TYPE lingvobot.menu_level AS ENUM (
-    'MAIN',
-    'DIALOG',
-    'PHRASE'
-);
+
 
 CREATE TABLE IF NOT EXISTS lingvobot.menu_stage (
     id integer NOT NULL,
