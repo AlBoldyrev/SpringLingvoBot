@@ -22,9 +22,15 @@ class MessageServiceKtImpl : MessageServiceKt {
         vkApiClient.messages().send(groupActor).message(message).userId(userVkId).randomId(randomId).execute()
     }
 
-    override fun sendMessageWithTextAndAttachments(groupActor: GroupActor, userVkId: Int, message: String, attachment: String) {
+    override fun sendMessageWithTextAndAttachments(
+        groupActor: GroupActor,
+        userVkId: Int,
+        message: String,
+        attachment: String
+    ) {
         val randomId = Random.nextInt()
-        vkApiClient.messages().send(groupActor).message(message).userId(userVkId).attachment(attachment).randomId(randomId).execute()
+        vkApiClient.messages().send(groupActor).message(message).userId(userVkId).attachment(attachment)
+            .randomId(randomId).execute()
     }
 
     override fun sendMessageWithAttachmentsAndKeyboard(userVkId: Int, attachments: String, keyboard: String) {

@@ -27,7 +27,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -40,6 +42,8 @@ public class MenuServiceImpl implements MenuService {
     private final UserDialogRepository userDialogRepository;
     private final UserDialogService userDialogService;
     private final PhrasePairStateService phrasePairStateService;
+
+    private final Map<String, String> dialogsNames = new HashMap<>();
 
     private List<List<CustomButton>> mainMenuButtons = new ArrayList<>();
     private List<CustomButton> buttons = new ArrayList<>();
@@ -114,8 +118,9 @@ public class MenuServiceImpl implements MenuService {
             menuStageRepository.save(menuStage);
             callMainMenu(user, messageBody, menuStage, groupActor);
         } else {
-            if (allDialogs.stream().anyMatch(dialog -> dialog.getDialogName().equals(messageBody))) {
-                enterTheDialog(user, messageBody);
+            String savedDialogName = dialogsNames.get(messageBody);
+            if (savedDialogName != null && !savedDialogName.isEmpty()/*allDialogs.stream().anyMatch(dialog -> dialog.getDialogName().equals(messageBody))*/) {
+                enterTheDialog(user, savedDialogName);
                 userDialogService.processCommonDialog(user, groupActor);
             } else {
                 sendDialogsKeyboard(user, 0, groupActor);
@@ -133,24 +138,40 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void sendDialogsKeyboard(User user, int pageNumber, GroupActor groupActor) {
+        int pageSize = 5;
+        StringBuilder message = new StringBuilder();
+        message.append("Выберите один из диалогов:\n");
         List<UserDialog> allUserDialogs = userDialogRepository.findAllUserDialogs(user.getUserId());
 
         List<List<CustomButton>> allButtons = new ArrayList<>();
         List<CustomButton> buttonsInRow = new ArrayList<>();
         List<CustomButton> navigationButtons = new ArrayList<>();
 
-        Pageable page = PageRequest.of(pageNumber, 5, Sort.by("dialogId").ascending());
+        Pageable page = PageRequest.of(pageNumber, pageSize, Sort.by("dialogId").ascending());
         Page<Dialog> dialogsPage = dialogRepository.findAllDialogExceptSettingOne(page);
 
+        int maxPageElementNumber = pageSize * (dialogsPage.getNumber() + 1);
+        int pageStartElementNumber = maxPageElementNumber - (pageSize - 1);
+
         if (!dialogsPage.getContent().isEmpty()) {
-            dialogsPage.forEach(dialog -> {
+            for (Dialog dialog : dialogsPage) {
+                String label = "*" + pageStartElementNumber + "*";
                 UserDialog foundUserDialog = allUserDialogs.stream().filter(userDialog -> userDialog.getDialog().equals(dialog)).findAny().orElse(null);
                 if (foundUserDialog != null && foundUserDialog.getIsFinished()) {
-                    buttonsInRow.add(new CustomButton(dialog.getDialogName(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.POSITIVE, ""));
+                    buttonsInRow.add(new CustomButton(/*dialog.getDialogName()*/ label,
+                            KeyboardButtonActionType.TEXT,
+                            KeyboardButtonColor.POSITIVE,
+                            ""));
                 } else {
-                    buttonsInRow.add(new CustomButton(dialog.getDialogName(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.DEFAULT, ""));
+                    buttonsInRow.add(new CustomButton(/*dialog.getDialogName()*/ label,
+                            KeyboardButtonActionType.TEXT,
+                            KeyboardButtonColor.DEFAULT,
+                            ""));
                 }
-            });
+                dialogsNames.put(label, dialog.getDialogName());
+                message.append(pageStartElementNumber).append(": ").append(dialog.getDialogName()).append("\n");
+                pageStartElementNumber += 1;
+            }
             allButtons.add(buttonsInRow);
         }
 
@@ -170,7 +191,7 @@ public class MenuServiceImpl implements MenuService {
 
         allButtons.add(navigationButtons);
 
-        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(),"Выберите один из диалогов", allButtons);
+        messageService.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), message.toString(), allButtons);
     }
 
     /**
