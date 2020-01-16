@@ -33,4 +33,5 @@ public class DialogServiceImpl implements DialogService {
     public Dialog getDialogViaName(String name) {
         return dialogRepository.findByDialogName(name);
     }
+
 }

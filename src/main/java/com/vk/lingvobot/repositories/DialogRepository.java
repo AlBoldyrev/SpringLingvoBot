@@ -23,7 +23,7 @@ public interface DialogRepository extends JpaRepository<Dialog, Integer> {
     @Query("SELECT d FROM Dialog d WHERE d.dialogId <> 1")
     List<Dialog> findAllDialogExceptSettingOne();
 
-    @Query("SELECT d FROM Dialog d WHERE d.dialogId <> 1")
+    @Query("SELECT d FROM Dialog d WHERE d.dialogId <> 1 AND d.dialogId <> 11")
     Page<Dialog> findAllDialogExceptSettingOne(Pageable pageable);
 
     @Query("SELECT d FROM Dialog d WHERE d.dialogName = :dialogName")
