@@ -30,7 +30,8 @@ public class UserDialogServiceImpl implements UserDialogService {
     private PhrasePairStateService phrasePairStateService;
     @Autowired
     private PhrasePairService phrasePairService;
-
+    @Autowired
+    private MenuService menuService;
 
     @Override
     public UserDialog findById(int id) {
@@ -119,6 +120,7 @@ public class UserDialogServiceImpl implements UserDialogService {
         } else {
             phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
             phrasePairStateService.phrasesDialogFinish(user);
+            menuService.handle(user, messageBody, groupActor);
         }
     }
 
