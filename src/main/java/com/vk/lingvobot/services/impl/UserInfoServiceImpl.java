@@ -12,6 +12,7 @@ import com.vk.lingvobot.parser.Parser;
 import com.vk.lingvobot.parser.Response;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.repositories.UserRepository;
+import com.vk.lingvobot.services.UserDialogService;
 import com.vk.lingvobot.services.UserInfoService;
 import com.vk.lingvobot.util.Dialogs;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     private UserDialogRepository userDialogRepository;
+
+    @Autowired
+    private UserDialogService userDialogService;
 
     public String getUserDomain(GroupActor groupActor, int userId) {
 
@@ -78,5 +82,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         if (user == null) return null;
         return userDialogRepository.findFinishedDialogByUserIdAndDialogId(user.getUserId(), Dialogs.GREETING_SET_UP_DIALOG.getValue());
+    }
+
+    /**
+     * Checks if User has any UserDialog which is not cancelled or not finished
+     */
+    public boolean hasUserDialogInProcess(User user) {
+        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(user.getUserId());
+        return currentDialogOfUser != null;
     }
 }

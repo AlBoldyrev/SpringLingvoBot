@@ -56,15 +56,19 @@ public class MessageNew implements IResponseHandler {
         if (user == null) {
             user = userService.createNewUser(userVkId);
         }
-
-        if (!isInitialSetupCompleted(user)) {
-            processInitialSetup(user, groupActor, messageBody);
+        boolean isInitialSetupNotCompleted = !setupMessageService.isInitialSetupCompleted(user);
+        boolean hasUserNoDialogInProcess = !userInfoService.hasUserDialogInProcess(user);
+        boolean hasUserNoPhrasesDialogInProcess = phrasePairService.hasUserPhrasesDialogInProcess(user);
+        boolean hasUserNoPhrasesDialogStarted = !phrasePairStateService.hasUserPhrasesDialogStarted(user);
+        
+        if (isInitialSetupNotCompleted) {
+            setupMessageService.processInitialSetup(user, groupActor, messageBody);
         } else {
-            if (!hasUserDialogInProcess(user)) {
+            if (hasUserNoDialogInProcess) {
                 menuService.handle(user, messageBody, groupActor);
             } else {
-                if (phrasePairService.hasUserPhrasesDialogInProcess(user)) {
-                    if (!phrasePairStateService.hasUserPhrasesDialogStarted(user)) {
+                if (hasUserNoPhrasesDialogInProcess) {
+                    if (hasUserNoPhrasesDialogStarted) {
                         phrasePairStateService.phrasesDialogStart(user);
                     }
                     userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
@@ -76,71 +80,8 @@ public class MessageNew implements IResponseHandler {
     }
 
 
-    /**
-     * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
-     */
-    private void processInitialSetup(User user, GroupActor groupActor, String messageBody) {
-        UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
-
-        if (greetingSetUpDialog == null) {
-            setupMessageService.handle(user, groupActor, messageBody);
-        } else {
-            log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
-        }
-    }
-
-    /**
-     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
-     */
-    private void enterTheDialog(User user, String message) {
-        Dialog dialog = dialogRepository.findByDialogName(message);
-        if (dialog == null) {
-            log.error("dialog with unexisting name");
-        } else {
-            UserDialog userDialog = new UserDialog(user, dialog, false, false);
-            userDialog.setState(1);
-            userDialogService.create(userDialog);
-        }
-    }
-
-    /**
-     * When user ends setup dialog and send us message to see the list of all dialogs. Using Kotlin here for effective Keyboard usage.
-     */
-    private void sendListOfDialogs(User user) {
-        List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
-        List<String> dialogsNames = allDialogs.stream().map(Dialog::getDialogName).collect(Collectors.toList());
-        StringBuilder sb = new StringBuilder();
-        dialogsNames.forEach(sb::append);
-        Keyboard keyboardWithButtons = customJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(dialogsNames);
-        System.out.println(keyboardWithButtons);
-        messageService.sendMessageWithTextAndKeyboard(user.getVkId(), convertDialogListIntoListForVK(dialogsNames).toString(), keyboardWithButtons);
-    }
-
-    /**
-     * Checks if User has any UserDialog which is not cancelled or not finished
-     */
-    private boolean hasUserDialogInProcess(User user) {
-        UserDialog currentDialogOfUser = userDialogService.findCurrentDialogOfUser(user.getUserId());
-        return currentDialogOfUser != null;
-    }
-
-    private boolean isInitialSetupCompleted(User user) {
-        UserDialog greetingSetUpDialog = userInfoService.findUserGreetingDialog(user);
-        if (greetingSetUpDialog == null) {
-            return false;
-        }
-        return greetingSetUpDialog.getIsFinished() || greetingSetUpDialog.getIsCancelled();
-    }
 
 
-    private StringBuilder convertDialogListIntoListForVK(List<String> dialogNames) {
 
-        int dialogCounter = 1;
-        StringBuilder result = new StringBuilder(StringUtil.EMPTY_STRING);
-        for (String dialogName : dialogNames) {
-            result.append(dialogCounter).append(". ").append(dialogName).append('\n');
-            dialogCounter++;
-        }
-        return result;
-    }
+
 }
