@@ -85,6 +85,11 @@ public class UserDialogServiceImpl implements UserDialogService {
 
     public void processPhrasesPairDialog(User user, GroupActor groupActor, String messageBody) {
 
+        boolean hasUserNoPhrasesDialogStarted = !phrasePairStateService.hasUserPhrasesDialogStarted(user);
+        if (hasUserNoPhrasesDialogStarted) {
+            phrasePairStateService.phrasesDialogStart(user);
+        }
+
         UserDialog currentUserDialog = findCurrentDialogOfUser(user.getUserId());
         PhrasePairState userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
 

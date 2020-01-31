@@ -87,9 +87,14 @@ public class PhrasePairServiceImpl implements PhrasePairService {
 
     @Override
     public boolean hasUserPhrasesDialogInProcess(User user) {
+        boolean hasUserPhrasesDialogInProcess;
         UserDialog currentUserDialog = userDialogRepository.findCurrentDialogOfUser(user.getUserId());
+        if (currentUserDialog == null) {
+            return false;
+        }
         Dialog dialog = currentUserDialog.getDialog();
         String dialogName = dialog.getDialogName();
-        return dialogName.equalsIgnoreCase("Фразы");
+        hasUserPhrasesDialogInProcess = dialogName.equalsIgnoreCase("Фразы");
+        return hasUserPhrasesDialogInProcess;
     }
 }

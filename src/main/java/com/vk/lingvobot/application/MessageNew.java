@@ -30,16 +30,12 @@ import java.util.stream.Collectors;
 public class MessageNew implements IResponseHandler {
 
     private final UserInfoServiceImpl userInfoService;
-    private final DialogRepository dialogRepository;
     private final UserDialogServiceImpl userDialogService;
-    private final MessageService messageService;
     private final SetupMessageService setupMessageService;
-    private final PhrasePairStateService phrasePairStateService;
     private final PhrasePairService phrasePairService;
     private final UserService userService;
     private final GroupActor groupActor;
     private final MenuService menuService;
-    private final CustomJavaKeyboard customJavaKeyboard;
     private Gson gson = new GsonBuilder().create();
 
     @Override
@@ -53,35 +49,33 @@ public class MessageNew implements IResponseHandler {
         String messageBody = message.getObject().getBody();
 
         User user = userInfoService.isExists(userVkId);
+
         if (user == null) {
             user = userService.createNewUser(userVkId);
         }
+
         boolean isInitialSetupNotCompleted = !setupMessageService.isInitialSetupCompleted(user);
-        boolean hasUserNoDialogInProcess = !userInfoService.hasUserDialogInProcess(user);
-        boolean hasUserNoPhrasesDialogInProcess = phrasePairService.hasUserPhrasesDialogInProcess(user);
-        boolean hasUserNoPhrasesDialogStarted = !phrasePairStateService.hasUserPhrasesDialogStarted(user);
+        boolean hasUserNoDialogInProcess = !userInfoService.hasUserDialogInProcess(user) && !isInitialSetupNotCompleted;
+        boolean hasUserNoPhrasesDialogInProcess = phrasePairService.hasUserPhrasesDialogInProcess(user) && hasUserNoDialogInProcess;
+        boolean hasUserDialogInProcess = !hasUserNoDialogInProcess;
         
         if (isInitialSetupNotCompleted) {
             setupMessageService.processInitialSetup(user, groupActor, messageBody);
-        } else {
-            if (hasUserNoDialogInProcess) {
-                menuService.handle(user, messageBody, groupActor);
-            } else {
-                if (hasUserNoPhrasesDialogInProcess) {
-                    if (hasUserNoPhrasesDialogStarted) {
-                        phrasePairStateService.phrasesDialogStart(user);
-                    }
-                    userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
-                } else {
-                    userDialogService.processCommonDialog(user, groupActor);
-                }
-            }
         }
+
+        if (hasUserNoDialogInProcess) {
+            menuService.handle(user, messageBody, groupActor);
+        }
+
+        if (hasUserNoPhrasesDialogInProcess) {
+            userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
+        }
+
+        if (hasUserDialogInProcess) {
+            userDialogService.processCommonDialog(user, groupActor);
+        }
+
+
+
     }
-
-
-
-
-
-
 }
