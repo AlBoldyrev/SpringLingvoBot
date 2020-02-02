@@ -52,6 +52,7 @@ public class MenuServiceImpl implements MenuService {
     private void init() {
         buttons.add(new CustomButton(MenuButtons.PHRASES.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
         buttons.add(new CustomButton(MenuButtons.DIALOGS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        buttons.add(new CustomButton(MenuButtons.IMPORT_DIALOGS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
         mainMenuButtons.add(buttons);
     }
 
@@ -82,6 +83,9 @@ public class MenuServiceImpl implements MenuService {
             case PHRASE:
                 callPhraseMenu(user, messageBody, menuStage, groupActor);
                 break;
+            case IMPORT_DIALOG:
+                importDialog(user, messageBody, menuStage, groupActor);
+                break;
         }
     }
 
@@ -94,10 +98,26 @@ public class MenuServiceImpl implements MenuService {
             menuStage.setMenuLevel(MenuLevel.PHRASE);
             menuStageRepository.save(menuStage);
             callPhraseMenu(user, messageBody, menuStage, groupActor);
+        } else if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())){
+            menuStage.setMenuLevel(MenuLevel.IMPORT_DIALOG);
+            menuStageRepository.save(menuStage);
+            importDialog(user, messageBody, menuStage, groupActor);
         } else {
             messageService.sendMessageWithTextAndKeyboard(
                     groupActor, user.getVkId(), "Выберите режим обучения", mainMenuButtons);
         }
+    }
+
+    private void importDialog(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
+        System.out.println("Import............................");
+
+        if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())) {
+            menuStage.setMenuLevel(MenuLevel.MAIN);
+            menuStageRepository.save(menuStage);
+            messageService.sendMessageWithTextAndKeyboard(
+                    groupActor, user.getVkId(), "Выберите режим обучения", mainMenuButtons);
+        }
+
     }
 
     private void callDialogMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
