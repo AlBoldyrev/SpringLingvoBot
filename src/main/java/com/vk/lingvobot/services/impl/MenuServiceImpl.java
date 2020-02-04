@@ -158,9 +158,6 @@ public class MenuServiceImpl implements MenuService {
 
     }
 
-
-
-
     private void callDialogMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
         List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
 
