@@ -16,5 +16,6 @@ public interface UserDialogService {
     Optional<UserDialog> get(Integer id);
     void create(UserDialog userDialog);
     void processPhrasesPairDialog(User user, GroupActor groupActor, String messageBody);
+    void enterTheDialog(User user, String message);
 }
 

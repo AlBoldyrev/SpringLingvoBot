@@ -47,7 +47,7 @@ class SetupMessageServiceImpl implements SetupMessageService {
         DialogMaxState setupDialogMaxState = dialogMaxStateRepository.findByDialogId(Dialogs.GREETING_SET_UP_DIALOG.getValue());
 
         if (greetingSetUpDialog == null) {
-            greetingSetUpDialog = new UserDialog(user, setupDialog, false, false);
+            greetingSetUpDialog = new UserDialog(user, setupDialog, false, false, false);
             greetingSetUpDialog.setState(1);
             userDialogRepository.save(greetingSetUpDialog);
         }

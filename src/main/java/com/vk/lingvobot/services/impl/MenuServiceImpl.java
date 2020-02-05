@@ -178,7 +178,7 @@ public class MenuServiceImpl implements MenuService {
         } else {
             String savedDialogName = dialogsNames.get(messageBody);
             if (savedDialogName != null && !savedDialogName.isEmpty()/*allDialogs.stream().anyMatch(dialog -> dialog.getDialogName().equals(messageBody))*/) {
-                enterTheDialog(user, savedDialogName);
+                userDialogService.enterTheDialog(user, savedDialogName);
                 userDialogService.processCommonDialog(user, groupActor);
             } else {
                 sendDialogsKeyboard(user, 0, groupActor);
@@ -190,7 +190,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void callPhraseMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
-        enterTheDialog(user, messageBody);
+        userDialogService.enterTheDialog(user, messageBody);
         phrasePairStateService.phrasesDialogStart(user);
         userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
     }
@@ -252,17 +252,5 @@ public class MenuServiceImpl implements MenuService {
         messageService.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), message.toString(), allButtons);
     }
 
-    /**
-     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
-     */
-    private void enterTheDialog(User user, String message) {
-        Dialog dialog = dialogRepository.findByDialogName(message);
-        if (dialog == null) {
-            log.error("dialog with unexisting name");
-        } else {
-            UserDialog userDialog = new UserDialog(user, dialog, false, false);
-            userDialog.setState(1);
-            userDialogService.create(userDialog);
-        }
-    }
+
 }

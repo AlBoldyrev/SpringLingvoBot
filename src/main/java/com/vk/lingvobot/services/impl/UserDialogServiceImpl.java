@@ -4,6 +4,7 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
+import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.DialogStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.services.*;
@@ -32,6 +33,8 @@ public class UserDialogServiceImpl implements UserDialogService {
     private PhrasePairService phrasePairService;
     @Autowired
     private MenuService menuService;
+    @Autowired
+    private DialogRepository dialogRepository;
 
     @Override
     public UserDialog findById(int id) {
@@ -137,6 +140,20 @@ public class UserDialogServiceImpl implements UserDialogService {
     @Transactional
     public void create(UserDialog userDialog) {
         userDialogRepository.saveAndFlush(userDialog);
+    }
+
+    /**
+     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
+     */
+    public void enterTheDialog(User user, String message) {
+        Dialog dialog = dialogRepository.findByDialogName(message);
+        if (dialog == null) {
+            log.error("dialog with unexisting name");
+        } else {
+            UserDialog userDialog = new UserDialog(user, dialog, false, false, false);
+            userDialog.setState(1);
+            create(userDialog);
+        }
     }
 
 
