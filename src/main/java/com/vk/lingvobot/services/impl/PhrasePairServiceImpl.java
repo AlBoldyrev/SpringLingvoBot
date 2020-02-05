@@ -4,6 +4,7 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
 import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.entities.menu.MenuStage;
 import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.repositories.PhrasePairRepository;
@@ -39,6 +40,7 @@ public class PhrasePairServiceImpl implements PhrasePairService {
     MessageServiceKt messageServiceKt;
 
     private static List<List<CustomButton>> phraseButtonsList = new ArrayList<>();
+
     static {
         List<CustomButton> customButtons = new ArrayList<>();
         CustomButton customButton = new CustomButton(MenuButtons.EXIT.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, "");
@@ -57,17 +59,35 @@ public class PhrasePairServiceImpl implements PhrasePairService {
     }
 
     @Override
-    public void sendPhraseQuestion(PhrasePairState phrasePairState, User user, String question, GroupActor groupActor) {
-        if(question == null) {
-            question = "Фраза: ";
-            question += phrasePairState.getPhrasePair().getPhraseQuestion();
+    public void sendPhraseQuestion(PhrasePairState phrasePairState, User user, String question, MenuStage menuStage, GroupActor groupActor) {
+        switch (menuStage.getMenuLevel()) {
+            case PHRASE_RUS_ENG:
+                if (question == null) {
+                    question = "Фраза: ";
+                    question += phrasePairState.getPhrasePair().getPhraseQuestion();
+                }
+                break;
+            case PHRASE_ENG_RUS:
+                if (question == null) {
+                    question = "Phrase: ";
+                    question += phrasePairState.getPhrasePair().getPhraseAnswer();
+                }
+                break;
         }
         messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), question, phraseButtonsList);
     }
 
     @Override
-    public void sendPhraseAnswer(PhrasePairState phrasePairState, User user, GroupActor groupActor) {
-        String answer = "Правильный ответ: \n" + phrasePairState.getPhrasePair().getPhraseAnswer();
+    public void sendPhraseAnswer(PhrasePairState phrasePairState, User user, MenuStage menuStage, GroupActor groupActor) {
+        String answer = "";
+        switch (menuStage.getMenuLevel()) {
+            case PHRASE_RUS_ENG:
+                answer = "Правильный ответ: \n" + phrasePairState.getPhrasePair().getPhraseAnswer();
+                break;
+            case PHRASE_ENG_RUS:
+                answer = "Correct answer: \n" + phrasePairState.getPhrasePair().getPhraseQuestion();
+                break;
+        }
         messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), answer, phraseButtonsList);
     }
 

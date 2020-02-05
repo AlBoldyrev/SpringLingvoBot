@@ -81,6 +81,8 @@ public class MenuServiceImpl implements MenuService {
                 callDialogMenu(user, messageBody, menuStage, groupActor);
                 break;
             case PHRASE:
+            case PHRASE_RUS_ENG:
+            case PHRASE_ENG_RUS:
                 callPhraseMenu(user, messageBody, menuStage, groupActor);
                 break;
             case IMPORT_DIALOG:
@@ -98,7 +100,7 @@ public class MenuServiceImpl implements MenuService {
             menuStage.setMenuLevel(MenuLevel.PHRASE);
             menuStageRepository.save(menuStage);
             callPhraseMenu(user, messageBody, menuStage, groupActor);
-        } else if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())){
+        } else if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())) {
             menuStage.setMenuLevel(MenuLevel.IMPORT_DIALOG);
             menuStageRepository.save(menuStage);
             importDialog(user, messageBody, menuStage, groupActor);
@@ -121,8 +123,6 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void callDialogMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
-        List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
-
         if (messageBody.equals(MenuButtons.NEXT.getValue())) {
             int nextDialogPage = menuStage.getCurrentDialogPage() + 1;
             sendDialogsKeyboard(user, nextDialogPage, groupActor);
@@ -139,8 +139,8 @@ public class MenuServiceImpl implements MenuService {
             callMainMenu(user, messageBody, menuStage, groupActor);
         } else {
             String savedDialogName = dialogsNames.get(messageBody);
-            if (savedDialogName != null && !savedDialogName.isEmpty()/*allDialogs.stream().anyMatch(dialog -> dialog.getDialogName().equals(messageBody))*/) {
-                enterTheDialog(user, savedDialogName);
+            if (savedDialogName != null && !savedDialogName.isEmpty()) {
+                enterTheDialog(user, savedDialogName, groupActor);
                 userDialogService.processCommonDialog(user, groupActor);
             } else {
                 sendDialogsKeyboard(user, 0, groupActor);
@@ -152,7 +152,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void callPhraseMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
-        enterTheDialog(user, messageBody);
+        enterTheDialog(user, messageBody, groupActor);
         phrasePairStateService.phrasesDialogStart(user);
         userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
     }
@@ -217,9 +217,13 @@ public class MenuServiceImpl implements MenuService {
     /**
      * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
      */
-    private void enterTheDialog(User user, String message) {
+    private void enterTheDialog(User user, String message, GroupActor groupActor) {
         Dialog dialog = dialogRepository.findByDialogName(message);
         if (dialog == null) {
+            MenuStage menuStage = menuStageRepository.findByUser(user.getUserId());
+            menuStage.setMenuLevel(MenuLevel.MAIN);
+            menuStageRepository.save(menuStage);
+            callMainMenu(user, "default", menuStage, groupActor);
             log.error("dialog with unexisting name");
         } else {
             UserDialog userDialog = new UserDialog(user, dialog, false, false);
