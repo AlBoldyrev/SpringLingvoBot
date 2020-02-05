@@ -266,7 +266,7 @@ public class MenuServiceImpl implements MenuService {
             callMainMenu(user, "default", menuStage, groupActor);
             log.error("dialog with unexisting name");
         } else {
-            UserDialog userDialog = new UserDialog(user, dialog, false, false);
+            UserDialog userDialog = new UserDialog(user, dialog, false, false, false);
             userDialog.setState(1);
             userDialogService.create(userDialog);
         }
