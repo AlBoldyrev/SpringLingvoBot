@@ -24,7 +24,7 @@ public class MenuStage {
     private User user;
 
     @Column(name = "current_dialog_page")
-    Integer currentDialogPage;
+    private Integer currentDialogPage;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "menu_level")

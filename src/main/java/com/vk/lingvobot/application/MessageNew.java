@@ -5,17 +5,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;
-import com.vk.api.sdk.objects.messages.Keyboard;
-import com.vk.lingvobot.entities.Dialog;
 import com.vk.lingvobot.entities.User;
-import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
-import com.vk.lingvobot.repositories.*;
+import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.services.*;
 import com.vk.lingvobot.services.impl.UserDialogServiceImpl;
 import com.vk.lingvobot.services.impl.UserInfoServiceImpl;
-import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +42,6 @@ public class MessageNew implements IResponseHandler {
     public void handle(JsonObject jsonObject, GroupActor groupActor) {
 
         groupActor = this.groupActor;
-
         ModelMessageNew message = gson.fromJson(jsonObject, ModelMessageNew.class);
 
         int userVkId = message.getObject().getUserId();
@@ -56,34 +51,21 @@ public class MessageNew implements IResponseHandler {
         if (user == null) {
             user = userService.createNewUser(userVkId);
         }
-
         boolean isInitialSetupNotCompleted = !setupMessageService.isInitialSetupCompleted(user);
-        boolean hasUserDialogInProcess = userInfoService.hasUserDialogInProcess(user) && !isInitialSetupNotCompleted ;
+        boolean hasUserDialogInProcess = userInfoService.hasUserDialogInProcess(user) && !isInitialSetupNotCompleted;
         boolean hasUserPhrasesDialogInProcess = phrasePairService.hasUserPhrasesDialogInProcess(user);
-
 
         if (isInitialSetupNotCompleted) {
             setupMessageService.processInitialSetup(user, groupActor, messageBody);
         }
-
-        if (!hasUserDialogInProcess && !hasUserPhrasesDialogInProcess) {
+        if (!isInitialSetupNotCompleted && !hasUserDialogInProcess && !hasUserPhrasesDialogInProcess) {
             menuService.handle(user, messageBody, groupActor);
         }
-
         if (hasUserPhrasesDialogInProcess) {
             userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
         }
-
         if (hasUserDialogInProcess) {
             userDialogService.processCommonDialog(user, groupActor);
         }
-
-
     }
-
-
-
-
-
-
 }

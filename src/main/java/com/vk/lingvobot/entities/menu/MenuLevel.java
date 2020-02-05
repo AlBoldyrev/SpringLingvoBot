@@ -4,6 +4,8 @@ public enum MenuLevel {
     MAIN("MAIN"),
     DIALOG("DIALOG"),
     PHRASE("PHRASE"),
+    PHRASE_RUS_ENG("PHRASE_RUS_ENG"),
+    PHRASE_ENG_RUS("PHRASE_ENG_RUS"),
     IMPORT_DIALOG("IMPORT_DIALOG");
 
     private final String code;
