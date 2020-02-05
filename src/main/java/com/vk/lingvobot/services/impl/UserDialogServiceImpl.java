@@ -1,7 +1,10 @@
 package com.vk.lingvobot.services.impl;
 
 import com.vk.api.sdk.client.actors.GroupActor;
+import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
+import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
 import com.vk.lingvobot.repositories.DialogStateRepository;
@@ -12,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,13 +31,23 @@ public class UserDialogServiceImpl implements UserDialogService {
     @Autowired
     private MessageService messageService;
     @Autowired
+    private MessageServiceKt messageServiceKt;
+    @Autowired
     private DialogMaxStateRepository dialogMaxStateRepository;
     @Autowired
     private PhrasePairStateService phrasePairStateService;
     @Autowired
     private PhrasePairService phrasePairService;
-    @Autowired
-    private MenuService menuService;
+
+    private List<List<CustomButton>> mainMenuButtons = new ArrayList<>();
+    private List<CustomButton> buttons = new ArrayList<>();
+
+    @PostConstruct
+    private void init() {
+        buttons.add(new CustomButton(MenuButtons.PHRASES.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        buttons.add(new CustomButton(MenuButtons.DIALOGS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        mainMenuButtons.add(buttons);
+    }
 
     @Override
     public UserDialog findById(int id) {
@@ -120,7 +136,8 @@ public class UserDialogServiceImpl implements UserDialogService {
         } else {
             phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
             phrasePairStateService.phrasesDialogFinish(user);
-            menuService.handle(user, messageBody, groupActor);
+            messageServiceKt.sendMessageWithTextAndKeyboard(groupActor,
+                    user.getVkId(), "Выберите режим обучения", mainMenuButtons);
         }
     }
 
