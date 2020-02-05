@@ -42,4 +42,7 @@ public class UserDialog {
     @Column(name = "is_finished")
     private Boolean isFinished;
 
+    @Column(name = "is_main_branch_switched_to_subdialog")
+    private Boolean isMainBranchSwitchedToSubdialog;
+
 }

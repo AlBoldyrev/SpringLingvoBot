@@ -1,7 +1,10 @@
 package com.vk.lingvobot.entities;
 
+import com.vk.lingvobot.entities.menu.auxiliary.PostgreSQLEnumType;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,6 +12,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "DialogState")
+@TypeDef(name = "lingvobot.item_state_level", typeClass = PostgreSQLEnumType.class)
 public class DialogState {
 
     @Id
@@ -27,4 +31,10 @@ public class DialogState {
     @OneToOne
     @JoinColumn(name = "dialog_phrase_id")
     private DialogPhrase dialogPhrase;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "item_state_level")
+    @Type(type = "lingvobot.item_state_level")
+    private ItemStateType itemStateType;
+
 }
