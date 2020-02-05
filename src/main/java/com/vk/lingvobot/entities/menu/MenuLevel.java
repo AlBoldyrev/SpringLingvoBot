@@ -3,7 +3,8 @@ package com.vk.lingvobot.entities.menu;
 public enum MenuLevel {
     MAIN("MAIN"),
     DIALOG("DIALOG"),
-    PHRASE("PHRASE");
+    PHRASE("PHRASE"),
+    IMPORT_DIALOG("IMPORT_DIALOG");
 
     private final String code;
 

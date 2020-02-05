@@ -1,5 +1,7 @@
 package com.vk.lingvobot.services.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
 import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
@@ -10,6 +12,8 @@ import com.vk.lingvobot.entities.menu.MenuLevel;
 import com.vk.lingvobot.entities.menu.MenuStage;
 import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.MenuButtons;
+import com.vk.lingvobot.parser.importDialogParser.ImportDialogParser;
+import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.MenuStageRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
@@ -26,6 +30,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +53,8 @@ public class MenuServiceImpl implements MenuService {
     private final PhrasePairStateService phrasePairStateService;
 
     private final Map<String, String> dialogsNames = new HashMap<>();
+    private Gson gson = new GsonBuilder().create();
+
 
     private List<List<CustomButton>> mainMenuButtons = new ArrayList<>();
     private List<CustomButton> buttons = new ArrayList<>();
@@ -52,6 +63,7 @@ public class MenuServiceImpl implements MenuService {
     private void init() {
         buttons.add(new CustomButton(MenuButtons.PHRASES.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
         buttons.add(new CustomButton(MenuButtons.DIALOGS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        buttons.add(new CustomButton(MenuButtons.IMPORT_DIALOGS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
         mainMenuButtons.add(buttons);
     }
 
@@ -82,6 +94,9 @@ public class MenuServiceImpl implements MenuService {
             case PHRASE:
                 callPhraseMenu(user, messageBody, menuStage, groupActor);
                 break;
+            case IMPORT_DIALOG:
+                callImportDialogProcess(user, messageBody, menuStage, groupActor);
+                break;
         }
     }
 
@@ -94,11 +109,57 @@ public class MenuServiceImpl implements MenuService {
             menuStage.setMenuLevel(MenuLevel.PHRASE);
             menuStageRepository.save(menuStage);
             callPhraseMenu(user, messageBody, menuStage, groupActor);
+        } else if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())){
+            menuStage.setMenuLevel(MenuLevel.IMPORT_DIALOG);
+            menuStageRepository.save(menuStage);
+            callImportDialogProcess(user, messageBody, menuStage, groupActor);
         } else {
             messageService.sendMessageWithTextAndKeyboard(
                     groupActor, user.getVkId(), "Выберите режим обучения", mainMenuButtons);
         }
     }
+
+    private void callImportDialogProcess(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
+
+        importDialog();
+
+        if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())) {
+            menuStage.setMenuLevel(MenuLevel.MAIN);
+            menuStageRepository.save(menuStage);
+            messageService.sendMessageWithTextAndKeyboard(
+                    groupActor, user.getVkId(), "Выберите режим обучения", mainMenuButtons);
+        }
+
+    }
+
+    private void importDialog() {
+
+        System.out.println("Import............................");
+        Path path = Paths.get("C:/Work/test.txt");
+        byte[] bytes = new byte[0];
+
+        try {
+            bytes = Files.readAllBytes(path);
+        } catch (IOException ioe) {
+            log.error("IOException while reading file from disk. " + ioe.getStackTrace());
+        }
+
+        String string = null;
+
+        try {
+            string = new String(bytes,"Cp1251");
+        } catch (UnsupportedEncodingException e) {
+            log.error("File can not be encoded to cp1251. Too bad. " + e.getStackTrace());
+        }
+        System.out.println("string: " + string);
+
+        ImportDialogParser importDialogData = gson.fromJson(string, ImportDialogParser.class);
+        System.out.println(importDialogData.toString());
+
+    }
+
+
+
 
     private void callDialogMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
         List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();

@@ -5,9 +5,11 @@ import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.factory.AbstractFactory;
 import com.vk.lingvobot.repositories.*;
 import com.vk.lingvobot.services.SetupMessageService;
+import com.vk.lingvobot.services.UserInfoService;
 import com.vk.lingvobot.states.SettingsSetupState;
 import com.vk.lingvobot.util.Dialogs;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 class SetupMessageServiceImpl implements SetupMessageService {
 
     private final DialogRepository dialogRepository;
@@ -24,6 +27,8 @@ class SetupMessageServiceImpl implements SetupMessageService {
     private final UserDialogRepository userDialogRepository;
     private final SettingsRepository settingsRepository;
     private final AbstractFactory<SettingsSetupState> stateFactory;
+    private final UserInfoService userInfoService;
+
 
     private SettingsSetupState settingsSetupState;
 
@@ -92,5 +97,29 @@ class SetupMessageServiceImpl implements SetupMessageService {
                 settingsRepository.save(userSettings);
                 break;
         }
+    }
+
+    /**
+     * Checking if user finished initial setup and creating new setup UserDialog with dialog_id = 1 in database for new users. "Greeting dialog"
+     */
+    public void processInitialSetup(User user, GroupActor groupActor, String messageBody) {
+        UserDialog greetingSetUpDialog = userInfoService.checkGreetingSetupDialog(user);
+
+        if (greetingSetUpDialog == null) {
+            handle(user, groupActor, messageBody);
+        } else {
+            log.info("Initial setup for user: " + user.getUserName() + " is already finished.");
+        }
+    }
+
+
+
+
+    public boolean isInitialSetupCompleted(User user) {
+        UserDialog greetingSetUpDialog = userInfoService.findUserGreetingDialog(user);
+        if (greetingSetUpDialog == null) {
+            return false;
+        }
+        return greetingSetUpDialog.getIsFinished() || greetingSetUpDialog.getIsCancelled();
     }
 }

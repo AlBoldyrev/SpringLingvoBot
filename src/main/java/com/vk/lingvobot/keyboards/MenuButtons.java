@@ -8,7 +8,8 @@ public enum MenuButtons {
     NEXT("Далее"),
     BACK("Назад"),
     HOME("В главное меню"),
-    EXIT("Выход");
+    EXIT("Выход"),
+    IMPORT_DIALOGS("Загрузить диалог");
 
     @Getter
     private String value;

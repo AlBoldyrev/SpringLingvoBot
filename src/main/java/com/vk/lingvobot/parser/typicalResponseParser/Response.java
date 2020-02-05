@@ -1,4 +1,4 @@
-package com.vk.lingvobot.parser;
+package com.vk.lingvobot.parser.typicalResponseParser;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
