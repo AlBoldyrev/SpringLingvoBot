@@ -22,6 +22,7 @@ import com.vk.lingvobot.services.MenuService;
 import com.vk.lingvobot.services.MessageServiceKt;
 import com.vk.lingvobot.services.PhrasePairStateService;
 import com.vk.lingvobot.services.UserDialogService;
+import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -135,7 +136,7 @@ public class MenuServiceImpl implements MenuService {
     private void importDialog() {
 
         System.out.println("Import............................");
-        Path path = Paths.get("D:/Projects/test.txt");
+        Path path = Paths.get("C:/Work/test.txt");
         byte[] bytes = new byte[0];
 
         try {
@@ -183,20 +184,36 @@ public class MenuServiceImpl implements MenuService {
      */
     private ImportDialogParser squashAllKeyboardsCandidates(ImportDialogParser importDialogParser) {
 
-        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogParser);
         List<Map.Entry<Integer, List<Integer>>> entries = detectAllRoundedRectanglesWithRelations(importDialogDataWithPositiveValues);
-
         for (Map.Entry<Integer, List<Integer>> entry : entries) {
             List<Integer> value = entry.getValue();
             for (Integer it : value) {
                 List<Integer> specificNodeConnectionsToAndFrom = findSpecificNodeConnectionsToAndFrom(importDialogParser, it);
                 System.out.println();
+                if (specificNodeConnectionsToAndFrom.size() == 2) {
+
+                    LinkData newLink = new LinkData(specificNodeConnectionsToAndFrom.get(0), specificNodeConnectionsToAndFrom.get(1));
+                    LinkData oldLinkOneSide = new LinkData(specificNodeConnectionsToAndFrom.get(0), it);
+                    LinkData oldLinkOtherSide = new LinkData(it, specificNodeConnectionsToAndFrom.get(1));
+
+                    boolean first = linkDataList.contains(oldLinkOneSide);
+                    boolean second = linkDataList.contains(oldLinkOtherSide);
+
+                    System.out.println("first = " + first + " and second = " + second);
+                    System.out.println("Element with connection " + specificNodeConnectionsToAndFrom.get(0) + " --> " +specificNodeConnectionsToAndFrom.get(1) + "has been added to linkData");
+
+                    linkDataList.add(newLink);
+                    linkDataList.remove(oldLinkOneSide);
+                    linkDataList.remove(oldLinkOtherSide);
+
+
+                }
             }
         }
-
-        return null;
+        importDialogParser.setLinkDataList(linkDataList);
+        return importDialogParser;
 
     }
 
