@@ -51,6 +51,8 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         findAllConnections(importDialogDataWithPositiveValues); // <-- I forget why it's here
         detectAllRoundedRectanglesWithRelations(importDialogDataWithPositiveValues); //<--This is for future keyboard feature
         ImportDialogParser importDialogParser = squashAllKeyboardsCandidates(importDialogData); // <-- Delete keyboard's messages from whole pool
+
+        mapImportParserIntoOurDatabaseStructure(importDialogParser);
     }
 
 
@@ -65,6 +67,8 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
         importDialogParser.setLinkDataList(linkDataList);
         importDialogParser.setNodeDataList(nodeDataList);
+
+
 
         return importDialogParser;
     }
@@ -104,6 +108,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
                 }
             }
         }
+
         importDialogParser.setLinkDataList(linkDataList);
         return importDialogParser;
 
@@ -213,4 +218,36 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         }
         return nodesKeys;
     }
+
+    private void mapImportParserIntoOurDatabaseStructure(ImportDialogParser importDialogParser) {
+        System.out.println(importDialogParser);
+    }
+
+
+    private boolean isItBeginningOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
+
+        List<LinkData> linkDataList = importDialogParser.getLinkDataList();
+        int counter = 0;
+
+        for (LinkData linkData : linkDataList) {
+            if (linkData.getFrom() == nodeKey) {
+                counter++;
+            }
+        }
+        return counter >= 2;
+    }
+
+    private boolean isItEndingOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
+
+        List<LinkData> linkDataList = importDialogParser.getLinkDataList();
+        int counter = 0;
+
+        for (LinkData linkData : linkDataList) {
+            if (linkData.getTo() == nodeKey) {
+                counter++;
+            }
+        }
+        return counter >= 2;
+    }
 }
+

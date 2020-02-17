@@ -1,7 +1,5 @@
 package com.vk.lingvobot.entities;
 
-import com.vk.lingvobot.entities.menu.MenuLevel;
-
 public enum ItemStateType {
 
     PHRASE("PHRASE"),
