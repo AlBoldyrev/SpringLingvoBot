@@ -9,7 +9,6 @@ import com.vk.lingvobot.services.ImportDialogService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import sun.awt.image.ImageWatched;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -206,22 +205,32 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
     private void mapImportParserIntoOurDatabaseStructure(ImportDialogParser importDialogParser) {
 
+
         System.out.println("Mapping started! ");
 
-        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        ImportDialogParser importDialogParserWithoutKeyboardCandidates = excludeRectangularsAndCirclesFromPool(importDialogParser);
+
+        List<NodeData> nodeDataList = importDialogParserWithoutKeyboardCandidates.getNodeDataList();
         List<Integer> nodesKeys = convertNodeArrayIntoNodeKeyArray(nodeDataList);
         for (Integer key: nodesKeys) {
-            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParser, key);
-            log.debug("Is " + key + " beginning of the branch? " + isItBeginningOfTheBranch);
+            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
+            log.info("Is " + key + " beginning of the branch? " + isItBeginningOfTheBranch);
 
-            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParser, key);
-            log.debug("Is " + key + " ending of the branch?    " + isItEndingOfTheBranch);
+            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
+            log.info("Is " + key + " ending of the branch?    " + isItEndingOfTheBranch);
 
-            String valueFromNodeKey = getValueFromNodeKey(importDialogParser, key);
-
-
+            String valueFromNodeKey = getValueFromNodeKey(importDialogParserWithoutKeyboardCandidates, key);
+            log.info("value" + valueFromNodeKey);
+            log.info("");
         }
+    }
 
+    private ImportDialogParser excludeRectangularsAndCirclesFromPool(ImportDialogParser importDialogParser) {
+
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        nodeDataList.removeIf(nodeData -> nodeData.getFigure() != null && (nodeData.getFigure().equals("RoundedRectangle") || nodeData.getFigure().equals("Circle")));
+        importDialogParser.setNodeDataList(nodeDataList);
+        return importDialogParser;
     }
 
 
