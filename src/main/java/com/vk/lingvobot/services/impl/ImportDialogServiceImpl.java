@@ -2,12 +2,16 @@ package com.vk.lingvobot.services.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.vk.lingvobot.entities.Dialog;
+import com.vk.lingvobot.entities.DialogState;
 import com.vk.lingvobot.parser.importDialogParser.ImportDialogParser;
 import com.vk.lingvobot.parser.importDialogParser.LinkData;
 import com.vk.lingvobot.parser.importDialogParser.NodeData;
+import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.services.ImportDialogService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -24,6 +28,9 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ImportDialogServiceImpl implements ImportDialogService {
+
+    @Autowired
+    private DialogRepository dialogRepository;
 
     private Gson gson = new GsonBuilder().create();
 
@@ -212,6 +219,19 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
         List<NodeData> nodeDataList = importDialogParserWithoutKeyboardCandidates.getNodeDataList();
         List<Integer> nodesKeys = convertNodeArrayIntoNodeKeyArray(nodeDataList);
+
+        Dialog newDialogForImport = new Dialog();
+        DialogState dialogState = new DialogState();
+        dialogState.setDialog(newDialogForImport);
+
+        for (NodeData nodeData: nodeDataList) {
+            int key = nodeData.getKey();
+            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
+            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
+            
+
+        }
+
         for (Integer key: nodesKeys) {
             boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
             log.info("Is " + key + " beginning of the branch? " + isItBeginningOfTheBranch);
@@ -223,7 +243,14 @@ public class ImportDialogServiceImpl implements ImportDialogService {
             log.info("value" + valueFromNodeKey);
             log.info("");
         }
+
+
+        dialogRepository.save(newDialogForImport);
+
+
     }
+
+
 
     private ImportDialogParser excludeRectangularsAndCirclesFromPool(ImportDialogParser importDialogParser) {
 
