@@ -169,6 +169,23 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return connections;
     }
 
+    private Integer findSpecificNodeConnectionsOnlyTo(ImportDialogParser importDialogParser, int nodeKey) {
+
+        List<LinkData> linkDataList = importDialogParser.getLinkDataList();
+
+        Integer connections = 0;
+
+        for (LinkData linkData : linkDataList) {
+            int from = linkData.getFrom();
+            int to = linkData.getTo();
+            if (nodeKey == from) {
+                connections = to;
+
+            }
+        }
+        return connections;
+    }
+
 
 
     private List<Map.Entry<Integer, List<Integer>>> detectAllRoundedRectanglesWithRelations(ImportDialogParser importDialogParser) {
@@ -215,7 +232,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
         System.out.println("Mapping started! ");
 
-        ImportDialogParser importDialogParserWithoutKeyboardCandidates = excludeRectangularsAndCirclesFromPool(importDialogParser);
+        ImportDialogParser importDialogParserWithoutKeyboardCandidates = excludeRectangularsFromPool(importDialogParser);
 
         List<NodeData> nodeDataList = importDialogParserWithoutKeyboardCandidates.getNodeDataList();
         List<Integer> nodesKeys = convertNodeArrayIntoNodeKeyArray(nodeDataList);
@@ -224,24 +241,34 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         DialogState dialogState = new DialogState();
         dialogState.setDialog(newDialogForImport);
 
+        NodeData start = findStart(importDialogParser);
+        Integer startTo = findSpecificNodeConnectionsOnlyTo(importDialogParser, start.getKey());
+
+        String valueFromNodeKey = getValueFromNodeKey(importDialogParser, startTo);
+        System.out.println("value:  " + valueFromNodeKey);
+
         for (NodeData nodeData: nodeDataList) {
             int key = nodeData.getKey();
             boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
             boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-            
+
+
+
 
         }
 
         for (Integer key: nodesKeys) {
             boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-            log.info("Is " + key + " beginning of the branch? " + isItBeginningOfTheBranch);
+//            log.info("Is " + key + " beginning of the branch? " + isItBeginningOfTheBranch);
 
             boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-            log.info("Is " + key + " ending of the branch?    " + isItEndingOfTheBranch);
+//            log.info("Is " + key + " ending of the branch?    " + isItEndingOfTheBranch);
 
+/*
             String valueFromNodeKey = getValueFromNodeKey(importDialogParserWithoutKeyboardCandidates, key);
-            log.info("value" + valueFromNodeKey);
-            log.info("");
+*/
+//            log.info("value" + valueFromNodeKey);
+//            log.info("");
         }
 
 
@@ -252,12 +279,25 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
 
-    private ImportDialogParser excludeRectangularsAndCirclesFromPool(ImportDialogParser importDialogParser) {
+    private ImportDialogParser excludeRectangularsFromPool(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
-        nodeDataList.removeIf(nodeData -> nodeData.getFigure() != null && (nodeData.getFigure().equals("RoundedRectangle") || nodeData.getFigure().equals("Circle")));
+        nodeDataList.removeIf(nodeData -> nodeData.getFigure() != null && (nodeData.getFigure().equals("RoundedRectangle")));
         importDialogParser.setNodeDataList(nodeDataList);
         return importDialogParser;
+    }
+
+    private NodeData findStart(ImportDialogParser importDialogParser) {
+
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        NodeData nodeDataWeNeed = null;
+
+        for (NodeData nodeData : nodeDataList) {
+            if (nodeData.getFigure() != null && nodeData.getFigure().equals("Circle") && nodeData.getFill().equals("#00AD5F")) {
+                nodeDataWeNeed = nodeData;
+            }
+        }
+        return nodeDataWeNeed;
     }
 
 

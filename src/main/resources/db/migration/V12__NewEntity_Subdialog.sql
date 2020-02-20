@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS lingvobot.subdialogs (
     subdialog_id integer NOT NULL,
-    PRIMARY KEY (dialog_id)
+    PRIMARY KEY (subdialog_id)
 );
 
 CREATE SEQUENCE IF NOT EXISTS lingvobot.lingvobot_subdialog_sequence
