@@ -19,10 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -36,7 +33,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
     public void importDialog() {
         System.out.println("Import............................");
-        Path path = Paths.get("C:/Work/test.txt");
+        Path path = Paths.get("D:/Projects/test.txt");
         byte[] bytes = new byte[0];
 
         try {
@@ -80,6 +77,21 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return importDialogParser;
     }
 
+    private List<NodeData> findNextNode(ImportDialogParser importDialogParser, NodeData currentNode) {
+
+        Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(importDialogParser, currentNode.getKey());
+        List<NodeData> nodeDataWeFind = new ArrayList<>();
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        for (NodeData nodeData: nodeDataList) {
+            for (Integer integer: specificNodeConnectionsOnlyTo) {
+                if (nodeData.getKey() == integer) {
+                    nodeDataWeFind.add(nodeData);
+                }
+            }
+        }
+        return nodeDataWeFind;
+    }
+
     /**
      *  f.e. if (3,4,5) - rectangular objects then (1,3), (1,4), (1,5), (3,6), (4,6), (5,6) --> (1,6)
      * @param importDialogParser
@@ -112,8 +124,9 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
         importDialogParser.setLinkDataList(linkDataList);
         return importDialogParser;
-
     }
+
+
 
     private void findAllConnections(ImportDialogParser importDialogParser) {
 
@@ -169,17 +182,17 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return connections;
     }
 
-    private Integer findSpecificNodeConnectionsOnlyTo(ImportDialogParser importDialogParser, int nodeKey) {
+    private Set<Integer> findSpecificNodeConnectionsOnlyTo(ImportDialogParser importDialogParser, int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
-        Integer connections = 0;
+        Set<Integer> connections = new HashSet<>();
 
         for (LinkData linkData : linkDataList) {
             int from = linkData.getFrom();
             int to = linkData.getTo();
             if (nodeKey == from) {
-                connections = to;
+                connections.add(to);
 
             }
         }
@@ -242,35 +255,30 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         dialogState.setDialog(newDialogForImport);
 
         NodeData start = findStart(importDialogParser);
-        Integer startTo = findSpecificNodeConnectionsOnlyTo(importDialogParser, start.getKey());
+        System.out.println("We find START: " + start.getKey() + " with text: " + start.getText());
 
-        String valueFromNodeKey = getValueFromNodeKey(importDialogParser, startTo);
-        System.out.println("value:  " + valueFromNodeKey);
+        NodeData nodeConnectedWithStart = findNextNode(importDialogParser, start).get(0);
+        String valueFromNodeKey = getValueFromNodeKey(importDialogParser, nodeConnectedWithStart.getKey());
+        System.out.println("We find node connected with start: " + nodeConnectedWithStart.getKey() + " with value: " + nodeConnectedWithStart.getText());
+
+
 
         for (NodeData nodeData: nodeDataList) {
             int key = nodeData.getKey();
             boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
             boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-
-
-
-
+            List<NodeData> nextNode = findNextNode(importDialogParser, nodeData);
+            if (nextNode.size() == 0) {
+                System.out.println("fucking mistake");
+            }
+            if (nextNode.size() == 1) {
+                System.out.println("We find node connected with Node " + nodeData.getKey() + ". It is node " + nextNode.get(0).getKey() + " with value: " + nextNode.get(0).getText());
+            }
+            if (nextNode.size() > 1) {
+                List<Integer> integers = nextNode.stream().map(NodeData::getKey).collect(Collectors.toList());
+                System.out.println("We find node connected with Node " + nodeData.getKey() + ". It is nodes " + integers.toString());
+            }
         }
-
-        for (Integer key: nodesKeys) {
-            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-//            log.info("Is " + key + " beginning of the branch? " + isItBeginningOfTheBranch);
-
-            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-//            log.info("Is " + key + " ending of the branch?    " + isItEndingOfTheBranch);
-
-/*
-            String valueFromNodeKey = getValueFromNodeKey(importDialogParserWithoutKeyboardCandidates, key);
-*/
-//            log.info("value" + valueFromNodeKey);
-//            log.info("");
-        }
-
 
         dialogRepository.save(newDialogForImport);
 
