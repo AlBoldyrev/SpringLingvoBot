@@ -9,6 +9,8 @@ import com.vk.lingvobot.parser.importDialogParser.LinkData;
 import com.vk.lingvobot.parser.importDialogParser.NodeData;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.services.ImportDialogService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
     private Gson gson = new GsonBuilder().create();
 
+    private ImportDialogParser importDialogParser;
+
     public void importDialog() {
         System.out.println("Import............................");
         Path path = Paths.get("D:/Projects/test.txt");
@@ -51,13 +55,13 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         }
 
         ImportDialogParser importDialogData = gson.fromJson(string, ImportDialogParser.class);
-
+        this.importDialogParser = importDialogData;
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogData);
-        findAllConnections(importDialogDataWithPositiveValues); // <-- I forget why it's here
-        detectAllRoundedRectanglesWithRelations(importDialogDataWithPositiveValues); //<--This is for future keyboard feature
-        ImportDialogParser importDialogParser = squashAllKeyboardsCandidates(importDialogData); // <-- Delete keyboard's messages from whole pool
+        this.importDialogParser = squashAllKeyboardsCandidates(importDialogData);
+        detectAllRoundedRectanglesWithRelations(); //<--This is for future keyboard feature
 
-        mapImportParserIntoOurDatabaseStructure(importDialogParser);
+
+        mapImportParserIntoOurDatabaseStructure();
     }
 
 
@@ -77,9 +81,9 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return importDialogParser;
     }
 
-    private List<NodeData> findNextNode(ImportDialogParser importDialogParser, NodeData currentNode) {
+    private List<NodeData> findNextNode(NodeData currentNode) {
 
-        Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(importDialogParser, currentNode.getKey());
+        Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(currentNode.getKey());
         List<NodeData> nodeDataWeFind = new ArrayList<>();
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         for (NodeData nodeData: nodeDataList) {
@@ -94,18 +98,17 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
     /**
      *  f.e. if (3,4,5) - rectangular objects then (1,3), (1,4), (1,5), (3,6), (4,6), (5,6) --> (1,6)
-     * @param importDialogParser
      * @return
      */
     private ImportDialogParser squashAllKeyboardsCandidates(ImportDialogParser importDialogParser) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogParser);
-        List<Map.Entry<Integer, List<Integer>>> entries = detectAllRoundedRectanglesWithRelations(importDialogDataWithPositiveValues);
+        List<Map.Entry<Integer, List<Integer>>> entries = detectAllRoundedRectanglesWithRelations();
         for (Map.Entry<Integer, List<Integer>> entry : entries) {
             List<Integer> value = entry.getValue();
             for (Integer it : value) {
-                List<Integer> specificNodeConnectionsToAndFrom = findSpecificNodeConnectionsToAndFrom(importDialogParser, it);
+                List<Integer> specificNodeConnectionsToAndFrom = findSpecificNodeConnectionsToAndFrom(it);
                 if (specificNodeConnectionsToAndFrom.size() == 2) {
 
                     LinkData newLink = new LinkData(specificNodeConnectionsToAndFrom.get(0), specificNodeConnectionsToAndFrom.get(1));
@@ -128,7 +131,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
 
-    private void findAllConnections(ImportDialogParser importDialogParser) {
+    private void findAllConnections() {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -146,7 +149,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         }
     }
 
-    private List<Integer> findSpecificNodeConnectionsToAndFrom(ImportDialogParser importDialogParser, int nodeKey) {
+    private List<Integer> findSpecificNodeConnectionsToAndFrom(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -165,7 +168,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return connections;
     }
 
-    private Integer findSpecificNodeConnectionsOnlyFrom(ImportDialogParser importDialogParser, int nodeKey) {
+    private Integer findSpecificNodeConnectionsOnlyFrom(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -182,7 +185,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return connections;
     }
 
-    private Set<Integer> findSpecificNodeConnectionsOnlyTo(ImportDialogParser importDialogParser, int nodeKey) {
+    private Set<Integer> findSpecificNodeConnectionsOnlyTo(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -201,7 +204,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
 
-    private List<Map.Entry<Integer, List<Integer>>> detectAllRoundedRectanglesWithRelations(ImportDialogParser importDialogParser) {
+    private List<Map.Entry<Integer, List<Integer>>> detectAllRoundedRectanglesWithRelations() {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -209,8 +212,8 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         Map<Integer, Integer> correlationsBetweenNodes = new HashMap<>();
         for (NodeData nodeData: nodeDataList) {
             if (nodeData.getFigure() != null && nodeData.getFigure().equals("RoundedRectangle")) {
-                List<Integer> specificNodeConnections = findSpecificNodeConnectionsToAndFrom(importDialogParser, nodeData.getKey());
-                Integer specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyFrom(importDialogParser, nodeData.getKey());
+                List<Integer> specificNodeConnections = findSpecificNodeConnectionsToAndFrom(nodeData.getKey());
+                Integer specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyFrom(nodeData.getKey());
                 correlationsBetweenNodes.put(nodeData.getKey(), specificNodeConnectionsOnlyTo);
             }
         }
@@ -240,7 +243,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return nodesKeys;
     }
 
-    private void mapImportParserIntoOurDatabaseStructure(ImportDialogParser importDialogParser) {
+    private void mapImportParserIntoOurDatabaseStructure() {
 
 
         System.out.println("Mapping started! ");
@@ -257,13 +260,13 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         NodeData start = findStart(importDialogParser);
         System.out.println("We find START: " + start.getKey() + " with text: " + start.getText());
 
-        NodeData nodeConnectedWithStart = findNextNode(importDialogParser, start).get(0);
+        NodeData nodeConnectedWithStart = findNextNode(start).get(0);
         String valueFromNodeKey = getValueFromNodeKey(importDialogParser, nodeConnectedWithStart.getKey());
         System.out.println("We find node connected with start: " + nodeConnectedWithStart.getKey() + " with value: " + nodeConnectedWithStart.getText());
 
 
 
-        for (NodeData nodeData: nodeDataList) {
+        /*for (NodeData nodeData: nodeDataList) {
             int key = nodeData.getKey();
             boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
             boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
@@ -278,7 +281,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
                 List<Integer> integers = nextNode.stream().map(NodeData::getKey).collect(Collectors.toList());
                 System.out.println("We find node connected with Node " + nodeData.getKey() + ". It is nodes " + integers.toString());
             }
-        }
+        }*/
 
         dialogRepository.save(newDialogForImport);
 
@@ -353,6 +356,22 @@ public class ImportDialogServiceImpl implements ImportDialogService {
             }
         }
         return nodeValue;
+    }
+}
+
+@Slf4j
+@NoArgsConstructor
+class Node {
+
+    private String text;
+    private Integer key;
+    private Node nodeNext;
+
+    public Node(String text, Integer key, Node nodeNext) {
+        this.text = text;
+        this.key = key;
+
+
     }
 }
 
