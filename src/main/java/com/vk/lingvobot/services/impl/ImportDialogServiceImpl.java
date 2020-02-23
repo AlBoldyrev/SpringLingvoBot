@@ -9,13 +9,16 @@ import com.vk.lingvobot.parser.importDialogParser.LinkData;
 import com.vk.lingvobot.parser.importDialogParser.NodeData;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.services.ImportDialogService;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
@@ -33,9 +36,18 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
     private Gson gson = new GsonBuilder().create();
 
+    @Autowired
     private ImportDialogParser importDialogParser;
 
-    public void importDialog() {
+    public ImportDialogParser getImportDialogParser() {
+        return importDialogParser;
+    }
+
+    @Autowired
+    ApplicationContext applicationContext;
+
+    @PostConstruct
+    public void init() {
         System.out.println("Import............................");
         Path path = Paths.get("D:/Projects/test.txt");
         byte[] bytes = new byte[0];
@@ -58,10 +70,31 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         this.importDialogParser = importDialogData;
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogData);
         this.importDialogParser = squashAllKeyboardsCandidates(importDialogData);
+        importDialogParserLocationProblem(importDialogParser);
+    }
+
+    private ImportDialogParser convertImportDialogParserIntoAdequateFormat(ImportDialogParser importDialogParser) {
+
+        ImportDialogParser importDialogParserAdequateFormat = squashAllKeyboardsCandidates(importDialogParser);
+        return importDialogParserAdequateFormat;
+    }
+
+    private ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {
+
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        List<LinkData> linkDataList = importDialogParser.getLinkDataList();
+        Collections.sort(nodeDataList);
+        System.out.println();
+        System.out.println();
+        return importDialogParser;
+    }
+
+    public void importDialog() {
+
         detectAllRoundedRectanglesWithRelations(); //<--This is for future keyboard feature
 
 
-        mapImportParserIntoOurDatabaseStructure();
+        /*mapImportParserIntoOurDatabaseStructure();*/
     }
 
 
@@ -79,21 +112,6 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
         return importDialogParser;
-    }
-
-    private List<NodeData> findNextNode(NodeData currentNode) {
-
-        Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(currentNode.getKey());
-        List<NodeData> nodeDataWeFind = new ArrayList<>();
-        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
-        for (NodeData nodeData: nodeDataList) {
-            for (Integer integer: specificNodeConnectionsOnlyTo) {
-                if (nodeData.getKey() == integer) {
-                    nodeDataWeFind.add(nodeData);
-                }
-            }
-        }
-        return nodeDataWeFind;
     }
 
     /**
@@ -243,50 +261,6 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return nodesKeys;
     }
 
-    private void mapImportParserIntoOurDatabaseStructure() {
-
-
-        System.out.println("Mapping started! ");
-
-        ImportDialogParser importDialogParserWithoutKeyboardCandidates = excludeRectangularsFromPool(importDialogParser);
-
-        List<NodeData> nodeDataList = importDialogParserWithoutKeyboardCandidates.getNodeDataList();
-        List<Integer> nodesKeys = convertNodeArrayIntoNodeKeyArray(nodeDataList);
-
-        Dialog newDialogForImport = new Dialog();
-        DialogState dialogState = new DialogState();
-        dialogState.setDialog(newDialogForImport);
-
-        NodeData start = findStart(importDialogParser);
-        System.out.println("We find START: " + start.getKey() + " with text: " + start.getText());
-
-        NodeData nodeConnectedWithStart = findNextNode(start).get(0);
-        String valueFromNodeKey = getValueFromNodeKey(importDialogParser, nodeConnectedWithStart.getKey());
-        System.out.println("We find node connected with start: " + nodeConnectedWithStart.getKey() + " with value: " + nodeConnectedWithStart.getText());
-
-
-
-        /*for (NodeData nodeData: nodeDataList) {
-            int key = nodeData.getKey();
-            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParserWithoutKeyboardCandidates, key);
-            List<NodeData> nextNode = findNextNode(importDialogParser, nodeData);
-            if (nextNode.size() == 0) {
-                System.out.println("fucking mistake");
-            }
-            if (nextNode.size() == 1) {
-                System.out.println("We find node connected with Node " + nodeData.getKey() + ". It is node " + nextNode.get(0).getKey() + " with value: " + nextNode.get(0).getText());
-            }
-            if (nextNode.size() > 1) {
-                List<Integer> integers = nextNode.stream().map(NodeData::getKey).collect(Collectors.toList());
-                System.out.println("We find node connected with Node " + nodeData.getKey() + ". It is nodes " + integers.toString());
-            }
-        }*/
-
-        dialogRepository.save(newDialogForImport);
-
-
-    }
 
 
 
@@ -357,21 +331,59 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         }
         return nodeValue;
     }
-}
 
-@Slf4j
-@NoArgsConstructor
-class Node {
-
-    private String text;
-    private Integer key;
-    private Node nodeNext;
-
-    public Node(String text, Integer key, Node nodeNext) {
-        this.text = text;
-        this.key = key;
-
-
+    private NodeData getNodeFromNodeKey(Integer nodeKey) {
+        NodeData nodeDataWeFind = null;
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        for (NodeData nodeData: nodeDataList) {
+            if (nodeData.getKey() == nodeKey) {
+                nodeDataWeFind = nodeData;
+            }
+        }
+        return nodeDataWeFind;
     }
+
+    public List<NodeData> findNextNode(NodeData currentNode) {
+
+        Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(currentNode.getKey());
+        List<NodeData> nodeDataWeFind = new ArrayList<>();
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+        for (NodeData nodeData: nodeDataList) {
+            for (Integer integer: specificNodeConnectionsOnlyTo) {
+                if (nodeData.getKey() == integer) {
+                    nodeDataWeFind.add(nodeData);
+                }
+            }
+        }
+        return nodeDataWeFind;
+    }
+
+   /* @NoArgsConstructor
+    @DependsOn({"importDialogServiceImpl"})
+    @Data
+    class Node {
+
+        private String text;
+        private Integer key;
+        private List<Node> nodeNextList;
+
+        public Node(String text, Integer key, Node nodeNext) {
+            this.text = text;
+            this.key = key;
+
+            List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+            Integer keyOfNextNode = nodeNext.getKey();
+            NodeData nodeFromNodeKey = getNodeFromNodeKey(keyOfNextNode);
+
+            List<NodeData> nextNode = findNextNode(nodeFromNodeKey);
+            for (NodeData nodeData: nextNode) {
+                Node node = new Node(nodeData.getText(), nodeData.getKey(), null);
+            }
+            System.out.println("non NPE " + nextNode.toString());
+        }
+    }*/
+
 }
+
+
 
