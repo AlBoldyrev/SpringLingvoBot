@@ -13,6 +13,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.DependsOn;
@@ -84,29 +87,26 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
         Collections.sort(nodeDataList);
-
-        for (int i = 0; i <nodeDataList.size(); i++) {
+        Set<Triple<Integer, Integer, Boolean>> tripleSet = new HashSet<>();
+        for (int i = 0; i < nodeDataList.size(); i++) {
             NodeData nodeData = nodeDataList.get(i);
             int key = nodeData.getKey();
             nodeData.setKey(i);
             System.out.println("For node with key " + key + " value is switched to " + nodeData.getKey());
 
+            for (int j = 0; j < linkDataList.size(); j++) {
+                int from = linkDataList.get(j).getFrom();
+                int to = linkDataList.get(j).getTo();
+                Triple tripleFrom = new ImmutableTriple(j, "from", true);
+                Triple tripleTo = new ImmutableTriple(j, "to", true);
+                if (from == key && !tripleSet.contains(tripleFrom)) {
+                    linkDataList.get(j).setFrom(nodeData.getKey());
+                    tripleSet.add(new ImmutableTriple(j , "from" , true));
 
-
-
-
-            for (LinkData linkData: linkDataList) {
-                int from = linkData.getFrom();
-                int to = linkData.getTo();
-
-                if (from == key) {
-
-                    linkData.setFrom(nodeData.getKey());
-                    System.out.println("LINKS FROM: " + from + "-->" + nodeData.getKey());
                 }
-                if (to == key) {
-                    System.out.println("LINKS TO: " + to + "-->" + nodeData.getKey());
-                    linkData.setTo(nodeData.getKey());
+                if (to == key && !tripleSet.contains(tripleTo)) {
+                    tripleSet.add(new ImmutableTriple(j , "to" , true));
+                    linkDataList.get(j).setTo(nodeData.getKey());
                 }
             }
         }
