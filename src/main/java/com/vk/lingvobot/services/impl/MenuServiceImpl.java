@@ -13,14 +13,13 @@ import com.vk.lingvobot.entities.menu.MenuStage;
 import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.parser.importDialogParser.ImportDialogParser;
-import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
+import com.vk.lingvobot.parser.importDialogParser.LinkData;
+import com.vk.lingvobot.parser.importDialogParser.NodeData;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.MenuStageRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
-import com.vk.lingvobot.services.MenuService;
-import com.vk.lingvobot.services.MessageServiceKt;
-import com.vk.lingvobot.services.PhrasePairStateService;
-import com.vk.lingvobot.services.UserDialogService;
+import com.vk.lingvobot.services.*;
+import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,14 +30,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,6 +47,7 @@ public class MenuServiceImpl implements MenuService {
     private final UserDialogRepository userDialogRepository;
     private final UserDialogService userDialogService;
     private final PhrasePairStateService phrasePairStateService;
+    private final ImportDialogService importDialogService;
 
     private final Map<String, String> dialogsNames = new HashMap<>();
     private Gson gson = new GsonBuilder().create();
@@ -92,6 +89,8 @@ public class MenuServiceImpl implements MenuService {
                 callDialogMenu(user, messageBody, menuStage, groupActor);
                 break;
             case PHRASE:
+            case PHRASE_RUS_ENG:
+            case PHRASE_ENG_RUS:
                 callPhraseMenu(user, messageBody, menuStage, groupActor);
                 break;
             case IMPORT_DIALOG:
@@ -109,7 +108,7 @@ public class MenuServiceImpl implements MenuService {
             menuStage.setMenuLevel(MenuLevel.PHRASE);
             menuStageRepository.save(menuStage);
             callPhraseMenu(user, messageBody, menuStage, groupActor);
-        } else if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())){
+        } else if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())) {
             menuStage.setMenuLevel(MenuLevel.IMPORT_DIALOG);
             menuStageRepository.save(menuStage);
             callImportDialogProcess(user, messageBody, menuStage, groupActor);
@@ -121,7 +120,7 @@ public class MenuServiceImpl implements MenuService {
 
     private void callImportDialogProcess(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
 
-        importDialog();
+        importDialogService.importDialog();
 
         if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())) {
             menuStage.setMenuLevel(MenuLevel.MAIN);
@@ -131,35 +130,6 @@ public class MenuServiceImpl implements MenuService {
         }
 
     }
-
-    private void importDialog() {
-
-        System.out.println("Import............................");
-        Path path = Paths.get("C:/Work/test.txt");
-        byte[] bytes = new byte[0];
-
-        try {
-            bytes = Files.readAllBytes(path);
-        } catch (IOException ioe) {
-            log.error("IOException while reading file from disk. " + ioe.getStackTrace());
-        }
-
-        String string = null;
-
-        try {
-            string = new String(bytes,"Cp1251");
-        } catch (UnsupportedEncodingException e) {
-            log.error("File can not be encoded to cp1251. Too bad. " + e.getStackTrace());
-        }
-        System.out.println("string: " + string);
-
-        ImportDialogParser importDialogData = gson.fromJson(string, ImportDialogParser.class);
-        System.out.println(importDialogData.toString());
-
-    }
-
-
-
 
     private void callDialogMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
         List<Dialog> allDialogs = dialogRepository.findAllDialogExceptSettingOne();
@@ -180,8 +150,8 @@ public class MenuServiceImpl implements MenuService {
             callMainMenu(user, messageBody, menuStage, groupActor);
         } else {
             String savedDialogName = dialogsNames.get(messageBody);
-            if (savedDialogName != null && !savedDialogName.isEmpty()/*allDialogs.stream().anyMatch(dialog -> dialog.getDialogName().equals(messageBody))*/) {
-                enterTheDialog(user, savedDialogName);
+            if (savedDialogName != null && !savedDialogName.isEmpty()) {
+                enterTheDialog(user, savedDialogName, groupActor);
                 userDialogService.processCommonDialog(user, groupActor);
             } else {
                 sendDialogsKeyboard(user, 0, groupActor);
@@ -193,7 +163,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     private void callPhraseMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
-        enterTheDialog(user, messageBody);
+        enterTheDialog(user, messageBody, groupActor);
         phrasePairStateService.phrasesDialogStart(user);
         userDialogService.processPhrasesPairDialog(user, groupActor, messageBody);
     }
@@ -258,12 +228,16 @@ public class MenuServiceImpl implements MenuService {
     /**
      * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
      */
-    private void enterTheDialog(User user, String message) {
+    private void enterTheDialog(User user, String message, GroupActor groupActor) {
         Dialog dialog = dialogRepository.findByDialogName(message);
         if (dialog == null) {
+            MenuStage menuStage = menuStageRepository.findByUser(user.getUserId());
+            menuStage.setMenuLevel(MenuLevel.MAIN);
+            menuStageRepository.save(menuStage);
+            callMainMenu(user, "default", menuStage, groupActor);
             log.error("dialog with unexisting name");
         } else {
-            UserDialog userDialog = new UserDialog(user, dialog, false, false);
+            UserDialog userDialog = new UserDialog(user, dialog, false, false, false);
             userDialog.setState(1);
             userDialogService.create(userDialog);
         }

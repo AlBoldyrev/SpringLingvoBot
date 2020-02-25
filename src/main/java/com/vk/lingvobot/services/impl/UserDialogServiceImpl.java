@@ -4,10 +4,14 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.objects.messages.KeyboardButtonActionType;
 import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.entities.menu.MenuLevel;
+import com.vk.lingvobot.entities.menu.MenuStage;
 import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.MenuButtons;
 import com.vk.lingvobot.repositories.DialogMaxStateRepository;
+import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.DialogStateRepository;
+import com.vk.lingvobot.repositories.MenuStageRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.services.*;
 import lombok.extern.slf4j.Slf4j;
@@ -31,22 +35,29 @@ public class UserDialogServiceImpl implements UserDialogService {
     @Autowired
     private MessageService messageService;
     @Autowired
-    private MessageServiceKt messageServiceKt;
-    @Autowired
     private DialogMaxStateRepository dialogMaxStateRepository;
     @Autowired
     private PhrasePairStateService phrasePairStateService;
     @Autowired
     private PhrasePairService phrasePairService;
+    @Autowired
+    private MenuService menuService;
+    @Autowired
+    private DialogRepository dialogRepository;
+    @Autowired
+    private MenuStageRepository menuStageRepository;
+    @Autowired
+    private MessageServiceKt messageServiceKt;
 
-    private List<List<CustomButton>> mainMenuButtons = new ArrayList<>();
+    private List<List<CustomButton>> phraseMenuButtons = new ArrayList<>();
     private List<CustomButton> buttons = new ArrayList<>();
 
     @PostConstruct
     private void init() {
-        buttons.add(new CustomButton(MenuButtons.PHRASES.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
-        buttons.add(new CustomButton(MenuButtons.DIALOGS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
-        mainMenuButtons.add(buttons);
+        buttons.add(new CustomButton(MenuButtons.PHRASES_ENG_RUS.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        buttons.add(new CustomButton(MenuButtons.PHRASES_RUS_ENG.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        buttons.add(new CustomButton(MenuButtons.EXIT.getValue(), KeyboardButtonActionType.TEXT, KeyboardButtonColor.PRIMARY, ""));
+        phraseMenuButtons.add(buttons);
     }
 
     @Override
@@ -99,7 +110,9 @@ public class UserDialogServiceImpl implements UserDialogService {
         userDialogRepository.save(currentUserDialog);
     }
 
+    //Мирослав прости за костыли :c
     public void processPhrasesPairDialog(User user, GroupActor groupActor, String messageBody) {
+        MenuStage newStage = menuStageRepository.findByUser(user.getUserId());
 
         boolean hasUserNoPhrasesDialogStarted = !phrasePairStateService.hasUserPhrasesDialogStarted(user);
         if (hasUserNoPhrasesDialogStarted) {
@@ -114,36 +127,22 @@ public class UserDialogServiceImpl implements UserDialogService {
             userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
         }
 
-        if(!MenuButtons.EXIT.getValue().equalsIgnoreCase(messageBody)) {
-            if (!phrasePairStateService.checkUserPhraseState(user)) {
-                phrasePairService.sendPhraseQuestion(userPhrasePairState, user, null, groupActor);
-                phrasePairStateService.changeUserPhrasesState(user);
-
-            } else {
-                phrasePairService.sendPhraseAnswer(userPhrasePairState, user, groupActor);
-                phrasePairStateService.changeUserPhrasesState(user);
-
-                Integer currentPhrasePairId = userPhrasePairState.getPhrasePair().getPhrasePairId();
-
-                if (phrasePairService.checkPhrasePairLastState(currentPhrasePairId)) {
-                    phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
-                    phrasePairStateService.phrasesDialogFinish(user);
-                } else {
-                    userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
-                    phrasePairStateService.save(userPhrasePairState);
-                    userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
-
-                    String question = "Следующая фраза: \n" + userPhrasePairState.getPhrasePair().getPhraseQuestion();
-                    phrasePairService.sendPhraseQuestion(userPhrasePairState, user, question, groupActor);
-                    phrasePairStateService.changeUserPhrasesState(user);
-                }
-            }
-        } else {
+        if (MenuButtons.EXIT.getValue().equalsIgnoreCase(messageBody)) {
             phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
             phrasePairStateService.phrasesDialogFinish(user);
-            messageServiceKt.sendMessageWithTextAndKeyboard(groupActor,
-                    user.getVkId(), "Выберите режим обучения", mainMenuButtons);
+            menuService.handle(user, messageBody, groupActor);
+        } else if (MenuButtons.PHRASES_RUS_ENG.getValue().equals(messageBody)) {
+            newStage = changeStage(user, MenuLevel.PHRASE_RUS_ENG);
+        } else if (MenuButtons.PHRASES_ENG_RUS.getValue().equals(messageBody)) {
+            newStage = changeStage(user, MenuLevel.PHRASE_ENG_RUS);
         }
+
+        if (isOnPhraseLevel(user)) {
+            messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), "Выберите режим обучения: ", phraseMenuButtons);
+        } else {
+            processPhrase(user, groupActor, userPhrasePairState, currentUserDialog, newStage);
+        }
+
     }
 
     @Transactional
@@ -154,6 +153,64 @@ public class UserDialogServiceImpl implements UserDialogService {
     @Transactional
     public void create(UserDialog userDialog) {
         userDialogRepository.saveAndFlush(userDialog);
+    }
+
+    private void processPhrase(User user, GroupActor groupActor, PhrasePairState userPhrasePairState,
+                               UserDialog currentUserDialog, MenuStage menuStage) {
+        if (!phrasePairStateService.checkUserPhraseState(user)) {
+            phrasePairService.sendPhraseQuestion(userPhrasePairState, user, null, menuStage, groupActor);
+            phrasePairStateService.changeUserPhrasesState(user);
+        } else {
+            phrasePairService.sendPhraseAnswer(userPhrasePairState, user, menuStage, groupActor);
+            phrasePairStateService.changeUserPhrasesState(user);
+
+            Integer currentPhrasePairId = userPhrasePairState.getPhrasePair().getPhrasePairId();
+
+            if (phrasePairService.checkPhrasePairLastState(currentPhrasePairId)) {
+                phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
+                phrasePairStateService.phrasesDialogFinish(user);
+            } else {
+                userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
+                phrasePairStateService.save(userPhrasePairState);
+                userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
+
+                String question = "";
+                switch (menuStage.getMenuLevel()) {
+                    case PHRASE_RUS_ENG:
+                        question = "Следующая фраза: \n" + userPhrasePairState.getPhrasePair().getPhraseQuestion();
+                        break;
+                    case PHRASE_ENG_RUS:
+                        question = "Next phrase: \n" + userPhrasePairState.getPhrasePair().getPhraseAnswer();
+                }
+                phrasePairService.sendPhraseQuestion(userPhrasePairState, user, question, menuStage, groupActor);
+                phrasePairStateService.changeUserPhrasesState(user);
+            }
+        }
+    }
+
+    private MenuStage changeStage(User user, MenuLevel menuLevel) {
+        MenuStage menuStage = menuStageRepository.findByUser(user.getUserId());
+        menuStage.setMenuLevel(menuLevel);
+        return menuStageRepository.save(menuStage);
+    }
+
+    private boolean isOnPhraseLevel(User user) {
+        MenuStage menuStage = menuStageRepository.findByUser(user.getUserId());
+        return menuStage.getMenuLevel().equals(MenuLevel.PHRASE);
+    }
+
+    /**
+     * User sends us name of the particular dialog via Keyboard and we create UserDialog object using this data
+     */
+    public void enterTheDialog(User user, String message) {
+        Dialog dialog = dialogRepository.findByDialogName(message);
+        if (dialog == null) {
+            log.error("dialog with unexisting name");
+        } else {
+            UserDialog userDialog = new UserDialog(user, dialog, false, false, false);
+            userDialog.setState(1);
+            create(userDialog);
+        }
     }
 
 

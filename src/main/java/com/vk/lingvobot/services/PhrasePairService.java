@@ -5,6 +5,7 @@ import com.vk.lingvobot.entities.PhrasePair;
 import com.vk.lingvobot.entities.PhrasePairState;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.entities.UserDialog;
+import com.vk.lingvobot.entities.menu.MenuStage;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,9 +13,9 @@ public interface PhrasePairService {
 
     PhrasePair findById(Integer id);
 
-    void sendPhraseQuestion(PhrasePairState phrasePairState, User user, String question, GroupActor groupActor);
+    void sendPhraseQuestion(PhrasePairState phrasePairState, User user, String question, MenuStage menuStage, GroupActor groupActor);
 
-    void sendPhraseAnswer(PhrasePairState phrasePairState, User user, GroupActor groupActor);
+    void sendPhraseAnswer(PhrasePairState phrasePairState, User user, MenuStage menuStage, GroupActor groupActor);
 
     boolean checkPhrasePairLastState(Integer phrasePairId);
 

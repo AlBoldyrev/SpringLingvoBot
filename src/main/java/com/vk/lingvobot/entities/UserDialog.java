@@ -12,11 +12,12 @@ public class UserDialog {
 
     public UserDialog(){}
 
-    public UserDialog(User user, Dialog dialog, boolean isCancelled, boolean isFinished) {
+    public UserDialog(User user, Dialog dialog, boolean isCancelled, boolean isFinished, boolean isMainBranchSwitchedToSubdialog) {
         this.user = user;
         this.dialog = dialog;
         this.isCancelled = isCancelled;
         this.isFinished = isFinished;
+        this.isMainBranchSwitchedToSubdialog = isMainBranchSwitchedToSubdialog;
     }
 
     @Id
@@ -41,5 +42,8 @@ public class UserDialog {
 
     @Column(name = "is_finished")
     private Boolean isFinished;
+
+    @Column(name = "is_main_branch_switched_to_subdialog")
+    private Boolean isMainBranchSwitchedToSubdialog;
 
 }
