@@ -84,8 +84,32 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
         Collections.sort(nodeDataList);
-        System.out.println();
-        System.out.println();
+
+        for (int i = 0; i <nodeDataList.size(); i++) {
+            NodeData nodeData = nodeDataList.get(i);
+            int key = nodeData.getKey();
+            nodeData.setKey(i);
+            System.out.println("For node with key " + key + " value is switched to " + nodeData.getKey());
+
+
+
+
+
+            for (LinkData linkData: linkDataList) {
+                int from = linkData.getFrom();
+                int to = linkData.getTo();
+
+                if (from == key) {
+
+                    linkData.setFrom(nodeData.getKey());
+                    System.out.println("LINKS FROM: " + from + "-->" + nodeData.getKey());
+                }
+                if (to == key) {
+                    System.out.println("LINKS TO: " + to + "-->" + nodeData.getKey());
+                    linkData.setTo(nodeData.getKey());
+                }
+            }
+        }
         return importDialogParser;
     }
 
