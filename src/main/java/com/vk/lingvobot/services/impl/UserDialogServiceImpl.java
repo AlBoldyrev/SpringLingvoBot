@@ -143,11 +143,10 @@ public class UserDialogServiceImpl implements UserDialogService {
                     "Выберите режим обучения: ", phraseMenuButtons);
         } else {
             processPhrase(user, groupActor, userPhrasePairState, currentUserDialog, newStage);
-            if(this.phraseExitChecker) {
+            if(!phrasePairStateService.hasUserPhrasesDialogStarted(user)) {
                 menuService.handle(user, messageBody, groupActor);
             }
         }
-
     }
 
     @Transactional
@@ -220,7 +219,7 @@ public class UserDialogServiceImpl implements UserDialogService {
                 phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
                 phrasePairStateService.phrasesDialogFinish(user);
                 flag = false;
-                phraseExitChecker = true;
+                this.phraseExitChecker = true;
             }
         }
         return currentPhrasePair;
