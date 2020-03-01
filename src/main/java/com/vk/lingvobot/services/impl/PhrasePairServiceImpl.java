@@ -74,7 +74,9 @@ public class PhrasePairServiceImpl implements PhrasePairService {
                 }
                 break;
         }
-        messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), question, phraseButtonsList);
+        if(question != null) {
+            messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), question, phraseButtonsList);
+        }
     }
 
     @Override

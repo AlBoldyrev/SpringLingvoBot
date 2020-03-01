@@ -51,6 +51,7 @@ public class UserDialogServiceImpl implements UserDialogService {
 
     private List<List<CustomButton>> phraseMenuButtons = new ArrayList<>();
     private List<CustomButton> buttons = new ArrayList<>();
+    private volatile boolean phraseExitChecker = false;
 
     @PostConstruct
     private void init() {
@@ -138,9 +139,13 @@ public class UserDialogServiceImpl implements UserDialogService {
         }
 
         if (isOnPhraseLevel(user)) {
-            messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(), "Выберите режим обучения: ", phraseMenuButtons);
+            messageServiceKt.sendMessageWithTextAndKeyboard(groupActor, user.getVkId(),
+                    "Выберите режим обучения: ", phraseMenuButtons);
         } else {
             processPhrase(user, groupActor, userPhrasePairState, currentUserDialog, newStage);
+            if(this.phraseExitChecker) {
+                menuService.handle(user, messageBody, groupActor);
+            }
         }
 
     }
@@ -157,35 +162,74 @@ public class UserDialogServiceImpl implements UserDialogService {
 
     private void processPhrase(User user, GroupActor groupActor, PhrasePairState userPhrasePairState,
                                UserDialog currentUserDialog, MenuStage menuStage) {
+
         if (!phrasePairStateService.checkUserPhraseState(user)) {
             phrasePairService.sendPhraseQuestion(userPhrasePairState, user, null, menuStage, groupActor);
             phrasePairStateService.changeUserPhrasesState(user);
         } else {
             phrasePairService.sendPhraseAnswer(userPhrasePairState, user, menuStage, groupActor);
             phrasePairStateService.changeUserPhrasesState(user);
-
             Integer currentPhrasePairId = userPhrasePairState.getPhrasePair().getPhrasePairId();
 
             if (phrasePairService.checkPhrasePairLastState(currentPhrasePairId)) {
                 phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
                 phrasePairStateService.phrasesDialogFinish(user);
             } else {
-                userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
-                phrasePairStateService.save(userPhrasePairState);
-                userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
-
-                String question = "";
-                switch (menuStage.getMenuLevel()) {
-                    case PHRASE_RUS_ENG:
-                        question = "Следующая фраза: \n" + userPhrasePairState.getPhrasePair().getPhraseQuestion();
-                        break;
-                    case PHRASE_ENG_RUS:
-                        question = "Next phrase: \n" + userPhrasePairState.getPhrasePair().getPhraseAnswer();
+                PhrasePair userPhrasePair = getUserPhrasePair(currentPhrasePairId, userPhrasePairState, user,
+                        currentUserDialog);
+                if (!phrasePairService.checkPhrasePairLastState(userPhrasePair.getPhrasePairId()) &&
+                        checkDifficulty(user, userPhrasePair)) {
+                    String question = "";
+                    switch (menuStage.getMenuLevel()) {
+                        case PHRASE_RUS_ENG:
+                            question = "Следующая фраза: \n" + userPhrasePair.getPhraseQuestion();
+                            break;
+                        case PHRASE_ENG_RUS:
+                            question = "Next phrase: \n" + userPhrasePair.getPhraseAnswer();
+                    }
+                    phrasePairService.sendPhraseQuestion(userPhrasePairState, user, question, menuStage, groupActor);
+                    phrasePairStateService.changeUserPhrasesState(user);
                 }
-                phrasePairService.sendPhraseQuestion(userPhrasePairState, user, question, menuStage, groupActor);
-                phrasePairStateService.changeUserPhrasesState(user);
             }
         }
+    }
+
+    private PhrasePair getUserPhrasePair(Integer currentPhrasePairId, PhrasePairState userPhrasePairState, User user,
+                                         UserDialog currentUserDialog) {
+
+        userPhrasePairState.getPhrasePair().setPhrasePairId(++currentPhrasePairId);
+        phrasePairStateService.save(userPhrasePairState);
+        userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
+        PhrasePair currentPhrasePair = userPhrasePairState.getPhrasePair();
+
+        if (checkDifficulty(user, currentPhrasePair)) {
+            return currentPhrasePair;
+        }
+        boolean flag = true;
+        while (flag) {
+            currentPhrasePairId++;
+            userPhrasePairState = phrasePairStateService.findByUserId(user.getUserId());
+            currentPhrasePair = userPhrasePairState.getPhrasePair();
+            if (!phrasePairService.checkPhrasePairLastState(currentPhrasePairId)) {
+                if (checkDifficulty(user, currentPhrasePair)) {
+                    currentPhrasePair.setPhrasePairId(currentPhrasePairId);
+                    phrasePairStateService.save(userPhrasePairState);
+                    flag = false;
+                }
+            } else {
+                phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
+                phrasePairStateService.phrasesDialogFinish(user);
+                flag = false;
+                phraseExitChecker = true;
+            }
+        }
+        return currentPhrasePair;
+    }
+
+    private boolean checkDifficulty(User user, PhrasePair phrasePair){
+        int userDifficultyLevel = user.getSettings().getDifficultyLevel();
+        int currentStateDifficulty = phrasePair.getDifficulty();
+        return userDifficultyLevel == currentStateDifficulty;
     }
 
     private MenuStage changeStage(User user, MenuLevel menuLevel) {

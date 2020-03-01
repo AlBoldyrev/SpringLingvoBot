@@ -121,14 +121,12 @@ public class MenuServiceImpl implements MenuService {
     private void callImportDialogProcess(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {
 
         importDialogService.importDialog();
-
         if (messageBody.equals(MenuButtons.IMPORT_DIALOGS.getValue())) {
             menuStage.setMenuLevel(MenuLevel.MAIN);
             menuStageRepository.save(menuStage);
             messageService.sendMessageWithTextAndKeyboard(
                     groupActor, user.getVkId(), "Выберите режим обучения", mainMenuButtons);
         }
-
     }
 
     private void callDialogMenu(User user, String messageBody, MenuStage menuStage, GroupActor groupActor) {

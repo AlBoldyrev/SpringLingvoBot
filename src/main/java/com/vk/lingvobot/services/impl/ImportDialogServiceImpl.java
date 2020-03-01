@@ -52,11 +52,13 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         Path path = Paths.get("D:/Projects/test.txt");
         byte[] bytes = new byte[0];
 
+        /*
         try {
             bytes = Files.readAllBytes(path);
         } catch (IOException ioe) {
             log.error("IOException while reading file from disk. " + ioe.getStackTrace());
         }
+
 
         String string = null;
 
@@ -77,6 +79,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
         ImportDialogParser importDialogParserAdequateFormat = squashAllKeyboardsCandidates(importDialogParser);
         return importDialogParserAdequateFormat;
+        */
     }
 
     private ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {

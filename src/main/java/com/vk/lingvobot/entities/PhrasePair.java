@@ -22,4 +22,7 @@ public class PhrasePair {
 
     @Column(name = "phrase_answer")
     private String phraseAnswer;
+
+    @Column(name = "difficulty")
+    private Integer difficulty;
 }
