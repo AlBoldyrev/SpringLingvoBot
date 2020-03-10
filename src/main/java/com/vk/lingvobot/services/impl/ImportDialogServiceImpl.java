@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class ImportDialogServiceImpl implements ImportDialogService {
+public class ImportDialogServiceImpl {
 
     @Autowired
     private DialogRepository dialogRepository;
@@ -83,7 +83,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
         ImportDialogParser importDialogParserAdequateFormat = squashAllKeyboardsCandidates(importDialogParser);
         return importDialogParserAdequateFormat;
-        */
+
     }
 
     public DialogState createSimpleChainElementWithoutBranching(Dialog dialog, int i, NodeData nodeData, int stateCounter) {
@@ -399,15 +399,6 @@ public class ImportDialogServiceImpl implements ImportDialogService {
             if (value.contains(nodeKey) && value.size() > 1) return true;
         }
         return false;
-        /*boolean isItBeginningOfTheBranch = false;
-        for (LinkData linkData : linkDataList) {
-            if (linkData.getFrom() == nodeKey) {
-                isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParser, linkData.getFrom());
-            }
-        }
-        return !isItBeginningOfTheBranch;*/
-
-
     }
 
     public List<Integer> convertNodeArrayIntoNodeKeyArray(List<NodeData> nodeDataList) {
