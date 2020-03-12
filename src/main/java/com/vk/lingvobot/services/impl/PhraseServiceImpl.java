@@ -1,6 +1,7 @@
 package com.vk.lingvobot.services.impl;
 
 import com.vk.lingvobot.entities.*;
+import com.vk.lingvobot.keys.PhraseKeys;
 import com.vk.lingvobot.repositories.PhrasePairRepository;
 import com.vk.lingvobot.repositories.PhrasePairStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
@@ -83,7 +84,6 @@ public class PhraseServiceImpl implements PhraseService {
         UserDialog currentUserDialog = userDialogService.findCurrentDialogOfUser(user.getUserId());
         Dialog dialog = currentUserDialog.getDialog();
         String dialogName = dialog.getDialogName();
-        return dialogName.equalsIgnoreCase("Фразы");
+        return dialogName.equalsIgnoreCase(PhraseKeys.PHRASES_DIALOF_NAME);
     }
-
 }

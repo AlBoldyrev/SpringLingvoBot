@@ -51,7 +51,6 @@ public class UserDialogServiceImpl implements UserDialogService {
 
     private List<List<CustomButton>> phraseMenuButtons = new ArrayList<>();
     private List<CustomButton> buttons = new ArrayList<>();
-    private volatile boolean phraseExitChecker = false;
 
     @PostConstruct
     private void init() {
@@ -219,7 +218,6 @@ public class UserDialogServiceImpl implements UserDialogService {
                 phrasePairService.finishPhrasesPairDialog(userPhrasePairState, currentUserDialog);
                 phrasePairStateService.phrasesDialogFinish(user);
                 flag = false;
-                this.phraseExitChecker = true;
             }
         }
         return currentPhrasePair;

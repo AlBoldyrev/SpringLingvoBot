@@ -7,6 +7,7 @@ import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.entities.menu.MenuStage;
 import com.vk.lingvobot.keyboard.CustomButton;
 import com.vk.lingvobot.keyboards.MenuButtons;
+import com.vk.lingvobot.keys.PhraseKeys;
 import com.vk.lingvobot.repositories.PhrasePairRepository;
 import com.vk.lingvobot.repositories.PhrasePairStateRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
@@ -40,6 +41,7 @@ public class PhrasePairServiceImpl implements PhrasePairService {
     MessageServiceKt messageServiceKt;
 
     private static List<List<CustomButton>> phraseButtonsList = new ArrayList<>();
+
 
     static {
         List<CustomButton> customButtons = new ArrayList<>();
@@ -116,7 +118,7 @@ public class PhrasePairServiceImpl implements PhrasePairService {
         }
         Dialog dialog = currentUserDialog.getDialog();
         String dialogName = dialog.getDialogName();
-        hasUserPhrasesDialogInProcess = dialogName.equalsIgnoreCase("Фразы");
+        hasUserPhrasesDialogInProcess = dialogName.equalsIgnoreCase(PhraseKeys.PHRASES_DIALOF_NAME);
         return hasUserPhrasesDialogInProcess;
     }
 }
