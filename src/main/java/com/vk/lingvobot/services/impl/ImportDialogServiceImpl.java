@@ -3,22 +3,19 @@ package com.vk.lingvobot.services.impl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.vk.lingvobot.entities.Dialog;
+import com.vk.lingvobot.entities.DialogPhrase;
 import com.vk.lingvobot.entities.DialogState;
 import com.vk.lingvobot.parser.importDialogParser.ImportDialogParser;
 import com.vk.lingvobot.parser.importDialogParser.LinkData;
 import com.vk.lingvobot.parser.importDialogParser.NodeData;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.services.ImportDialogService;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -32,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class ImportDialogServiceImpl implements ImportDialogService {
+public class ImportDialogServiceImpl {
 
     @Autowired
     private DialogRepository dialogRepository;
@@ -51,7 +48,9 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
     @PostConstruct
     public void init() {
+/*
         System.out.println("Import............................");
+*/
         Path path = Paths.get("D:/Projects/test.txt");
         byte[] bytes = new byte[0];
 
@@ -75,17 +74,67 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         this.importDialogParser = importDialogData;
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogData);
         this.importDialogParser = squashAllKeyboardsCandidates(importDialogData);
-        importDialogParserLocationProblem(importDialogParser);
+        importDialogParserLocationProblem(this.importDialogParser);
+        importDialogParserIntoOurStructure(importDialogParser);
+        System.out.println("let's see");
     }
 
-    private ImportDialogParser convertImportDialogParserIntoAdequateFormat(ImportDialogParser importDialogParser) {
+    public ImportDialogParser convertImportDialogParserIntoAdequateFormat(ImportDialogParser importDialogParser) {
 
         ImportDialogParser importDialogParserAdequateFormat = squashAllKeyboardsCandidates(importDialogParser);
         return importDialogParserAdequateFormat;
-        */
+
     }
 
-    private ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {
+    public DialogState createSimpleChainElementWithoutBranching(Dialog dialog, int i, NodeData nodeData, int stateCounter) {
+
+        DialogState dialogState = new DialogState();
+        dialogState.setDialog(dialog);
+        dialogState.setState(i + 1);
+        stateCounter++;
+
+            DialogPhrase dialogPhrase = new DialogPhrase();
+            dialogPhrase.setDialogPhraseValue(nodeData.getText());
+
+        dialogState.setDialogPhrase(dialogPhrase);
+
+        return dialogState;
+    }
+
+    void dealWithBranching() {
+
+    }
+
+
+    public void importDialogParserIntoOurStructure(ImportDialogParser importDialogParser) {
+        System.out.println("importDialogParserIntoOurStructure is calling dude! ");
+        List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
+
+        Dialog dialog = new Dialog();
+        dialog.setDialogName("TestOne");
+
+        int stateCounter = 1;
+
+        for (int i = 0; i < nodeDataList.size(); i++) {
+            NodeData nodeData = nodeDataList.get(i);
+
+            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParser, nodeData.getKey());
+            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParser, nodeData.getKey());
+
+            System.out.println("branch " + i + " begin? " + isItBeginningOfTheBranch + " end? " + isItEndingOfTheBranch);
+            if (!isItBeginningOfTheBranch) {
+                createSimpleChainElementWithoutBranching(dialog, i, nodeData, stateCounter);
+            } else {
+                createSimpleChainElementWithoutBranching(dialog, i, nodeData, stateCounter);
+
+            }
+
+        }
+        nodeDataList.forEach(System.out::println);
+
+    }
+
+    public ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -95,11 +144,12 @@ public class ImportDialogServiceImpl implements ImportDialogService {
             NodeData nodeData = nodeDataList.get(i);
             int key = nodeData.getKey();
             nodeData.setKey(i);
-            System.out.println("For node with key " + key + " value is switched to " + nodeData.getKey());
+//            System.out.println("For node with key " + key + " value is switched to " + nodeData.getKey());
 
             for (int j = 0; j < linkDataList.size(); j++) {
                 int from = linkDataList.get(j).getFrom();
                 int to = linkDataList.get(j).getTo();
+
                 Triple tripleFrom = new ImmutableTriple(j, "from", true);
                 Triple tripleTo = new ImmutableTriple(j, "to", true);
                 if (from == key && !tripleSet.contains(tripleFrom)) {
@@ -125,7 +175,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
     }
 
 
-    private ImportDialogParser convertNodesIntoPositiveValues(ImportDialogParser importDialogParser) {
+    public ImportDialogParser convertNodesIntoPositiveValues(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -145,7 +195,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
      *  f.e. if (3,4,5) - rectangular objects then (1,3), (1,4), (1,5), (3,6), (4,6), (5,6) --> (1,6)
      * @return
      */
-    private ImportDialogParser squashAllKeyboardsCandidates(ImportDialogParser importDialogParser) {
+    public ImportDialogParser squashAllKeyboardsCandidates(ImportDialogParser importDialogParser) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogParser);
@@ -176,7 +226,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
 
-    private void findAllConnections() {
+    public void findAllConnections() {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -194,7 +244,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         }
     }
 
-    private List<Integer> findSpecificNodeConnectionsToAndFrom(int nodeKey) {
+    public List<Integer> findSpecificNodeConnectionsToAndFrom(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -213,7 +263,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return connections;
     }
 
-    private Integer findSpecificNodeConnectionsOnlyFrom(int nodeKey) {
+    public Integer findSpecificNodeConnectionsOnlyFrom(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -230,7 +280,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return connections;
     }
 
-    private Set<Integer> findSpecificNodeConnectionsOnlyTo(int nodeKey) {
+    public Set<Integer> findSpecificNodeConnectionsOnlyTo(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -249,7 +299,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
 
-    private List<Map.Entry<Integer, List<Integer>>> detectAllRoundedRectanglesWithRelations() {
+    public List<Map.Entry<Integer, List<Integer>>> detectAllRoundedRectanglesWithRelations() {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -274,7 +324,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
     }
 
 
-    private List<Integer> detectAllRoundedRectanglesNodes(ImportDialogParser importDialogParser) {
+    public List<Integer> detectAllRoundedRectanglesNodes(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -291,7 +341,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
 
 
 
-    private ImportDialogParser excludeRectangularsFromPool(ImportDialogParser importDialogParser) {
+    public ImportDialogParser excludeRectangularsFromPool(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         nodeDataList.removeIf(nodeData -> nodeData.getFigure() != null && (nodeData.getFigure().equals("RoundedRectangle")));
@@ -299,7 +349,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return importDialogParser;
     }
 
-    private NodeData findStart(ImportDialogParser importDialogParser) {
+    public NodeData findStart(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         NodeData nodeDataWeNeed = null;
@@ -313,7 +363,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
     }
 
 
-    private boolean isItBeginningOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
+    public boolean isItBeginningOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
         int counter = 0;
@@ -326,19 +376,32 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return counter >= 2;
     }
 
-    private boolean isItEndingOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
+    public boolean isItEndingOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
-        boolean isItBeginningOfTheBranch = false;
+        int counter = 0;
+        Map<Integer, List<Integer>> toDuplicates = new HashMap<>();
+
         for (LinkData linkData : linkDataList) {
-            if (linkData.getFrom() == nodeKey) {
-                isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParser, linkData.getFrom());
+            if (!toDuplicates.containsKey(linkData.getTo())) {
+                List<Integer> a = new ArrayList<>();
+                a.add(linkData.getFrom());
+                toDuplicates.put(linkData.getTo(), a);
+            } else {
+                List<Integer> integers = toDuplicates.get(linkData.getTo());
+                integers.add(linkData.getFrom());
+                toDuplicates.put(linkData.getTo(), integers);
             }
         }
-        return !isItBeginningOfTheBranch;
+
+        for (Map.Entry<Integer, List<Integer>> entry: toDuplicates.entrySet()) {
+            List<Integer> value = entry.getValue();
+            if (value.contains(nodeKey) && value.size() > 1) return true;
+        }
+        return false;
     }
 
-    private List<Integer> convertNodeArrayIntoNodeKeyArray(List<NodeData> nodeDataList) {
+    public List<Integer> convertNodeArrayIntoNodeKeyArray(List<NodeData> nodeDataList) {
 
         List<Integer> nodeKeyArray = new ArrayList<>();
         for (NodeData nodeData: nodeDataList) {
@@ -347,7 +410,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return nodeKeyArray;
     }
 
-    private String getValueFromNodeKey(ImportDialogParser importDialogParser, Integer nodeKey) {
+    public String getValueFromNodeKey(ImportDialogParser importDialogParser, Integer nodeKey) {
 
         String nodeValue = StringUtils.EMPTY;
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
@@ -359,7 +422,7 @@ public class ImportDialogServiceImpl implements ImportDialogService {
         return nodeValue;
     }
 
-    private NodeData getNodeFromNodeKey(Integer nodeKey) {
+    public NodeData getNodeFromNodeKey(Integer nodeKey) {
         NodeData nodeDataWeFind = null;
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         for (NodeData nodeData: nodeDataList) {
