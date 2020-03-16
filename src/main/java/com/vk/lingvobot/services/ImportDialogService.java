@@ -20,7 +20,7 @@ public interface ImportDialogService {
 
     ImportDialogParser convertImportDialogParserIntoAdequateFormat(ImportDialogParser importDialogParser);
 
-    DialogState createSimpleChainElementWithoutBranching(Dialog dialog, int i, NodeData nodeData, int stateCounter);
+    DialogState createSimpleChainElementWithoutBranching(Dialog dialog, int i, NodeData nodeData);
 
     void importDialogParserIntoOurStructure(ImportDialogParser importDialogParser);
 

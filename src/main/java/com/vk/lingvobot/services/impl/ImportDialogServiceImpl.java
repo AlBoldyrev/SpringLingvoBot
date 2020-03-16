@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class ImportDialogServiceImpl {
+public class ImportDialogServiceImpl implements  ImportDialogService {
 
     @Autowired
     private DialogRepository dialogRepository;
@@ -54,7 +54,7 @@ public class ImportDialogServiceImpl {
         Path path = Paths.get("D:/Projects/test.txt");
         byte[] bytes = new byte[0];
 
-        /*
+
         try {
             bytes = Files.readAllBytes(path);
         } catch (IOException ioe) {
@@ -86,12 +86,11 @@ public class ImportDialogServiceImpl {
 
     }
 
-    public DialogState createSimpleChainElementWithoutBranching(Dialog dialog, int i, NodeData nodeData, int stateCounter) {
+    public DialogState createSimpleChainElementWithoutBranching(Dialog dialog, int i, NodeData nodeData) {
 
         DialogState dialogState = new DialogState();
         dialogState.setDialog(dialog);
         dialogState.setState(i + 1);
-        stateCounter++;
 
             DialogPhrase dialogPhrase = new DialogPhrase();
             dialogPhrase.setDialogPhraseValue(nodeData.getText());
@@ -101,8 +100,27 @@ public class ImportDialogServiceImpl {
         return dialogState;
     }
 
-    void dealWithBranching() {
+    public void dealWithBranching(Dialog dialog, Set<Integer> nextNodesSet) {
 
+        List<Integer> nextNodesInteger = new ArrayList<>(nextNodesSet);
+        List<NodeData> nextNodes = new ArrayList<>();
+        nextNodesInteger.forEach(x -> nextNodes.add(getNodeFromNodeKey(x)));
+
+
+        for (int i = 0; i < nextNodes.size(); i++) {
+
+            NodeData nodeData = nextNodes.get(i);
+
+            boolean isItBeginning = isItBeginningOfTheBranch(importDialogParser, nodeData.getKey());
+            boolean isItEnding = isItEndingOfTheBranch(importDialogParser, nodeData.getKey());
+
+
+            createSimpleChainElementWithoutBranching(dialog, i, nodeData);
+            Set<Integer> nextNodesSetBranching = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
+            System.out.println("-------------------------------------------Branching. Next nodes are: " + nextNodesSetBranching);
+            dealWithBranching(dialog, nextNodesSetBranching);
+
+        }
     }
 
 
@@ -112,8 +130,11 @@ public class ImportDialogServiceImpl {
 
         Dialog dialog = new Dialog();
         dialog.setDialogName("TestOne");
+        Set<Integer> start = new HashSet<>();
+        start.add(0);
 
-        int stateCounter = 1;
+        dealWithBranching(dialog, start);
+        /*int stateCounter = 1;
 
         for (int i = 0; i < nodeDataList.size(); i++) {
             NodeData nodeData = nodeDataList.get(i);
@@ -123,14 +144,17 @@ public class ImportDialogServiceImpl {
 
             System.out.println("branch " + i + " begin? " + isItBeginningOfTheBranch + " end? " + isItEndingOfTheBranch);
             if (!isItBeginningOfTheBranch) {
-                createSimpleChainElementWithoutBranching(dialog, i, nodeData, stateCounter);
+                DialogState simpleChainElementWithoutBranching = createSimpleChainElementWithoutBranching(dialog, i, nodeData);
+                Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
+                System.out.println("-------------------------------------------No branchning. Only next node is: " + specificNodeConnectionsOnlyTo);
             } else {
-                createSimpleChainElementWithoutBranching(dialog, i, nodeData, stateCounter);
-
+                DialogState simpleChainElementWithoutBranching = createSimpleChainElementWithoutBranching(dialog, i, nodeData);
+                Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
+                System.out.println("-------------------------------------------Branching. Next nodes are: " + specificNodeConnectionsOnlyTo);
             }
 
         }
-        nodeDataList.forEach(System.out::println);
+        nodeDataList.forEach(System.out::println);*/
 
     }
 
