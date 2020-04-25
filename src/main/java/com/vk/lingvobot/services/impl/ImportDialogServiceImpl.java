@@ -10,6 +10,9 @@ import com.vk.lingvobot.parser.importDialogParser.LinkData;
 import com.vk.lingvobot.parser.importDialogParser.NodeData;
 import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.services.ImportDialogService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,6 +49,13 @@ public class ImportDialogServiceImpl implements  ImportDialogService {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    public static List<Level> levelList = new ArrayList<>();
+    public static Integer integerAboutLevel = 1;
+    public static List<Pair<Integer, Integer>> levelAndEnding = new ArrayList<>();
+    public static List<LevelComplexStructure> levelComplexStructureList = new ArrayList<>();
+    public static List<Pair<Integer, Integer>> abcd = new ArrayList<>();
+    public static Integer level2 = 0;
 
     @PostConstruct
     public void init() {
@@ -100,62 +111,204 @@ public class ImportDialogServiceImpl implements  ImportDialogService {
         return dialogState;
     }
 
-    public void dealWithBranching(Dialog dialog, Set<Integer> nextNodesSet) {
+    public void dealWithBranching(List<Integer> nextNodesSet) throws Exception {
 
         List<Integer> nextNodesInteger = new ArrayList<>(nextNodesSet);
         List<NodeData> nextNodes = new ArrayList<>();
+
         nextNodesInteger.forEach(x -> nextNodes.add(getNodeFromNodeKey(x)));
 
-
-        for (int i = 0; i < nextNodes.size(); i++) {
-
-            NodeData nodeData = nextNodes.get(i);
-
-            boolean isItBeginning = isItBeginningOfTheBranch(importDialogParser, nodeData.getKey());
-            boolean isItEnding = isItEndingOfTheBranch(importDialogParser, nodeData.getKey());
+        if (nextNodesInteger.isEmpty()) {
+            throw new Exception("FUCK YEA");
+        }
+        boolean isThereAnyActiveDialog = false;
+        int counterState = 1;
 
 
-            createSimpleChainElementWithoutBranching(dialog, i, nodeData);
-            Set<Integer> nextNodesSetBranching = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
-            System.out.println("-------------------------------------------Branching. Next nodes are: " + nextNodesSetBranching);
-            dealWithBranching(dialog, nextNodesSetBranching);
+        if (nextNodes.size() == 1) {
+            if (hasComplexStructureNodeKey(nextNodes.get(0).getKey())) {
 
+                LevelComplexStructure levelComplexStructureByLevel = findLevelComplexStructureByLevel(integerAboutLevel);
+                List<Integer> nodesKeys = levelComplexStructureByLevel.getNodesKeys();
+                int key = nextNodes.get(0).getKey();
+                nodesKeys.remove(new Integer(key));
+
+                if (nodesKeys.size() == 0) {
+                    levelComplexStructureList.remove(levelComplexStructureByLevel);
+                }
+            }
+
+            boolean isItBeginning = isItBeginningOfTheBranch(importDialogParser, nextNodes.get(0).getKey());
+            boolean isItEnding = isItEndingOfTheBranch(importDialogParser, nextNodes.get(0).getKey());
+
+            Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(nextNodes.get(0).getKey());
+
+            List<Integer> next = new ArrayList<>(specificNodeConnectionsOnlyTo);
+
+            List<String> nodeTextsFromNodeKeys = getNodeTextsFromNodeKeys(next);
+
+            System.out.println("Only one node: " + nextNodes.get(0).getText());
+            System.out.println("And next node: " + nodeTextsFromNodeKeys.toString());
+            System.out.println("Ending = " + isItEnding);
+            System.out.println();
+
+            if (isItEnding) {
+
+                LevelComplexStructure levelComplexStructureByLevel = findLevelComplexStructureByLevel(integerAboutLevel);
+
+                if (levelComplexStructureByLevel == null) {
+                    dealWithBranching(next);
+                }
+                List<Integer> nodesKeys = levelComplexStructureByLevel.getNodesKeys();
+
+
+
+                System.out.println();
+                dealWithBranching(nodesKeys);
+            } else {
+                dealWithBranching(next);
+            }
+        } else {
+
+
+            integerAboutLevel++;
+            Level level = new Level(nextNodesInteger, integerAboutLevel);
+            levelList.add(level);
+
+            LevelComplexStructure levelComplexStructure = new LevelComplexStructure();
+            levelComplexStructure.setLevel(integerAboutLevel);
+            levelComplexStructure.setNodesKeys(nextNodesInteger);
+
+            levelComplexStructureList.add(levelComplexStructure);
+
+
+
+            int nodeCounter = nextNodes.size();
+            for (int i = 0; i < nextNodes.size(); i++) {
+
+                NodeData nodeData = nextNodes.get(i);
+
+                boolean isItBeginning = isItBeginningOfTheBranch(importDialogParser, nodeData.getKey());
+                boolean isItEnding = isItEndingOfTheBranch(importDialogParser, nodeData.getKey());
+
+                Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
+                List<Integer> next = new ArrayList<>(specificNodeConnectionsOnlyTo);
+
+                List<String> nodeTextsFromNodeKeys = getNodeTextsFromNodeKeys(next);
+
+
+
+                LevelComplexStructure levelComplexStructureByLevel = findLevelComplexStructureByLevel(integerAboutLevel);
+                List<Integer> nodesKeys = levelComplexStructureByLevel.getNodesKeys();
+                int key = nodeData.getKey();
+                nodesKeys.remove(new Integer(key));
+
+                if (nodesKeys.size() == 0) {
+                    levelComplexStructureList.remove(levelComplexStructureByLevel);
+                }
+                System.out.println("KEY + " + key + " HAS BEEN DELETED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+
+                System.out.println("Node in branching: " + nodeData.getText());
+                System.out.println("And next node: " + nodeTextsFromNodeKeys.toString());
+                System.out.println("Ending = " + isItEnding);
+                System.out.println();
+
+                if (isItEnding) {
+                    continue;
+                }
+                dealWithBranching(next);
+            }
         }
     }
 
+
+    public void addNodeKeyIntoLevelComplexStructureList(Integer nodeKey) {
+
+        Integer currentLevel = integerAboutLevel;
+
+
+    }
+
+
+    public boolean hasComplexStructureNodeKey(Integer nodeKey) {
+
+        List<Integer> a = new ArrayList<>();
+
+        for (LevelComplexStructure levelComplexStructure: levelComplexStructureList) {
+            List<Integer> nodesKeys = levelComplexStructure.getNodesKeys();
+            a.addAll(nodesKeys);
+        }
+
+        return a.contains(nodeKey);
+    }
+
+    public LevelComplexStructure findLevelComplexStructureByLevel(Integer level) {
+
+        if (level == 1) {
+            System.out.println("Level = 1, oooooooooooops do with it sml");
+            return null;
+        }
+
+        Map<Integer, LevelComplexStructure> map = new HashMap<>();
+
+        for (LevelComplexStructure levelComplexStructure: levelComplexStructureList) {
+            map.put(levelComplexStructure.getLevel(), levelComplexStructure);
+        }
+
+        if (map.containsKey(level)) {
+            return map.get(level);
+        } else {
+            return findLevelComplexStructureByLevel(level - 1);
+        }
+
+       /* for (LevelComplexStructure levelComplexStructure: levelComplexStructureList) {
+            if (levelComplexStructure.getLevel().equals(level)) {
+                return levelComplexStructure;
+            } else {
+                findLevelComplexStructureByLevel(level - 1);
+            }
+        }*/
+    }
+
+
+    public LevelComplexStructure getLevelComplexStructureFromNodeKey (List<LevelComplexStructure> list, Integer nodeKey) {
+        for (LevelComplexStructure levelComplexStructure: list) {
+            List<Integer> nodesKeys = levelComplexStructure.getNodesKeys();
+            if (nodesKeys.contains(nodeKey)) {
+                return levelComplexStructure;
+            }
+        }
+        System.out.println();
+        System.out.println("Проебались в методе getLevelComplexStructureFromNodeKey");
+        System.out.println();
+        return null;
+    }
+
+
+    public List<String> getNodeTextsFromNodeKeys (List<Integer> nodeKeys) {
+        List<String> nodeTexts = new ArrayList<>();
+        for (Integer in: nodeKeys) {
+            NodeData nodeFromNodeKey = getNodeFromNodeKey(in);
+            nodeTexts.add(nodeFromNodeKey.getText());
+        }
+        return nodeTexts;
+    }
 
     public void importDialogParserIntoOurStructure(ImportDialogParser importDialogParser) {
         System.out.println("importDialogParserIntoOurStructure is calling dude! ");
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
 
-        Dialog dialog = new Dialog();
-        dialog.setDialogName("TestOne");
-        Set<Integer> start = new HashSet<>();
+        List<Integer> start = new ArrayList<>();
         start.add(0);
 
-        dealWithBranching(dialog, start);
-        /*int stateCounter = 1;
-
-        for (int i = 0; i < nodeDataList.size(); i++) {
-            NodeData nodeData = nodeDataList.get(i);
-
-            boolean isItBeginningOfTheBranch = isItBeginningOfTheBranch(importDialogParser, nodeData.getKey());
-            boolean isItEndingOfTheBranch = isItEndingOfTheBranch(importDialogParser, nodeData.getKey());
-
-            System.out.println("branch " + i + " begin? " + isItBeginningOfTheBranch + " end? " + isItEndingOfTheBranch);
-            if (!isItBeginningOfTheBranch) {
-                DialogState simpleChainElementWithoutBranching = createSimpleChainElementWithoutBranching(dialog, i, nodeData);
-                Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
-                System.out.println("-------------------------------------------No branchning. Only next node is: " + specificNodeConnectionsOnlyTo);
-            } else {
-                DialogState simpleChainElementWithoutBranching = createSimpleChainElementWithoutBranching(dialog, i, nodeData);
-                Set<Integer> specificNodeConnectionsOnlyTo = findSpecificNodeConnectionsOnlyTo(nodeData.getKey());
-                System.out.println("-------------------------------------------Branching. Next nodes are: " + specificNodeConnectionsOnlyTo);
-            }
-
+        try {
+            dealWithBranching(start);
+        } catch (Exception e) {
+            System.out.println("Holy shit, we're out!!!!!");
         }
-        nodeDataList.forEach(System.out::println);*/
 
+        System.out.println("REALLY OUT! ");
     }
 
     public ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {
@@ -499,5 +652,51 @@ public class ImportDialogServiceImpl implements  ImportDialogService {
 
 }
 
+@AllArgsConstructor
+class Level {
+
+    private List<Integer> nodes;
+    private Integer level;
+}
+
+class Pair<L,R> {
+
+    private final L left;
+    private final R right;
+
+    public Pair(L left, R right) {
+
+        this.left = left;
+        this.right = right;
+    }
+    public Pair() {
+        this.left = null;
+        this.right = null;
+    }
 
 
+    public L getLeft() { return left; }
+    public R getRight() { return right; }
+
+    @Override
+    public int hashCode() { return left.hashCode() ^ right.hashCode(); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Pair)) return false;
+        Pair pairo = (Pair) o;
+        return this.left.equals(pairo.getLeft()) &&
+                this.right.equals(pairo.getRight());
+    }
+
+}
+
+@Data
+class LevelComplexStructure {
+
+    private Integer level;
+    private List<Integer> nodesKeys;
+    private Integer nextNodeKey;
+
+
+}
