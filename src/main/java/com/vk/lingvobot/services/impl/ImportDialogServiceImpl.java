@@ -55,7 +55,10 @@ public class ImportDialogServiceImpl implements  ImportDialogService {
     public static List<Pair<Integer, Integer>> levelAndEnding = new ArrayList<>();
     public static List<LevelComplexStructure> levelComplexStructureList = new ArrayList<>();
     public static List<Pair<Integer, Integer>> abcd = new ArrayList<>();
-    public static Integer level2 = 0;
+
+    public static List<List<Integer>> pairs = new ArrayList<>();
+
+    public static Map<String, List<Integer>> levelMapLike2_1 = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -126,6 +129,29 @@ public class ImportDialogServiceImpl implements  ImportDialogService {
 
 
         if (nextNodes.size() == 1) {
+
+
+            List<Integer> keys = new ArrayList<>();
+            for (NodeData nextNode: nextNodes) {
+                int key = nextNode.getKey();
+                keys.add(key);
+            }
+
+            if (levelMapLike2_1.containsKey(integerAboutLevel.toString())) {
+                List<Integer> integers = levelMapLike2_1.get(integerAboutLevel.toString());
+                integers.addAll(keys);
+                levelMapLike2_1.put(integerAboutLevel.toString(), integers);
+            }
+            levelMapLike2_1.put(integerAboutLevel.toString(), keys);
+
+
+
+
+
+
+
+
+
             if (hasComplexStructureNodeKey(nextNodes.get(0).getKey())) {
 
                 LevelComplexStructure levelComplexStructureByLevel = findLevelComplexStructureByLevel(integerAboutLevel);
@@ -180,6 +206,14 @@ public class ImportDialogServiceImpl implements  ImportDialogService {
             levelComplexStructure.setNodesKeys(nextNodesInteger);
 
             levelComplexStructureList.add(levelComplexStructure);
+
+            /////////////////////////////////////////
+            List<Integer> keys = new ArrayList<>();
+            for (NodeData nextNode: nextNodes) {
+                int key = nextNode.getKey();
+                keys.add(key);
+            }
+            pairs.add(keys);
 
 
 
