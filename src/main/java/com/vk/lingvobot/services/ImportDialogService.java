@@ -385,16 +385,17 @@ public class ImportDialogService {
         }
         return false;
     }
+
+    @Data
+    @AllArgsConstructor
+    @Slf4j
+    private class KeyboardRectangular {
+
+        private int key;
+        private String value;
+        private Set<Integer> from;
+        private Set<Integer> to;
+
+    }
 }
 
-@Data
-@AllArgsConstructor
-@Slf4j
-class KeyboardRectangular {
-
-    private int key;
-    private String value;
-    private Set<Integer> from;
-    private Set<Integer> to;
-
-}
