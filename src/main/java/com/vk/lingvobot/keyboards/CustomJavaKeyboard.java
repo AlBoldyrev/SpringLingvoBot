@@ -49,6 +49,16 @@ public class CustomJavaKeyboard {
         return keyboard;
     }
 
+    public Keyboard createKeyboardFromKeyboardButtons(List<KeyboardButton> keyboardButtons) {
+        Keyboard keyboard = new Keyboard();
+        for (KeyboardButton keyboardButton: keyboardButtons) {
+            List<List<KeyboardButton>> oneButtonInRowListOfLists = ListChopper.chop(keyboardButtons, 1);
+            keyboard.setButtons(oneButtonInRowListOfLists);
+            keyboard.setOneTime(true);
+        }
+        return keyboard;
+    }
+
     /**
      * This method created Keyboards with buttons: one button - one row.
      * @param buttonNames
@@ -80,8 +90,21 @@ public class CustomJavaKeyboard {
 
         List<CustomJavaButton> customJavaButtons = convertStringsToCustomJavaButtons(buttonNames);
 
-        CustomJavaButton vkPayButton = createVKPAYButton();
-        customJavaButtons.add(vkPayButton);
+        //TODO custom button
+        /*CustomJavaButton vkPayButton = createVKPAYButton();
+        customJavaButtons.add(vkPayButton);*/
+        List<KeyboardButton> keyboardButtons = new ArrayList<>();
+        for (CustomJavaButton customJavaButton: customJavaButtons) {
+            KeyboardButton keyboardButton = new KeyboardButton();
+            keyboardButton.setAction(customJavaButton.getAction());
+            keyboardButton.setColor(customJavaButton.getColor());
+            keyboardButtons.add(keyboardButton);
+        }
+        return keyboardButtons;
+    }
+
+    public List<KeyboardButton> convertCustomJavaButtonIntoKeyboardButtons(List<CustomJavaButton> customJavaButtons) {
+
         List<KeyboardButton> keyboardButtons = new ArrayList<>();
         for (CustomJavaButton customJavaButton: customJavaButtons) {
             KeyboardButton keyboardButton = new KeyboardButton();

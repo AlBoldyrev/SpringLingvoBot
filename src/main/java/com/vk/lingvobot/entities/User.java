@@ -14,8 +14,7 @@ public class User {
         this.vkId = vkId;
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_user_generator")
-    @SequenceGenerator(name="lingvobot_user_generator", sequenceName = "lingvobot_user_sequence")
+    @GeneratedValue
     @Column(name = "user_id")
     private Integer userId;
 
@@ -28,5 +27,8 @@ public class User {
     @OneToOne
     @JoinColumn(name = "settings_id")
     private Settings settings;
+
+    @Column(name = "level")
+    private Integer level;
 
 }

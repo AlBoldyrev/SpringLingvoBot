@@ -12,8 +12,7 @@ import javax.persistence.*;
 public class Dialog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_dialog_generator")
-    @SequenceGenerator(name="lingvobot_dialog_generator", sequenceName = "lingvobot_dialog_sequence")
+    @GeneratedValue
     @Column(name = "dialog_id")
     private Integer dialogId;
 
