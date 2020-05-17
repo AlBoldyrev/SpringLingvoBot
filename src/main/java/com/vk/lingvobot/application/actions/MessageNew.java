@@ -51,7 +51,7 @@ public class MessageNew implements IResponseHandler {
         String messageBody = message.getObject().getBody();
         User user = userInfoService.isExists(userVkId);
 
-        if (user == null) {
+        if (user == null) { 
             user = settingsService.createNewUser(userVkId);
         }
 
