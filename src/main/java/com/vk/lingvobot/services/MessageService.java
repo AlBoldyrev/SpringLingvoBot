@@ -6,6 +6,7 @@ import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.util.Activity;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,19 +17,13 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MessageService {
 
-    @Autowired
-    private VkApiClient apiClient;
-
-    @Autowired
-    private GroupActor groupActor;
-
-    @Autowired
-    private UserInfoService userInfo;
-
-    @Autowired
-    private Activity activity;
+    private final VkApiClient apiClient;
+    private final GroupActor groupActor;
+    private final UserInfoService userInfo;
+    private final Activity activity;
 
     private final Random random = new Random();
 

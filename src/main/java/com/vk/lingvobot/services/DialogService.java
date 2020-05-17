@@ -10,6 +10,7 @@ import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.NodeNextRepository;
 import com.vk.lingvobot.repositories.NodeRepository;
 import com.vk.lingvobot.repositories.UserDialogRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -17,32 +18,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Slf4j
 @Component
+@Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DialogService {
 
-    @Autowired
-    private DialogRepository dialogRepository;
-
-    @Autowired
-    private UserDialogRepository userDialogRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private NodeRepository nodeRepository;
-
-    @Autowired
-    private NodeNextRepository nodeNextRepository;
-
-    @Autowired
-    private MessageService messageService;
-
-    @Autowired
-    private CustomJavaKeyboard customJavaKeyboard;
+    private final DialogRepository dialogRepository;
+    private final UserDialogRepository userDialogRepository;
+    private final UserService userService;
+    private final NodeRepository nodeRepository;
+    private final NodeNextRepository nodeNextRepository;
+    private final MessageService messageService;
+    private final CustomJavaKeyboard customJavaKeyboard;
 
 
     public void actionLevel2(int userVkId, String dialogName) {

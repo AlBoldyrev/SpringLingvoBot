@@ -13,6 +13,7 @@ import com.vk.lingvobot.repositories.NodeNextRepository;
 import com.vk.lingvobot.repositories.NodeRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -30,21 +31,15 @@ import java.util.*;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ImportDialogService {
 
-    @Autowired
-    private DialogRepository dialogRepository;
+    private final DialogRepository dialogRepository;
+    private ImportDialogParser importDialogParser;
+    private final NodeRepository nodeRepository;
+    private final NodeNextRepository nodeNextRepository;
 
     private Gson gson = new GsonBuilder().create();
-
-    @Autowired
-    private ImportDialogParser importDialogParser;
-
-    @Autowired
-    private NodeRepository nodeRepository;
-
-    @Autowired
-    private NodeNextRepository nodeNextRepository;
 
     public ImportDialogParser getImportDialogParser() {
         return importDialogParser;
@@ -386,16 +381,17 @@ public class ImportDialogService {
         return false;
     }
 
-    @Data
-    @AllArgsConstructor
-    @Slf4j
-    private class KeyboardRectangular {
 
-        private int key;
-        private String value;
-        private Set<Integer> from;
-        private Set<Integer> to;
-
-    }
 }
 
+@Data
+@AllArgsConstructor
+@Slf4j
+class KeyboardRectangular {
+
+    private int key;
+    private String value;
+    private Set<Integer> from;
+    private Set<Integer> to;
+
+}

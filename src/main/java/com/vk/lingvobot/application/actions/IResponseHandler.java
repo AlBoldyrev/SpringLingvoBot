@@ -1,4 +1,4 @@
-package com.vk.lingvobot.application;
+package com.vk.lingvobot.application.actions;
 
 import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.actors.GroupActor;

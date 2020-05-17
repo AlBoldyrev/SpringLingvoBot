@@ -13,25 +13,21 @@ import com.vk.lingvobot.parser.typicalResponseParser.Response;
 import com.vk.lingvobot.repositories.UserDialogRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.util.Dialogs;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Service
+@Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserInfoService {
 
-    @Autowired
-    private VkApiClient apiClient;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserDialogRepository userDialogRepository;
-
+    private final VkApiClient apiClient;
+    private final UserRepository userRepository;
+    private final UserDialogRepository userDialogRepository;
 
     public String getUserDomain(GroupActor groupActor, int userId) {
 

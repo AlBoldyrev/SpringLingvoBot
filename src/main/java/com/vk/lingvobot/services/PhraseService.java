@@ -8,6 +8,7 @@ import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.repositories.PhraseRepository;
 import com.vk.lingvobot.repositories.UserPhraseRepository;
 import com.vk.lingvobot.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,23 +19,14 @@ import java.util.Random;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PhraseService {
 
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserPhraseRepository userPhraseRepository;
-
-    @Autowired
-    private PhraseRepository phraseRepository;
-
-    @Autowired
-    private CustomJavaKeyboard customJavaKeyboard;
-
-    @Autowired
-    private MessageService messageService;
+    private final UserRepository userRepository;
+    private final UserPhraseRepository userPhraseRepository;
+    private final PhraseRepository phraseRepository;
+    private final CustomJavaKeyboard customJavaKeyboard;
+    private final MessageService messageService;
 
     public void actionLevel4(Integer userVkId) {
 
