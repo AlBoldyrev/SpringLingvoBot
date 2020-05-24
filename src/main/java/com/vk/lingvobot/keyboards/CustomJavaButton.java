@@ -22,13 +22,14 @@ public class CustomJavaButton {
     private KeyboardButtonAction action = new KeyboardButtonAction();
     private KeyboardButtonColor color;
 
-    CustomJavaButton(String label, String payload) {
+    public CustomJavaButton(String label, String payload) {
         type = KeyboardButtonActionType.TEXT;
         color = KeyboardButtonColor.DEFAULT;
         action.setType(KeyboardButtonActionType.TEXT);
         action.setLabel(label);
         action.setPayload(payload);
     }
+
 
 
 }

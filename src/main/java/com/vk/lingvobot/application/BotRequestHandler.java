@@ -9,6 +9,8 @@ import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.exceptions.LongPollServerKeyExpiredException;
 import com.vk.api.sdk.objects.callback.longpoll.responses.GetLongPollEventsResponse;
 import com.vk.api.sdk.objects.groups.LongPollServer;
+import com.vk.lingvobot.application.actions.IResponseHandler;
+import com.vk.lingvobot.application.actions.MessageNew;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

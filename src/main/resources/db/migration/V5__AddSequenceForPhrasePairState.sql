@@ -1,1 +1,0 @@
-CREATE SEQUENCE IF NOT EXISTS lingvobot.lingvobot_phrase_pair_state_sequence START 1;

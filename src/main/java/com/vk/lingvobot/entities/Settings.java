@@ -8,11 +8,11 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "settings")
+@Slf4j
 public class Settings {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_settings_generator")
-    @SequenceGenerator(name="lingvobot_settings_generator", sequenceName = "lingvobot_settings_sequence")
+    @GeneratedValue
     @Column(name = "settings_id")
     private Integer settingsId;
 

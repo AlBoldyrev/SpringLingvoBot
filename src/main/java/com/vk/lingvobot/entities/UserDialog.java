@@ -8,21 +8,20 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "user_dialogs")
+@Slf4j
 public class UserDialog {
 
     public UserDialog(){}
 
-    public UserDialog(User user, Dialog dialog, boolean isCancelled, boolean isFinished, boolean isMainBranchSwitchedToSubdialog) {
+    public UserDialog(User user, Dialog dialog, boolean isCancelled, boolean isFinished) {
         this.user = user;
         this.dialog = dialog;
         this.isCancelled = isCancelled;
         this.isFinished = isFinished;
-        this.isMainBranchSwitchedToSubdialog = isMainBranchSwitchedToSubdialog;
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lingvobot_userDialog_generator")
-    @SequenceGenerator(name="lingvobot_userDialog_generator", sequenceName = "lingvobot_userDialog_sequence", allocationSize = 1)
+    @GeneratedValue
     @Column(name = "user_dialog_id")
     private Integer userDialogId;
 
@@ -34,8 +33,8 @@ public class UserDialog {
     @JoinColumn(name="dialog_id")
     private Dialog dialog;
 
-    @Column(name = "state")
-    private Integer state;
+    @Column(name = "node_id")
+    private Integer nodeId;
 
     @Column(name = "is_cancelled")
     private Boolean isCancelled;
@@ -43,7 +42,5 @@ public class UserDialog {
     @Column(name = "is_finished")
     private Boolean isFinished;
 
-    @Column(name = "is_main_branch_switched_to_subdialog")
-    private Boolean isMainBranchSwitchedToSubdialog;
 
 }
