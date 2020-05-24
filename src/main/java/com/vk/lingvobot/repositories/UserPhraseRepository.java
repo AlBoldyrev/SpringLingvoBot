@@ -9,4 +9,6 @@ public interface UserPhraseRepository extends JpaRepository<UserPhrase, Integer>
 
     @Query("SELECT up FROM UserPhrase up WHERE up.user.userId = :userId AND up.isFinished = false")
     UserPhrase findByUserId(@Param("userId") Integer userId);
+
+
 }

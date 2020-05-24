@@ -19,4 +19,6 @@ public interface PhraseRepository extends JpaRepository<Phrase, Integer> {
     List<Phrase> findByDifficulty(@Param("difficulty") Integer difficulty);
 
 
+
+
 }

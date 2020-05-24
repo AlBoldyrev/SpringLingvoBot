@@ -4,9 +4,11 @@ import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.application.levels.dialog.DialogLevelOne;
 import com.vk.lingvobot.application.levels.phrase.levelOne.PhraseLevelOne;
 import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.entities.UserPhrase;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.menu.MenuLevel;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
+import com.vk.lingvobot.repositories.UserPhraseRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.services.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class MainLevel implements IResponseMessageBodyHandler {
     private final CustomJavaKeyboard customJavaKeyboard;
     private final DialogLevelOne dialogLevelOne;
     private final PhraseLevelOne phraseLevelOne;
-
+    private final UserPhraseRepository userPhraseRepository;
     @Override
     public void handle(User user, ModelMessageNew message) {
 
@@ -60,6 +62,13 @@ public class MainLevel implements IResponseMessageBodyHandler {
         levelFirst.add("Dialogs");
         levelFirst.add("Import dialog");
         Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(levelFirst);
+
+        User user = userRepository.findByVkId(userVkId);
+        UserPhrase userPhrase = userPhraseRepository.findByUserId(user.getUserId());
+        if (userPhrase != null) {
+            userPhrase.setIsFinished(true);
+            userPhraseRepository.save(userPhrase);
+        }
         messageService.sendMessageWithTextAndKeyboard(userVkId, "Дружище, ты в главном меню.", keyboardWithButtonsBrickByBrick);
     }
 

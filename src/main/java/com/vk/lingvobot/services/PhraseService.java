@@ -43,7 +43,7 @@ public class PhraseService {
 
 
         if (userPhrase == null) {
-            whatToDoWhenUserIsNewToPhrases(user, randomElement, backButton);
+            whatToDoWhenUserIsNewToPhrasesInverse(user, randomElement, backButton);
         } else {
             Boolean isOneSide = userPhrase.getIsOneSide();
             if (isOneSide) {
@@ -54,7 +54,7 @@ public class PhraseService {
             } else {
                 userPhrase.setIsFinished(true);
                 userPhraseRepository.save(userPhrase);
-                whatToDoWhenUserIsNewToPhrases(user, randomElement, backButton);
+                whatToDoWhenUserIsNewToPhrasesInverse(user, randomElement, backButton);
             }
         }
 
@@ -82,7 +82,7 @@ public class PhraseService {
             Boolean isOneSide = userPhrase.getIsOneSide();
             if (isOneSide) {
                 String phraseOneSide = userPhrase.getPhrase().getPhraseOneSide();
-                messageService.sendMessageWithTextAndKeyboard(userVkId, phraseOneSide, backButton);
+                messageService.sendMessageWithTextAndKeyboard(userVkId, "Правильный ответ: " + phraseOneSide, backButton);
                 userPhrase.setIsOneSide(false);
                 userPhraseRepository.save(userPhrase);
             } else {
@@ -98,8 +98,15 @@ public class PhraseService {
     private void whatToDoWhenUserIsNewToPhrases(User user, Phrase phrase, Keyboard backButton) {
         Integer userVkId = user.getVkId();
         createNewUserPhraseObjectForUser(user, phrase);
-        messageService.sendMessageWithTextAndKeyboard(userVkId, phrase.getPhraseOtherSide(), backButton);
+        messageService.sendMessageWithTextAndKeyboard(userVkId, "Переведи, плз, фразу: " + phrase.getPhraseOtherSide(), backButton);
     }
+
+    private void whatToDoWhenUserIsNewToPhrasesInverse(User user, Phrase phrase, Keyboard backButton) {
+        Integer userVkId = user.getVkId();
+        createNewUserPhraseObjectForUser(user, phrase);
+        messageService.sendMessageWithTextAndKeyboard(userVkId, "Переведи, плз, фразу: " + phrase.getPhraseOneSide(), backButton);
+    }
+
     private UserPhrase createNewUserPhraseObjectForUser(User user, Phrase randomPhrase) {
 
         UserPhrase userPhrase = new UserPhrase();

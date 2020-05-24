@@ -6,14 +6,15 @@ import com.vk.api.sdk.objects.messages.KeyboardButtonColor;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.CustomJavaButton;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
-import com.vk.lingvobot.repositories.DialogRepository;
-import com.vk.lingvobot.repositories.NodeNextRepository;
-import com.vk.lingvobot.repositories.NodeRepository;
-import com.vk.lingvobot.repositories.UserDialogRepository;
+import com.vk.lingvobot.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class DialogService {
     private final NodeNextRepository nodeNextRepository;
     private final MessageService messageService;
     private final CustomJavaKeyboard customJavaKeyboard;
+    private final UserRepository userRepository;
 
 
     public void actionLevel2(int userVkId, String dialogName) {
@@ -47,9 +49,32 @@ public class DialogService {
             proceedTheDialog(dialogName, userVkId, dialogName);
 
         } else {
-            allDialogNames.add("BACK");
 
 
+            int pageSize = 5;
+            Integer pageNumber = user.getPage();
+            if (pageNumber == null) {
+                pageNumber = 0;
+            }
+            if (dialogName.equals("->")) {
+                user.setPage(++pageNumber);
+                userService.save(user);
+            }
+            if (dialogName.equals("<-")) {
+                user.setPage(--pageNumber);
+                userService.save(user);
+            }
+            Pageable page = PageRequest.of(pageNumber, pageSize, Sort.by("dialogId").ascending());
+            Page<Dialog> allPageDialogs = dialogRepository.findAllPageDialogs(page);
+
+            List<String> dialogNamesPage = new ArrayList<>();
+            for (Dialog dialog: allPageDialogs) {
+                dialogNamesPage.add(dialog.getDialogName());
+            }
+
+
+            int maxPageElementNumber = pageSize * (allPageDialogs.getNumber() + 1);
+            int pageStartElementNumber = maxPageElementNumber - (pageSize - 1);
 
             //TODO lambda
             List<String> finishedDialogs = new ArrayList<>();
@@ -61,17 +86,41 @@ public class DialogService {
             }
 
             List<CustomJavaButton> customJavaButtons = new ArrayList<>();
-            for (String dialog: allDialogNames) {
+            for (String dialog: dialogNamesPage) {
                 CustomJavaButton customJavaButton = new CustomJavaButton(dialog, "");
                 if (finishedDialogs.contains(dialog)) {
                     customJavaButton.setColor(KeyboardButtonColor.POSITIVE);
                 }
                 customJavaButtons.add(customJavaButton);
             }
-            List<KeyboardButton> keyboardButtons = customJavaKeyboard.convertCustomJavaButtonIntoKeyboardButtons(customJavaButtons);
-            Keyboard keyboardFromKeyboardButtons = customJavaKeyboard.createKeyboardFromKeyboardButtons(keyboardButtons);
 
-            messageService.sendMessageWithTextAndKeyboard(userVkId, "Выберите нужный диалог:", keyboardFromKeyboardButtons);
+            List<String> keyboardNavigationButtons = new ArrayList<>();
+            if (allPageDialogs.isFirst() ) {
+                    keyboardNavigationButtons.add("BACK");
+
+                String right = "->";
+                keyboardNavigationButtons.add(right);
+
+
+            } else if (allPageDialogs.isLast()) {
+                String left = "<-";
+                keyboardNavigationButtons.add(left);
+                if (!keyboardNavigationButtons.contains("BACK")) {
+                    keyboardNavigationButtons.add("BACK");
+                }
+            } else {
+                String right = "->";
+                String left = "<-";
+                keyboardNavigationButtons.add(left);
+                if (!keyboardNavigationButtons.contains("BACK")) {
+                    keyboardNavigationButtons.add("BACK");
+                }
+                keyboardNavigationButtons.add(right);
+            }
+
+            Keyboard keyboardWithNavigationButtons = customJavaKeyboard.createKeyboardWithNavigationButtons(customJavaButtons, keyboardNavigationButtons);
+
+            messageService.sendMessageWithTextAndKeyboard(userVkId, "Выберите нужный диалог:", keyboardWithNavigationButtons);
         }
     }
 

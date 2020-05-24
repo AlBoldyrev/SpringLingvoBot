@@ -31,4 +31,7 @@ public class User {
     @Column(name = "level")
     private Integer level;
 
+    @Column(name = "page")
+    private Integer page;
+
 }

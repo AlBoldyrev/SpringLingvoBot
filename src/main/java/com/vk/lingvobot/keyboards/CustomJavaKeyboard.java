@@ -80,6 +80,23 @@ public class CustomJavaKeyboard {
         return keyboard;
     }
 
+
+    public Keyboard createKeyboardWithNavigationButtons(List<CustomJavaButton> buttonNames, List<String> navigationButtonNames) {
+        List<KeyboardButton> keyboardButtons = convertCustomJavaButtonIntoKeyboardButtons(buttonNames);
+        List<KeyboardButton> keyboardNavigationButtons = convertStringsIntoKeyboardButton(navigationButtonNames);
+
+
+        Keyboard keyboard = new Keyboard();
+
+        List<List<KeyboardButton>> oneButtonInRowListOfLists = ListChopper.chop(keyboardButtons, 1);
+        oneButtonInRowListOfLists.add(keyboardNavigationButtons);
+        keyboard.setButtons(oneButtonInRowListOfLists);
+        keyboard.setOneTime(true);
+
+        return keyboard;
+
+    }
+
     /**
      * Method takes button names and convert it into original VK object @KeyboardButton
      *
