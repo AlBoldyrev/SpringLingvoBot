@@ -1,9 +1,8 @@
 package com.vk.lingvobot.application.levels.importDialog;
 
-import com.vk.api.sdk.objects.messages.Keyboard;
+import com.vk.lingvobot.application.levels.Menu;
 import com.vk.lingvobot.application.levels.IResponseMessageBodyHandler;
 import com.vk.lingvobot.entities.User;
-import com.vk.lingvobot.entities.UserPhrase;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.menu.MenuLevel;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
@@ -21,13 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ImportDialogLevel implements IResponseMessageBodyHandler {
+public class ImportDialogLevel extends Menu implements IResponseMessageBodyHandler {
 
     private final ImportDialogService importDialogService;
     private final UserRepository userRepository;
@@ -41,9 +38,8 @@ public class ImportDialogLevel implements IResponseMessageBodyHandler {
         String messageBody = message.getObject().getBody();
 
         if (messageBody.equals("BACK")) {
-            user.setLevel(MenuLevel.MAIN.getCode());
-            userRepository.save(user);
-            actionLevel1(user.getVkId());
+            setTheLevel(user, MenuLevel.MAIN.getCode());
+            baseMenuAction(user);
         }
 
         if (message.getObject().getAttachments() == null || message.getObject().getAttachments().size() >1 ) {
@@ -54,34 +50,14 @@ public class ImportDialogLevel implements IResponseMessageBodyHandler {
                 URL trueURL = new URL(url);
                 byte[] bytes = downloadUrl(trueURL);
                 importDialogService.importDialog(bytes);
-
                 messageService.sendMessageTextOnly(user.getVkId(), "Большое спасибо. Диалог загружен. ");
                 user.setLevel(MenuLevel.MAIN.getCode());
-                actionLevel1(user.getVkId());
+                baseMenuAction(user);
             } catch (MalformedURLException e) {
                 System.out.println("Baaaaad url, Sasha. Baaaaaaad url.");
             }
         }
-
-
         userRepository.save(user);
-    }
-
-    private void actionLevel1(int userVkId) {
-        List<String> levelFirst = new ArrayList<>();
-        levelFirst.add("Phrases");
-        levelFirst.add("Dialogs");
-        levelFirst.add("Import dialog");
-        Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(levelFirst);
-        messageService.sendMessageWithTextAndKeyboard(userVkId, "Дружище, ты в главном меню.", keyboardWithButtonsBrickByBrick);
-
-        User user = userRepository.findByVkId(userVkId);
-        UserPhrase userPhrase = userPhraseRepository.findByUserId(user.getUserId());
-        if (userPhrase != null) {
-            userPhrase.setIsFinished(true);
-            userPhraseRepository.save(userPhrase);
-        }
-
     }
 
 

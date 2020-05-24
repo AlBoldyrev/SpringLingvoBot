@@ -144,7 +144,7 @@ public class ImportDialogService {
     }
 
 
-    public List<String> getKeyboardValueConnectedWithNode(List<KeyboardRectangular> keyboardRectangularList, Integer nodeKey) {
+    private List<String> getKeyboardValueConnectedWithNode(List<KeyboardRectangular> keyboardRectangularList, Integer nodeKey) {
 
         List<String> keyboardValues = new ArrayList<>();
         for (KeyboardRectangular keyboardRectangular: keyboardRectangularList) {
@@ -155,7 +155,7 @@ public class ImportDialogService {
         return keyboardValues;
     }
 
-    public NodeData getNodeFromNodeKey(Integer nodeKey) {
+    private NodeData getNodeFromNodeKey(Integer nodeKey) {
         NodeData nodeDataWeFind = null;
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         for (NodeData nodeData: nodeDataList) {
@@ -166,7 +166,7 @@ public class ImportDialogService {
         return nodeDataWeFind;
     }
 
-    public NodeData findDialogNameNodeData(ImportDialogParser importDialogParser) throws Exception {
+    private NodeData findDialogNameNodeData(ImportDialogParser importDialogParser) throws Exception {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         for (NodeData nodeData : nodeDataList) {
@@ -248,7 +248,7 @@ public class ImportDialogService {
     }
 
 
-    public ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {
+    private ImportDialogParser importDialogParserLocationProblem(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -258,7 +258,6 @@ public class ImportDialogService {
             NodeData nodeData = nodeDataList.get(i);
             int key = nodeData.getKey();
             nodeData.setKey(i);
-//            System.out.println("For node with key " + key + " value is switched to " + nodeData.getKey());
 
             for (int j = 0; j < linkDataList.size(); j++) {
                 int from = linkDataList.get(j).getFrom();
@@ -280,7 +279,7 @@ public class ImportDialogService {
         return importDialogParser;
     }
 
-    public ImportDialogParser convertNodesIntoPositiveValues(ImportDialogParser importDialogParser) {
+    private ImportDialogParser convertNodesIntoPositiveValues(ImportDialogParser importDialogParser) {
 
         List<NodeData> nodeDataList = importDialogParser.getNodeDataList();
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
@@ -296,7 +295,7 @@ public class ImportDialogService {
         return importDialogParser;
     }
 
-    public Set<Integer> findSpecificNodeConnectionsOnlyFrom(int nodeKey) {
+    private Set<Integer> findSpecificNodeConnectionsOnlyFrom(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -313,7 +312,7 @@ public class ImportDialogService {
         return connections;
     }
 
-    public Set<Integer> findSpecificNodeConnectionsOnlyTo(int nodeKey) {
+    private Set<Integer> findSpecificNodeConnectionsOnlyTo(int nodeKey) {
 
         List<LinkData> linkDataList = importDialogParser.getLinkDataList();
 
@@ -329,46 +328,6 @@ public class ImportDialogService {
         }
         return connections;
     }
-
-    public boolean isItBeginningOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
-
-        List<LinkData> linkDataList = importDialogParser.getLinkDataList();
-        int counter = 0;
-
-        for (LinkData linkData : linkDataList) {
-            if (linkData.getFrom() == nodeKey) {
-                counter++;
-            }
-        }
-        return counter >= 2;
-    }
-
-    public boolean isItEndingOfTheBranch(ImportDialogParser importDialogParser, int nodeKey) {
-
-        List<LinkData> linkDataList = importDialogParser.getLinkDataList();
-        int counter = 0;
-        Map<Integer, List<Integer>> toDuplicates = new HashMap<>();
-
-        for (LinkData linkData : linkDataList) {
-            if (!toDuplicates.containsKey(linkData.getTo())) {
-                List<Integer> a = new ArrayList<>();
-                a.add(linkData.getFrom());
-                toDuplicates.put(linkData.getTo(), a);
-            } else {
-                List<Integer> integers = toDuplicates.get(linkData.getTo());
-                integers.add(linkData.getFrom());
-                toDuplicates.put(linkData.getTo(), integers);
-            }
-        }
-
-        for (Map.Entry<Integer, List<Integer>> entry: toDuplicates.entrySet()) {
-            List<Integer> value = entry.getValue();
-            if (value.contains(nodeKey) && value.size() > 1) return true;
-        }
-        return false;
-    }
-
-
 }
 
 @Data

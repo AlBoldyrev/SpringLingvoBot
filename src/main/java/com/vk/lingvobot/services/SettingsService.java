@@ -49,7 +49,7 @@ public class SettingsService {
         userRepository.save(user);
         Dialog greetingDialog = dialogRepository.findByDialogName("GreetingDialog");
         if (greetingDialog != null) {
-            dialogService.proceedTheDialog("GreetingDialog", vkId, "");
+            dialogService.proceedTheDialog("GreetingDialog", user, "");
         } else {
             System.out.println("Нет стартового диалога. ");
             user.setLevel(1);

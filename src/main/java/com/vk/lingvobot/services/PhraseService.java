@@ -28,10 +28,8 @@ public class PhraseService {
     private final CustomJavaKeyboard customJavaKeyboard;
     private final MessageService messageService;
 
-    public void actionLevel4(Integer userVkId) {
+    public void actionForRuEngTranslation(User user) {
 
-
-        User user = userRepository.findByVkId(userVkId);
         UserPhrase userPhrase = userPhraseRepository.findByUserId(user.getUserId());
         //TODO костыль с единичкой
         List<Phrase> allPhrasesOfThisDifficulty = phraseRepository.findByDifficulty(1);
@@ -48,7 +46,7 @@ public class PhraseService {
             Boolean isOneSide = userPhrase.getIsOneSide();
             if (isOneSide) {
                 String phraseOtherSide = userPhrase.getPhrase().getPhraseOtherSide();
-                messageService.sendMessageWithTextAndKeyboard(userVkId, phraseOtherSide, backButton);
+                messageService.sendMessageWithTextAndKeyboard(user.getVkId(), phraseOtherSide, backButton);
                 userPhrase.setIsOneSide(false);
                 userPhraseRepository.save(userPhrase);
             } else {
@@ -60,12 +58,9 @@ public class PhraseService {
 
     }
 
+    public void actionForEngRuTranslation(User user) {
 
 
-    public void actionLevel5(Integer userVkId) {
-
-
-        User user = userRepository.findByVkId(userVkId);
         UserPhrase userPhrase = userPhraseRepository.findByUserId(user.getUserId());
         //TODO костыль с единичкой
         List<Phrase> allPhrasesOfThisDifficulty = phraseRepository.findByDifficulty(1);
@@ -82,7 +77,7 @@ public class PhraseService {
             Boolean isOneSide = userPhrase.getIsOneSide();
             if (isOneSide) {
                 String phraseOneSide = userPhrase.getPhrase().getPhraseOneSide();
-                messageService.sendMessageWithTextAndKeyboard(userVkId, "Правильный ответ: " + phraseOneSide, backButton);
+                messageService.sendMessageWithTextAndKeyboard(user.getVkId(), "Правильный ответ: " + phraseOneSide, backButton);
                 userPhrase.setIsOneSide(false);
                 userPhraseRepository.save(userPhrase);
             } else {
@@ -91,9 +86,7 @@ public class PhraseService {
                 whatToDoWhenUserIsNewToPhrases(user, randomElement, backButton);
             }
         }
-
     }
-
 
     private void whatToDoWhenUserIsNewToPhrases(User user, Phrase phrase, Keyboard backButton) {
         Integer userVkId = user.getVkId();
@@ -120,11 +113,8 @@ public class PhraseService {
         return userPhrase;
     }
 
-
-    private <T> T getRandomElement(List<T> list)
-    {
+    private <T> T getRandomElement(List<T> list) {
         Random rand = new Random();
-        T randomElement = list.get(rand.nextInt(list.size()));
-        return randomElement;
+        return list.get(rand.nextInt(list.size()));
     }
 }

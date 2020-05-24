@@ -35,9 +35,8 @@ public class DialogService {
     private final UserRepository userRepository;
 
 
-    public void actionLevel2(int userVkId, String dialogName) {
+    public void dialogAction(User user, String dialogName) {
 
-        User user = userService.findByVkId(userVkId);
         //TODO lambda
         List<Dialog> allDialogs = dialogRepository.findAllDialogs();
         List<String> allDialogNames = new ArrayList<>();
@@ -46,7 +45,7 @@ public class DialogService {
         }
 
         if (allDialogNames.contains(dialogName)) {
-            proceedTheDialog(dialogName, userVkId, dialogName);
+            proceedTheDialog(dialogName, user, dialogName);
 
         } else {
 
@@ -97,10 +96,8 @@ public class DialogService {
             List<String> keyboardNavigationButtons = new ArrayList<>();
             if (allPageDialogs.isFirst() ) {
                     keyboardNavigationButtons.add("BACK");
-
                 String right = "->";
                 keyboardNavigationButtons.add(right);
-
 
             } else if (allPageDialogs.isLast()) {
                 String left = "<-";
@@ -119,8 +116,7 @@ public class DialogService {
             }
 
             Keyboard keyboardWithNavigationButtons = customJavaKeyboard.createKeyboardWithNavigationButtons(customJavaButtons, keyboardNavigationButtons);
-
-            messageService.sendMessageWithTextAndKeyboard(userVkId, "Выберите нужный диалог:", keyboardWithNavigationButtons);
+            messageService.sendMessageWithTextAndKeyboard(user.getVkId(), "Выберите нужный диалог:", keyboardWithNavigationButtons);
         }
     }
 
@@ -147,8 +143,7 @@ public class DialogService {
         return currentDialogOfUser != null;
     }
 
-    public void proceedTheDialog(String dialogName, int userVkId, String messageBody) {
-        User user = userService.findByVkId(userVkId);
+    public void proceedTheDialog(String dialogName, User user, String messageBody) {
         Integer nodeKey;
         UserDialog currentDialogOfUser = userDialogRepository.findCurrentDialogOfUser(user.getUserId());
         if (currentDialogOfUser == null) {
@@ -175,13 +170,8 @@ public class DialogService {
 
         }
 
-
         node = nodeRepository.findByNodeKey(nodeKey,currentDialogOfUser.getDialog().getDialogId());
-
         List<NodeNext> nextNodesCandidates = nodeNextRepository.findByNodeIdNextNodes(nodeKey);
-
-
-
         List<String> keyboardValuesForNode = new ArrayList<>();
         for (NodeNext nodeNext: nextNodesCandidates) {
             String keyboardValue = nodeNext.getKeyboardValue();
@@ -197,10 +187,9 @@ public class DialogService {
         }
 
         if (keyboardValuesForNode.isEmpty() || !nonNullElemExist) {
-            messageService.sendMessageTextOnly(userVkId, node.getNodeValue());
+            messageService.sendMessageTextOnly(user.getVkId(), node.getNodeValue());
 
             if (nextNodesCandidates.isEmpty()) {
-                System.out.println("ДА ВРОДЕ БЫ И ВСЁ!");
                 currentDialogOfUser.setIsFinished(true);
                 if (currentDialogOfUser.getDialog().getDialogName().equals("GreetingDialog")) {
                     user.setLevel(1);
@@ -208,89 +197,18 @@ public class DialogService {
                 }
                 userDialogRepository.save(currentDialogOfUser);
             }
+
             NodeNext nodeNext = nextNodesCandidates.get(0);
             currentDialogOfUser.setNodeId(nodeNext.getNextNode());
             userDialogRepository.save(currentDialogOfUser);
         } else {
             Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(keyboardValuesForNode);
-            messageService.sendMessageWithTextAndKeyboard(userVkId, node.getNodeValue(), keyboardWithButtonsBrickByBrick);
+            messageService.sendMessageWithTextAndKeyboard(user.getVkId(), node.getNodeValue(), keyboardWithButtonsBrickByBrick);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      /*  NodeNext reallyNextNode = nodeNextRepository.findByKeyboardValue(messageBody);
-
-        if (reallyNextNode != null) {
-            currentDialogOfUser.setNodeId(reallyNextNode.getNextNode());
-            userDialogRepository.save(currentDialogOfUser);
-            nodeKey = reallyNextNode.getNextNode();
-        }
-
-        Node node = nodeRepository.findByNodeKey(nodeKey);
-
-        String nodeValue = node.getNodeValue();
-        List<NodeNext> nextNodes = nodeNextRepository.findByNodeIdNextNodes(nodeKey);
-
-
-        //TODO lambdas
-        List<String> keyboardValuesForNode = new ArrayList<>();
-        for (NodeNext nodeNext: nextNodes) {
-            String keyboardValue = nodeNext.getKeyboardValue();
-            keyboardValuesForNode.add(keyboardValue);
-        }
-
-        boolean nonNullElemExist= false;
-        for (String s: keyboardValuesForNode) {
-            if (s != null) {
-                nonNullElemExist = true;
-                break;
-            }
-        }
-
-        if (keyboardValuesForNode.isEmpty() || !nonNullElemExist) {
-            Integer nextNode = nextNodes.get(0).getNextNode();
-            Node next = nodeRepository.findByNodeKey(nextNode);
-            messageService.sendMessageTextOnly(userVkId, next.getNodeValue());
-
-            List<NodeNext> nextNod = nodeNextRepository.findByNodeIdNextNodes(nextNode);
-
-            currentDialogOfUser.setNodeId(nextNod.get(0).getNodeId());
-            userDialogRepository.save(currentDialogOfUser);
-        } else {
-            Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(keyboardValuesForNode);
-            messageService.sendMessageWithTextAndKeyboard(userVkId, nodeValue, keyboardWithButtonsBrickByBrick);
-        }
-
-        if (nextNodes.isEmpty()) {
-            System.out.println("ДА ВРОДЕ БЫ И ВСЁ!");
-            currentDialogOfUser.setIsFinished(true);
-            userDialogRepository.save(currentDialogOfUser);
-            actionLevel2(userVkId, "");
-        } else {
-            if (reallyNextNode != null) {
-                currentDialogOfUser.setNodeId(reallyNextNode.getNextNode());
-            }
-        }
-        userDialogRepository.save(currentDialogOfUser);*/
-
     }
 
     private UserDialog startTheDialog(String dialogName, User user) {
+
         Dialog dialog = dialogRepository.findByDialogName(dialogName);
         UserDialog userDialog = new UserDialog();
         userDialog.setIsFinished(false);

@@ -1,11 +1,9 @@
 package com.vk.lingvobot.application.levels.dialog;
 
-import com.vk.api.sdk.objects.messages.Keyboard;
-import com.vk.lingvobot.application.actions.MessageNew;
+import com.vk.lingvobot.application.levels.Menu;
 import com.vk.lingvobot.application.levels.IResponseMessageBodyHandler;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.entities.UserDialog;
-import com.vk.lingvobot.entities.UserPhrase;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.menu.MenuLevel;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
@@ -19,13 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class DialogLevelOne implements IResponseMessageBodyHandler {
+public class DialogLevelOne extends Menu implements IResponseMessageBodyHandler {
 
     private final UserRepository userRepository;
     private final DialogService dialogService;
@@ -40,32 +35,15 @@ public class DialogLevelOne implements IResponseMessageBodyHandler {
         String messageBody = message.getObject().getBody();
 
         if (messageBody.equals("BACK")) {
-            user.setLevel(MenuLevel.MAIN.getCode());
-            userRepository.save(user);
-            actionLevel1(user.getVkId());
+            setTheLevel(user, MenuLevel.MAIN.getCode());
+            baseMenuAction(user);
         } else {
             UserDialog currentDialogOfUser = userDialogRepository.findCurrentDialogOfUser(user.getUserId());
             if (currentDialogOfUser == null) {
-                dialogService.actionLevel2(user.getVkId(), messageBody);
+                dialogService.dialogAction(user, messageBody);
             } else {
-                dialogService.proceedTheDialog(currentDialogOfUser.getDialog().getDialogName(), user.getVkId(), messageBody);
+                dialogService.proceedTheDialog(currentDialogOfUser.getDialog().getDialogName(), user, messageBody);
             }
-        }
-    }
-
-    private void actionLevel1(int userVkId) {
-        List<String> levelFirst = new ArrayList<>();
-        levelFirst.add("Phrases");
-        levelFirst.add("Dialogs");
-        levelFirst.add("Import dialog");
-        Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(levelFirst);
-        messageService.sendMessageWithTextAndKeyboard(userVkId, "Дружище, ты в главном меню.", keyboardWithButtonsBrickByBrick);
-
-        User user = userRepository.findByVkId(userVkId);
-        UserPhrase userPhrase = userPhraseRepository.findByUserId(user.getUserId());
-        if (userPhrase != null) {
-            userPhrase.setIsFinished(true);
-            userPhraseRepository.save(userPhrase);
         }
     }
 }
