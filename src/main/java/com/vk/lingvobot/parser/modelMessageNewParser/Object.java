@@ -3,6 +3,8 @@ package com.vk.lingvobot.parser.modelMessageNewParser;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Object {
 
@@ -17,4 +19,5 @@ public class Object {
     private String body;
     @SerializedName("owner_ids")
     private int[] ownerIds;
+    private List<Attachment> attachments;
 }

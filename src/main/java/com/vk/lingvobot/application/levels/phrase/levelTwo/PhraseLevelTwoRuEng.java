@@ -6,6 +6,7 @@ import com.vk.lingvobot.application.levels.IResponseMessageBodyHandler;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.menu.MenuLevel;
+import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
 import com.vk.lingvobot.repositories.UserRepository;
 import com.vk.lingvobot.services.MessageService;
 import com.vk.lingvobot.services.PhraseService;
@@ -28,7 +29,9 @@ public class PhraseLevelTwoRuEng implements IResponseMessageBodyHandler {
     private final CustomJavaKeyboard customJavaKeyboard;
 
     @Override
-    public void handle(User user, String messageBody) {
+    public void handle(User user, ModelMessageNew message) {
+
+        String messageBody = message.getObject().getBody();
 
         if (messageBody.equals("BACK")) {
             user.setLevel(MenuLevel.MAIN.getCode());
@@ -43,6 +46,7 @@ public class PhraseLevelTwoRuEng implements IResponseMessageBodyHandler {
         List<String> levelFirst = new ArrayList<>();
         levelFirst.add("Phrases");
         levelFirst.add("Dialogs");
+        levelFirst.add("Import dialog");
         Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(levelFirst);
         messageService.sendMessageWithTextAndKeyboard(userVkId, "Дружище, ты в главном меню.", keyboardWithButtonsBrickByBrick);
     }

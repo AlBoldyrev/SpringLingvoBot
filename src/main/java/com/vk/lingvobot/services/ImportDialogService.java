@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
@@ -48,33 +47,22 @@ public class ImportDialogService {
     @Autowired
     ApplicationContext applicationContext;
 
-    @PostConstruct
-    public void init() {
+    public void importDialog(byte[] bytes) {
 
-        Path path = Paths.get("D:/Projects/Greeting.txt");
-        byte[] bytes = new byte[0];
+        String dialogInJson = null;
 
         try {
-            bytes = Files.readAllBytes(path);
-        } catch (IOException ioe) {
-            log.error("IOException while reading file from disk. " + ioe.getStackTrace());
-        }
-
-        String string = null;
-
-        try {
-            string = new String(bytes,"Cp1251");
+            dialogInJson = new String(bytes,"Cp1251");
         } catch (UnsupportedEncodingException e) {
             log.error("File can not be encoded to cp1251. Too bad. " + e.getStackTrace());
         }
 
-        ImportDialogParser importDialogData = gson.fromJson(string, ImportDialogParser.class);
+        ImportDialogParser importDialogData = gson.fromJson(dialogInJson, ImportDialogParser.class);
         this.importDialogParser = importDialogData;
         ImportDialogParser importDialogDataWithPositiveValues = convertNodesIntoPositiveValues(importDialogData);
         this.importDialogParser = importDialogParserLocationProblem(importDialogParser);
         List<KeyboardRectangular> keyboardRectangularList = keyboardRectangulars(importDialogParser);
         dealWithKeyboard(importDialogParser, keyboardRectangularList);
-        System.out.println("let's see");
 
         saveStructureToDatabase(importDialogParser, keyboardRectangularList);
 
@@ -108,7 +96,6 @@ public class ImportDialogService {
 
         for (NodeData nodeData: nodeDataList) {
             if (nodeData.getFigure() == null || nodeData.getFigure().equals("Circle") ) {
-                System.out.println("nodedata " + nodeData.getKey() + " zapisalocb");
                 int key = nodeData.getKey();
                 String text = nodeData.getText();
                 Node node = new Node();

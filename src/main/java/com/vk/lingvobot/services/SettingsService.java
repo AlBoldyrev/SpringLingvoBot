@@ -1,7 +1,9 @@
 package com.vk.lingvobot.services;
 
+import com.vk.lingvobot.entities.Dialog;
 import com.vk.lingvobot.entities.Settings;
 import com.vk.lingvobot.entities.User;
+import com.vk.lingvobot.repositories.DialogRepository;
 import com.vk.lingvobot.repositories.SettingsRepository;
 import com.vk.lingvobot.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ public class SettingsService {
     private final SettingsRepository settingsRepository;
     private final UserRepository userRepository;
     private final DialogService dialogService;
+    private final DialogRepository dialogRepository;
 
     public Settings findById(Integer id) {
         Settings settings = settingsRepository.findBySettingsId(id);
@@ -44,7 +47,14 @@ public class SettingsService {
         //TODO change hardcode
         user.setLevel(2);
         userRepository.save(user);
-        dialogService.proceedTheDialog("GreetingDialog", vkId, "");
+        Dialog greetingDialog = dialogRepository.findByDialogName("GreetingDialog");
+        if (greetingDialog != null) {
+            dialogService.proceedTheDialog("GreetingDialog", vkId, "");
+        } else {
+            System.out.println("Нет стартового диалога. ");
+            user.setLevel(1);
+            userRepository.save(user);
+        }
         return user;
     }
 }

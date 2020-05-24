@@ -110,7 +110,7 @@ public class DialogService {
         }
         NodeNext reallyNextNode = null;
         try {
-            Node byNodeId = nodeRepository.findByNodeKey(nodeKey);
+            Node byNodeId = nodeRepository.findByNodeKey(nodeKey, currentDialogOfUser.getDialog().getDialogId());
             reallyNextNode = nodeNextRepository.findByKeyboardValue(messageBody, byNodeId.getNodeKey());
         } catch (IncorrectResultSizeDataAccessException e) {
             log.error(e.getMessage());
@@ -118,7 +118,7 @@ public class DialogService {
         Node node;
         if (reallyNextNode != null) {
 
-            node = nodeRepository.findByNodeKey(reallyNextNode.getNextNode());
+            node = nodeRepository.findByNodeKey(reallyNextNode.getNextNode(), currentDialogOfUser.getDialog().getDialogId());
             currentDialogOfUser.setNodeId(node.getNodeKey());
             userDialogRepository.save(currentDialogOfUser);
 
@@ -127,7 +127,7 @@ public class DialogService {
         }
 
 
-        node = nodeRepository.findByNodeKey(nodeKey);
+        node = nodeRepository.findByNodeKey(nodeKey,currentDialogOfUser.getDialog().getDialogId());
 
         List<NodeNext> nextNodesCandidates = nodeNextRepository.findByNodeIdNextNodes(nodeKey);
 
