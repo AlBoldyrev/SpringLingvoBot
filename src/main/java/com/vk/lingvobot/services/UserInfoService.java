@@ -29,7 +29,7 @@ public class UserInfoService {
     private final UserRepository userRepository;
     private final UserDialogRepository userDialogRepository;
 
-    public String getUserDomain(GroupActor groupActor, int userId) {
+    String getUserDomain(GroupActor groupActor, int userId) {
 
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
