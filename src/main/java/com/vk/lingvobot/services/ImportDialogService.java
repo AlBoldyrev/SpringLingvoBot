@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,9 +45,7 @@ public class ImportDialogService {
         return importDialogParser;
     }
 
-    @Autowired
-    ApplicationContext applicationContext;
-
+    @Transactional
     public void importDialog(byte[] bytes) throws Exception {
 
         String dialogInJson = null;
@@ -117,6 +116,10 @@ public class ImportDialogService {
 
                     if (!keyboardValues.isEmpty()) {
                         for (String keyboardValue : keyboardValues) {
+                            if (keyboardValue.length() > 40) {
+                                log.error("Строка больше 40 символов");
+                                throw new Exception();
+                            }
                             NodeData nextNode = getNodeFromNodeKey(nextNodekey);
                             NodeNext nodeNext = new NodeNext();
                             nodeNext.setDialog(dialog);

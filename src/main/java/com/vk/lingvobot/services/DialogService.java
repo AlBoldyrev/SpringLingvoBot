@@ -94,11 +94,12 @@ public class DialogService {
             }
 
             List<String> keyboardNavigationButtons = new ArrayList<>();
-            if (allPageDialogs.isFirst() ) {
+            if (allPageDialogs.isFirst()) {
                     keyboardNavigationButtons.add("BACK");
-                String right = "->";
-                keyboardNavigationButtons.add(right);
-
+                    if (allPageDialogs.getTotalPages() > 1) {
+                        String right = "->";
+                        keyboardNavigationButtons.add(right);
+                    }
             } else if (allPageDialogs.isLast()) {
                 String left = "<-";
                 keyboardNavigationButtons.add(left);
