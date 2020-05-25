@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,11 +51,7 @@ public class ImportDialogService {
 
         String dialogInJson = null;
 
-        try {
-            dialogInJson = new String(bytes,"Cp1251");
-        } catch (UnsupportedEncodingException e) {
-            log.error("File can not be encoded to cp1251. Too bad. " + e.getStackTrace());
-        }
+        dialogInJson = new String(bytes, StandardCharsets.UTF_8);
 
         ImportDialogParser importDialogData = gson.fromJson(dialogInJson, ImportDialogParser.class);
         this.importDialogParser = importDialogData;
@@ -116,17 +113,17 @@ public class ImportDialogService {
 
                     if (!keyboardValues.isEmpty()) {
                         for (String keyboardValue : keyboardValues) {
-                            if (keyboardValue.length() > 40) {
-                                log.error("Строка больше 40 символов");
-                                throw new Exception();
-                            }
+
+                                //TODO Обработка сообщения о том, что не надо делать длину клавиатуры больше 40 символов. Выкинуть другое кастомное исключение наружу и там обработать.
+
+
                             NodeData nextNode = getNodeFromNodeKey(nextNodekey);
                             NodeNext nodeNext = new NodeNext();
                             nodeNext.setDialog(dialog);
                             nodeNext.setNodeId(key);
                             //TODO setNextNode
                             nodeNext.setNextNode(nextNodekey);
-                            nodeNext.setKeyboardValue(keyboardValue);
+                            nodeNext.setKeyboardValue(keyboardValue.trim());
                             nextNodesForSavingToDB.add(nodeNext);
                         }
                     } else {
