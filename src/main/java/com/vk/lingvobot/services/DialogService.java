@@ -208,7 +208,7 @@ public class DialogService {
 
 
         } else {
-            Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(keyboardValuesForNode);
+            Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsOneButtonOneRow(keyboardValuesForNode);
             messageService.sendMessageWithTextAndKeyboard(user.getVkId(), node.getNodeValue(), keyboardWithButtonsBrickByBrick);
         }
     }
