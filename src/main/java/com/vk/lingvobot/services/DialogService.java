@@ -7,6 +7,7 @@ import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.keyboards.CustomJavaButton;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.repositories.*;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,6 @@ public class DialogService {
             proceedTheDialog(dialogName, user, dialogName);
 
         } else {
-
 
             int pageSize = 5;
             Integer pageNumber = user.getPage();
@@ -172,7 +172,7 @@ public class DialogService {
         }
 
         node = nodeRepository.findByNodeKey(nodeKey,currentDialogOfUser.getDialog().getDialogId());
-        List<NodeNext> nextNodesCandidates = nodeNextRepository.findByNodeIdNextNodes(nodeKey);
+        List<NodeNext> nextNodesCandidates = nodeNextRepository.findByNodeIdNextNodes(nodeKey, currentDialogOfUser.getDialog().getDialogId());
         List<String> keyboardValuesForNode = new ArrayList<>();
         for (NodeNext nodeNext: nextNodesCandidates) {
             String keyboardValue = nodeNext.getKeyboardValue();
@@ -202,6 +202,11 @@ public class DialogService {
             NodeNext nodeNext = nextNodesCandidates.get(0);
             currentDialogOfUser.setNodeId(nodeNext.getNextNode());
             userDialogRepository.save(currentDialogOfUser);
+
+            Node nextNodeSilence = nodeRepository.findByNodeKey(nodeNext.getNextNode(), currentDialogOfUser.getDialog().getDialogId());
+            proceedTheDialog(dialogName, user, StringUtil.EMPTY_STRING);
+
+
         } else {
             Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(keyboardValuesForNode);
             messageService.sendMessageWithTextAndKeyboard(user.getVkId(), node.getNodeValue(), keyboardWithButtonsBrickByBrick);

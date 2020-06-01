@@ -11,8 +11,8 @@ import java.util.List;
 @Repository
 public interface NodeNextRepository extends JpaRepository<NodeNext, Integer> {
 
-    @Query("SELECT nn FROM NodeNext nn WHERE nn.nodeId = :nodeId")
-    List<NodeNext> findByNodeIdNextNodes(@Param("nodeId") int nodeId);
+    @Query("SELECT nn FROM NodeNext nn WHERE nn.nodeId = :nodeId AND nn.dialog.dialogId = :dialogId")
+    List<NodeNext> findByNodeIdNextNodes(@Param("nodeId") int nodeId, @Param("dialogId") int dialogId);
 
     @Query("SELECT nn FROM NodeNext nn WHERE nn.keyboardValue = :keyboardValue AND nn.nodeId = :nodeId")
     NodeNext findByKeyboardValue(@Param("keyboardValue") String keyboardValue, @Param("nodeId") int nodeId);
