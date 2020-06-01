@@ -93,26 +93,34 @@ public class DialogService {
                 customJavaButtons.add(customJavaButton);
             }
 
-            List<String> keyboardNavigationButtons = new ArrayList<>();
+            List<CustomJavaButton> keyboardNavigationButtons = new ArrayList<>();
             if (allPageDialogs.isFirst()) {
-                    keyboardNavigationButtons.add("BACK");
+
+                    CustomJavaButton back = new CustomJavaButton("BACK", "");
+                    back.setColor(KeyboardButtonColor.PRIMARY);
+                    keyboardNavigationButtons.add(back);
+
                     if (allPageDialogs.getTotalPages() > 1) {
-                        String right = "->";
+                        CustomJavaButton right = new CustomJavaButton("->", "");
                         keyboardNavigationButtons.add(right);
                     }
             } else if (allPageDialogs.isLast()) {
-                String left = "<-";
+                CustomJavaButton left = new CustomJavaButton("<-", "");
                 keyboardNavigationButtons.add(left);
                 if (!keyboardNavigationButtons.contains("BACK")) {
-                    keyboardNavigationButtons.add("BACK");
+                    CustomJavaButton back = new CustomJavaButton("BACK", "");
+                    back.setColor(KeyboardButtonColor.PRIMARY);
+                    keyboardNavigationButtons.add(back);
                 }
             } else {
-                String right = "->";
-                String left = "<-";
+                CustomJavaButton left = new CustomJavaButton("<-", "");
                 keyboardNavigationButtons.add(left);
                 if (!keyboardNavigationButtons.contains("BACK")) {
-                    keyboardNavigationButtons.add("BACK");
+                    CustomJavaButton back = new CustomJavaButton("BACK", "");
+                    back.setColor(KeyboardButtonColor.PRIMARY);
+                    keyboardNavigationButtons.add(back);
                 }
+                CustomJavaButton right = new CustomJavaButton("->", "");
                 keyboardNavigationButtons.add(right);
             }
 

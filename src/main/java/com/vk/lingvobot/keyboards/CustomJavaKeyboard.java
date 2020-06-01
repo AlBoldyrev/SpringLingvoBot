@@ -81,9 +81,9 @@ public class CustomJavaKeyboard {
     }
 
 
-    public Keyboard createKeyboardWithNavigationButtons(List<CustomJavaButton> buttonNames, List<String> navigationButtonNames) {
+    public Keyboard createKeyboardWithNavigationButtons(List<CustomJavaButton> buttonNames, List<CustomJavaButton> navigationButtonNames) {
         List<KeyboardButton> keyboardButtons = convertCustomJavaButtonIntoKeyboardButtons(buttonNames);
-        List<KeyboardButton> keyboardNavigationButtons = convertStringsIntoKeyboardButton(navigationButtonNames);
+        List<KeyboardButton> keyboardNavigationButtons = convertCustomJavaButtonIntoKeyboardButtons(navigationButtonNames);
 
 
         Keyboard keyboard = new Keyboard();

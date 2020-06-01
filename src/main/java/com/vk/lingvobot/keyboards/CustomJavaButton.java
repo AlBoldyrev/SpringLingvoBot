@@ -11,6 +11,8 @@ import org.springframework.boot.system.SystemProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Slf4j
 @Data
 @NoArgsConstructor
@@ -30,6 +32,16 @@ public class CustomJavaButton {
         action.setPayload(payload);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomJavaButton that = (CustomJavaButton) o;
+        return Objects.equals(action, that.action);
+    }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(action);
+    }
 }
