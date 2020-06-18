@@ -7,7 +7,10 @@ public enum MenuLevel {
     PHRASE(3),
     ENG_RU(4),
     RU_ENG(5),
-    IMPORT_DIALOG(6);
+    IMPORT_DIALOG(6),
+    SETTINGS(7),
+    TIME_SETTINGS(8),
+    DIFFICULTY_SETTINGS(9);
 
 
     private final Integer code;

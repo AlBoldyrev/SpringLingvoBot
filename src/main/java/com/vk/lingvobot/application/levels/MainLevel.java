@@ -3,6 +3,7 @@ package com.vk.lingvobot.application.levels;
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.application.levels.dialog.DialogLevelOne;
 import com.vk.lingvobot.application.levels.phrase.levelOne.PhraseLevelOne;
+import com.vk.lingvobot.application.levels.settings.SettingsLevelOne;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.menu.MenuLevel;
@@ -29,6 +30,8 @@ public class MainLevel extends Menu implements IResponseMessageBodyHandler {
     private final DialogLevelOne dialogLevelOne;
     private final PhraseLevelOne phraseLevelOne;
     private final UserPhraseRepository userPhraseRepository;
+    private final SettingsLevelOne settingsLevelOne;
+
     @Override
     public void handle(User user, ModelMessageNew message) {
 
@@ -42,11 +45,17 @@ public class MainLevel extends Menu implements IResponseMessageBodyHandler {
                 setTheLevel(user, MenuLevel.DIALOGS.getCode());
                 dialogLevelOne.handle(user, message);
                 break;
+            case "Settings":
+                setTheLevel(user, MenuLevel.SETTINGS.getCode());
+                settingsLevelOne.handle(user, message);
+                break;
             case "Import dialog":
                 List<String> back = new ArrayList<>();
                 back.add("BACK");
                 Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(back);
-                messageService.sendMessageWithTextAndKeyboard(user.getVkId(), "Пожалуйста, отправь мне txt файл с новыми диалогом.", keyboardWithButtonsBrickByBrick);
+                messageService.sendMessageWithTextAndKeyboard(user.getVkId(),
+                        "Пожалуйста, отправь мне txt файл с новыми диалогом.",
+                        keyboardWithButtonsBrickByBrick);
                 setTheLevel(user, MenuLevel.IMPORT_DIALOG.getCode());
                 break;
             default:
@@ -54,7 +63,6 @@ public class MainLevel extends Menu implements IResponseMessageBodyHandler {
                 break;
         }
     }
-
 
 
 }

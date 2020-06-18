@@ -1,7 +1,7 @@
 package com.vk.lingvobot.application.levels.dialog;
 
-import com.vk.lingvobot.application.levels.Menu;
 import com.vk.lingvobot.application.levels.IResponseMessageBodyHandler;
+import com.vk.lingvobot.application.levels.Menu;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.entities.UserDialog;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;

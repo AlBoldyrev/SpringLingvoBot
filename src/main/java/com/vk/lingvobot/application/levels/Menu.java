@@ -3,6 +3,7 @@ package com.vk.lingvobot.application.levels;
 import com.vk.api.sdk.objects.messages.Keyboard;
 import com.vk.lingvobot.entities.User;
 import com.vk.lingvobot.entities.UserPhrase;
+import com.vk.lingvobot.enumeration.DifficultyLevel;
 import com.vk.lingvobot.keyboards.CustomJavaKeyboard;
 import com.vk.lingvobot.menu.MenuLevel;
 import com.vk.lingvobot.repositories.UserPhraseRepository;
@@ -16,6 +17,8 @@ import java.util.List;
 
 @Slf4j
 public class Menu {
+
+    protected static final String BACK = "Back";
 
     @Autowired
     private UserRepository userRepository;
@@ -33,6 +36,7 @@ public class Menu {
         levelFirstButtonNames.add("Phrases");
         levelFirstButtonNames.add("Dialogs");
         levelFirstButtonNames.add("Import dialog");
+        levelFirstButtonNames.add("Settings");
 
         UserPhrase userPhrase = userPhraseRepository.findByUserId(user.getUserId());
         if (userPhrase != null) {
@@ -40,7 +44,8 @@ public class Menu {
             userPhraseRepository.save(userPhrase);
         }
 
-        Keyboard keyboardWithButtonsBrickByBrick = customJavaKeyboard.createKeyboardWithButtonsBrickByBrick(levelFirstButtonNames);
+        Keyboard keyboardWithButtonsBrickByBrick =
+                customJavaKeyboard.createKeyboardWithButtonsNButtonsPerRow(levelFirstButtonNames, 2);
         messageService.sendMessageWithTextAndKeyboard(user.getVkId(), "Дружище, ты в главном меню.", keyboardWithButtonsBrickByBrick);
     }
 

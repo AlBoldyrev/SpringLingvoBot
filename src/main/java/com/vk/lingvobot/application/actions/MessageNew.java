@@ -12,6 +12,10 @@ import com.vk.lingvobot.application.levels.importDialog.ImportDialogLevel;
 import com.vk.lingvobot.application.levels.phrase.levelOne.PhraseLevelOne;
 import com.vk.lingvobot.application.levels.phrase.levelTwo.PhraseLevelTwoEngRu;
 import com.vk.lingvobot.application.levels.phrase.levelTwo.PhraseLevelTwoRuEng;
+import com.vk.lingvobot.application.levels.settings.SettingsLevelOne;
+import com.vk.lingvobot.application.levels.settings.SettingsLevelTwoDifficulty;
+import com.vk.lingvobot.application.levels.settings.SettingsLevelTwoTime;
+import com.vk.lingvobot.application.strategy.StrategyHandlerService;
 import com.vk.lingvobot.entities.*;
 import com.vk.lingvobot.menu.MenuLevel;
 import com.vk.lingvobot.parser.modelMessageNewParser.ModelMessageNew;
@@ -21,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Component
@@ -32,13 +37,7 @@ public class MessageNew implements IResponseHandler {
 
     private final UserInfoService userInfoService;
     private final SettingsService settingsService;
-
-    private final MainLevel mainLevel;
-    private final DialogLevelOne dialogLevelOne;
-    private final PhraseLevelOne phraseLevelOne;
-    private final PhraseLevelTwoRuEng phraseLevelTwoRuEng;
-    private final PhraseLevelTwoEngRu phraseLevelTwoEngRu;
-    private final ImportDialogLevel importDialogLevel;
+    private final StrategyHandlerService strategyHandlerService;
 
     private Gson gson = new GsonBuilder().create();
 
@@ -57,23 +56,10 @@ public class MessageNew implements IResponseHandler {
 
         Integer userLevel = user.getLevel();
 
-        Map<Integer, IResponseMessageBodyHandler> strategyHandlers = new HashMap<>();
-        strategyHandlers.put(MenuLevel.MAIN.getCode(), mainLevel);
-        strategyHandlers.put(MenuLevel.DIALOGS.getCode(), dialogLevelOne);
-        strategyHandlers.put(MenuLevel.PHRASE.getCode(), phraseLevelOne);
-        strategyHandlers.put(MenuLevel.ENG_RU.getCode(), phraseLevelTwoEngRu);
-        strategyHandlers.put(MenuLevel.RU_ENG.getCode(), phraseLevelTwoRuEng);
-        strategyHandlers.put(MenuLevel.IMPORT_DIALOG.getCode(), importDialogLevel);
-
-        IResponseMessageBodyHandler responseHandler = strategyHandlers.get(userLevel);
+        IResponseMessageBodyHandler responseHandler = strategyHandlerService.getStrategyHandlers().get(userLevel);
 
         responseHandler.handle(user, message);
 
     }
-
-
-
-
-
 
 }

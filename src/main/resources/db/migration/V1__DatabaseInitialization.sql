@@ -69,11 +69,14 @@ CREATE TABLE IF NOT EXISTS lingvobot.phrases (
 
 CREATE TABLE IF NOT EXISTS lingvobot.settings (
     settings_id integer NOT NULL,
-    difficulty_level integer,
+    difficulty_level character varying(255),
     is_premium boolean,
     lessons_per_day integer,
     part_of_the_day character varying(255),
-    user_pronoun character varying(255)
+    user_pronoun character varying(255),
+    exact_lesson_time time with time zone,
+    time_range_start time with time zone,
+    time_range_end time with time zone
 );
 
 CREATE TABLE IF NOT EXISTS lingvobot.user_dialogs (
